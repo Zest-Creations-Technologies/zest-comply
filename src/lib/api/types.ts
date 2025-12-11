@@ -13,7 +13,7 @@ export interface Plan {
   name: string;
   description: string;
   price_cents: number;
-  interval: 'month' | 'year';
+  interval: 'day' | 'week' 'month' | 'year';
   features: string[];
   trial_days?: number;
   trial_interval?: 'day' | 'week' | 'month';
