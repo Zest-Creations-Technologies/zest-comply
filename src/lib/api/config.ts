@@ -1,8 +1,11 @@
 // API Configuration
 
+const apiUrl = import.meta.env.VITE_API_URL;
+console.log('VITE_API_URL:', apiUrl, '| Using mocks:', !apiUrl);
+
 export const API_CONFIG = {
-  baseUrl: import.meta.env.VITE_API_URL || '',
-  useMocks: !import.meta.env.VITE_API_URL,
+  baseUrl: apiUrl || '',
+  useMocks: !apiUrl,
   timeout: 30000,
 };
 
