@@ -31,10 +31,13 @@ export const plansApi = {
   async createCheckoutSession(planId: string): Promise<{ checkout_url: string }> {
     if (API_CONFIG.useMocks) {
       await delay();
-      // In mock mode, just return a placeholder
       return { checkout_url: "#checkout-mock" };
     }
-    return apiClient.post<{ checkout_url: string }>(`/plans/${planId}/checkout`);
+    const baseUrl = window.location.origin;
+    return apiClient.post<{ checkout_url: string }>(`/plans/${planId}/checkout`, {
+      success_url: `${baseUrl}/app/billing?checkout=success`,
+      cancel_url: `${baseUrl}/app/billing?checkout=cancelled`,
+    });
   },
 
   async cancelSubscription(): Promise<void> {
