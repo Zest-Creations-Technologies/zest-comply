@@ -11,12 +11,13 @@ import {
   Calendar,
   RefreshCw
 } from 'lucide-react';
-import { plansApi, type Plan, type UserPlan, type Invoice } from '@/lib/api';
+import { plansApi, type Plan, type Invoice } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function BillingPage() {
+  const { user, refreshUser } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [subscription, setSubscription] = useState<UserPlan | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -49,13 +50,11 @@ export default function BillingPage() {
 
   const loadData = async () => {
     try {
-      const [plansData, subData, invoicesData] = await Promise.all([
+      const [plansData, invoicesData] = await Promise.all([
         plansApi.getPlans(),
-        plansApi.getSubscription(),
         plansApi.getInvoices(),
       ]);
       setPlans(plansData.filter(p => p.is_active));
-      setSubscription(subData);
       setInvoices(invoicesData);
     } catch (error) {
       toast({
@@ -92,7 +91,7 @@ export default function BillingPage() {
     setActionLoading('cancel');
     try {
       await plansApi.cancelSubscription();
-      await loadData();
+      await refreshUser();
       toast({ title: 'Subscription cancelled', description: 'Your subscription will end at the current period' });
     } catch {
       toast({
@@ -109,7 +108,7 @@ export default function BillingPage() {
     setActionLoading('resume');
     try {
       await plansApi.resumeSubscription();
-      await loadData();
+      await refreshUser();
       toast({ title: 'Subscription resumed' });
     } catch {
       toast({
@@ -130,6 +129,7 @@ export default function BillingPage() {
     });
   };
 
+  const subscription = user?.user_plan;
   const currentPlan = subscription?.plan;
 
   if (loading) {
