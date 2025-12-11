@@ -98,7 +98,6 @@ export type StorageProvider = "google_drive" | "dropbox" | "onedrive";
 // Linked provider info from API
 export interface LinkedProviderInfo {
   provider: StorageProvider;
-  email: string;
   linked_at: string;
 }
 
@@ -109,7 +108,8 @@ export interface LinkedProvidersResponse {
 
 // Response from GET /cloud-storage/link/{provider}
 export interface OAuthLinkResponse {
-  auth_url: string;
+  authorization_url: string;
+  provider: StorageProvider;
 }
 
 export interface AuthTokens {
