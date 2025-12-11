@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShieldCheck, Zap } from 'lucide-react';
+import logoIcon from '@/assets/logo-icon.png';
 
 export function LandingFooter() {
   return (
@@ -8,10 +8,7 @@ export function LandingFooter() {
         <div className="grid md:grid-cols-4 gap-8">
           <div className="col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="relative">
-                <ShieldCheck className="h-6 w-6 text-primary" />
-                <Zap className="h-3 w-3 text-accent absolute -bottom-0.5 -right-0.5" />
-              </div>
+              <img src={logoIcon} alt="Zest Comply logo" className="h-6 w-6" />
               <span className="font-logo text-lg text-foreground tracking-wide">ZEST COMPLY</span>
             </Link>
             <p className="text-sm text-muted-foreground">
