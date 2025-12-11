@@ -21,8 +21,8 @@ export const plansApi = {
       return mockSubscription;
     }
     try {
-      const response = await apiClient.get<{ subscription: UserPlan }>("/plans/subscription/current");
-      return response.subscription;
+      const response = await apiClient.get<UserPlan | null>("/plans/subscription/current");
+      return response;
     } catch {
       return null;
     }
