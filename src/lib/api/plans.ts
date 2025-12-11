@@ -3,7 +3,7 @@
 import { apiClient } from "./client";
 import { API_CONFIG } from "./config";
 import { mockPlans, mockSubscription, mockInvoices, delay } from "./mocks";
-import type { Plan, Subscription, Invoice } from "./types";
+import type { Plan, UserPlan, Invoice } from "./types";
 
 export const plansApi = {
   async getPlans(): Promise<Plan[]> {
@@ -15,13 +15,14 @@ export const plansApi = {
     return response.plans;
   },
 
-  async getSubscription(): Promise<Subscription | null> {
+  async getSubscription(): Promise<UserPlan | null> {
     if (API_CONFIG.useMocks) {
       await delay(300);
       return mockSubscription;
     }
     try {
-      return await apiClient.get<Subscription>("/subscription");
+      const response = await apiClient.get<{ subscription: UserPlan }>("/plans/subscription/current");
+      return response.subscription;
     } catch {
       return null;
     }
@@ -57,6 +58,11 @@ export const plansApi = {
       await delay(300);
       return mockInvoices;
     }
-    return apiClient.get<Invoice[]>("/invoices");
+    try {
+      const response = await apiClient.get<{ invoices: Invoice[] }>("/plans/subscription/history");
+      return response.invoices;
+    } catch {
+      return [];
+    }
   },
 };
