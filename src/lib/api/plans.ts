@@ -40,12 +40,12 @@ export const plansApi = {
     });
   },
 
-  async cancelSubscription(): Promise<void> {
+  async cancelSubscription(): Promise<{ message: string; current_period_end: string }> {
     if (API_CONFIG.useMocks) {
       await delay();
-      return;
+      return { message: "Subscription canceled successfully.", current_period_end: new Date().toISOString() };
     }
-    await apiClient.post("/subscription/cancel");
+    return apiClient.post<{ message: string; current_period_end: string }>("/plans/subscription/cancel");
   },
 
   async resumeSubscription(): Promise<void> {

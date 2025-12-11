@@ -4,6 +4,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { 
   Check, 
   Download, 
@@ -91,9 +102,12 @@ export default function BillingPage() {
   const handleCancelSubscription = async () => {
     setActionLoading('cancel');
     try {
-      await plansApi.cancelSubscription();
+      const result = await plansApi.cancelSubscription();
       await refreshUser();
-      toast({ title: 'Subscription cancelled', description: 'Your subscription will end at the current period' });
+      toast({ 
+        title: 'Subscription cancelled', 
+        description: result.message || 'Your subscription will end at the current period' 
+      });
     } catch {
       toast({
         title: 'Error',
@@ -188,10 +202,28 @@ export default function BillingPage() {
                 Resume Subscription
               </Button>
             ) : (
-              <Button variant="outline" onClick={handleCancelSubscription} disabled={actionLoading === 'cancel'}>
-                {actionLoading === 'cancel' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Cancel Subscription
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" disabled={actionLoading === 'cancel'}>
+                    {actionLoading === 'cancel' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Cancel Subscription
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Cancel Subscription?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to cancel your subscription? You'll retain access until {formatDate(subscription.current_period_end)}, but your subscription will not renew.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleCancelSubscription} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Yes, Cancel
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </CardFooter>
         </Card>
