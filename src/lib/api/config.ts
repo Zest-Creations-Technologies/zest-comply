@@ -1,11 +1,10 @@
 // API Configuration
 
-const apiUrl = import.meta.env.VITE_API_URL;
-console.log('VITE_API_URL:', apiUrl, '| Using mocks:', !apiUrl);
+const API_BASE_URL = 'https://zct.onrender.com';
 
 export const API_CONFIG = {
-  baseUrl: apiUrl || '',
-  useMocks: !apiUrl,
+  baseUrl: API_BASE_URL,
+  useMocks: false,
   timeout: 30000,
 };
 
