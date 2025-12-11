@@ -3,31 +3,31 @@
 import { apiClient } from './client';
 import { API_CONFIG } from './config';
 import { mockCloudProviders, delay } from './mocks';
-import type { CloudStorageProvider } from './types';
+import type { LinkedProvidersResponse, OAuthLinkResponse, StorageProvider } from './types';
 
 export const storageApi = {
-  async getProviders(): Promise<CloudStorageProvider[]> {
+  async getLinkedProviders(): Promise<LinkedProvidersResponse> {
     if (API_CONFIG.useMocks) {
       await delay(300);
-      return mockCloudProviders;
+      return { providers: mockCloudProviders };
     }
-    return apiClient.get<CloudStorageProvider[]>('/storage/providers');
+    return apiClient.get<LinkedProvidersResponse>('/cloud-storage/credentials');
   },
 
-  async connectProvider(provider: string): Promise<{ auth_url: string }> {
+  async linkProvider(provider: StorageProvider): Promise<OAuthLinkResponse> {
     if (API_CONFIG.useMocks) {
       await delay();
       // Mock OAuth URL
       return { auth_url: `#oauth-${provider}-mock` };
     }
-    return apiClient.post<{ auth_url: string }>(`/storage/connect/${provider}`);
+    return apiClient.get<OAuthLinkResponse>(`/cloud-storage/link/${provider}`);
   },
 
-  async disconnectProvider(provider: string): Promise<void> {
+  async unlinkProvider(provider: StorageProvider): Promise<void> {
     if (API_CONFIG.useMocks) {
       await delay();
       return;
     }
-    await apiClient.delete(`/storage/disconnect/${provider}`);
+    await apiClient.delete(`/cloud-storage/unlink/${provider}`);
   },
 };

@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Cloud, Check, X, ExternalLink } from 'lucide-react';
-import { storageApi, type CloudStorageProvider } from '@/lib/api';
+import { storageApi, type LinkedProviderInfo, type StorageProvider } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
-const providerConfig: Record<string, { name: string; icon: string; color: string }> = {
+const ALL_PROVIDERS: StorageProvider[] = ['google_drive', 'dropbox', 'onedrive'];
+
+const providerConfig: Record<StorageProvider, { name: string; icon: string; color: string }> = {
   google_drive: { name: 'Google Drive', icon: '📁', color: 'bg-blue-500/10 text-blue-500' },
   dropbox: { name: 'Dropbox', icon: '📦', color: 'bg-sky-500/10 text-sky-500' },
   onedrive: { name: 'OneDrive', icon: '☁️', color: 'bg-cyan-500/10 text-cyan-500' },
 };
 
 export default function StorageSettingsPage() {
-  const [providers, setProviders] = useState<CloudStorageProvider[]>([]);
+  const [linkedProviders, setLinkedProviders] = useState<LinkedProviderInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   
@@ -25,8 +27,8 @@ export default function StorageSettingsPage() {
 
   const loadProviders = async () => {
     try {
-      const data = await storageApi.getProviders();
-      setProviders(data);
+      const data = await storageApi.getLinkedProviders();
+      setLinkedProviders(data.providers);
     } catch (error) {
       toast({
         title: 'Error',
@@ -38,10 +40,18 @@ export default function StorageSettingsPage() {
     }
   };
 
-  const handleConnect = async (provider: string) => {
+  const isLinked = (provider: StorageProvider) => {
+    return linkedProviders.some(p => p.provider === provider);
+  };
+
+  const getLinkedInfo = (provider: StorageProvider) => {
+    return linkedProviders.find(p => p.provider === provider);
+  };
+
+  const handleLink = async (provider: StorageProvider) => {
     setActionLoading(provider);
     try {
-      const { auth_url } = await storageApi.connectProvider(provider);
+      const { auth_url } = await storageApi.linkProvider(provider);
       if (auth_url.startsWith('#')) {
         // Mock mode
         toast({ title: 'Demo mode', description: 'Would redirect to OAuth flow' });
@@ -60,10 +70,10 @@ export default function StorageSettingsPage() {
     }
   };
 
-  const handleDisconnect = async (provider: string) => {
+  const handleUnlink = async (provider: StorageProvider) => {
     setActionLoading(provider);
     try {
-      await storageApi.disconnectProvider(provider);
+      await storageApi.unlinkProvider(provider);
       await loadProviders();
       toast({ title: 'Storage disconnected' });
     } catch {
@@ -103,10 +113,13 @@ export default function StorageSettingsPage() {
       </div>
 
       <div className="space-y-4">
-        {providers.map((provider) => {
-          const config = providerConfig[provider.provider];
+        {ALL_PROVIDERS.map((provider) => {
+          const config = providerConfig[provider];
+          const linked = isLinked(provider);
+          const info = getLinkedInfo(provider);
+          
           return (
-            <Card key={provider.id} className="bg-card">
+            <Card key={provider} className="bg-card">
               <CardContent className="flex items-center justify-between p-6">
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-lg ${config.color} flex items-center justify-center text-2xl`}>
@@ -115,7 +128,7 @@ export default function StorageSettingsPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium text-foreground">{config.name}</h3>
-                      {provider.connected ? (
+                      {linked ? (
                         <Badge variant="default" className="bg-primary/10 text-primary">
                           <Check className="h-3 w-3 mr-1" />
                           Connected
@@ -126,12 +139,12 @@ export default function StorageSettingsPage() {
                         </Badge>
                       )}
                     </div>
-                    {provider.connected && provider.email && (
+                    {linked && info && (
                       <p className="text-sm text-muted-foreground">
-                        {provider.email} • Connected {formatDate(provider.connected_at || '')}
+                        {info.email} • Connected {formatDate(info.linked_at)}
                       </p>
                     )}
-                    {!provider.connected && (
+                    {!linked && (
                       <p className="text-sm text-muted-foreground">
                         Connect to automatically export documents
                       </p>
@@ -139,13 +152,13 @@ export default function StorageSettingsPage() {
                   </div>
                 </div>
                 
-                {provider.connected ? (
+                {linked ? (
                   <Button
                     variant="outline"
-                    onClick={() => handleDisconnect(provider.provider)}
-                    disabled={actionLoading === provider.provider}
+                    onClick={() => handleUnlink(provider)}
+                    disabled={actionLoading === provider}
                   >
-                    {actionLoading === provider.provider ? (
+                    {actionLoading === provider ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <>
@@ -156,10 +169,10 @@ export default function StorageSettingsPage() {
                   </Button>
                 ) : (
                   <Button
-                    onClick={() => handleConnect(provider.provider)}
-                    disabled={actionLoading === provider.provider}
+                    onClick={() => handleLink(provider)}
+                    disabled={actionLoading === provider}
                   >
-                    {actionLoading === provider.provider ? (
+                    {actionLoading === provider ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <>
