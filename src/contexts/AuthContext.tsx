@@ -7,7 +7,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, name?: string) => Promise<void>;
+  signup: (email: string, password: string, firstName?: string, lastName?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -58,9 +58,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signup = async (email: string, password: string, name?: string) => {
+  const signup = async (email: string, password: string, firstName?: string, lastName?: string) => {
     try {
-      await authApi.signup({ email, password, name });
+      await authApi.signup({ email, password, first_name: firstName, last_name: lastName });
       await refreshUser();
       toast({ title: 'Account created!', description: 'Welcome to Zest Comply.' });
     } catch (error) {
