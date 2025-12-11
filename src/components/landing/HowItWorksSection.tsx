@@ -87,17 +87,21 @@ export function HowItWorksSection() {
 
         {/* Supported frameworks */}
         <div className="mt-20 text-center">
-          <h3 className="text-xl font-semibold text-foreground mb-8">
-            Supported Compliance Frameworks
+          <h3 className="text-xl font-semibold text-foreground mb-4">
+            Works With Any Compliance Framework
           </h3>
+          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Our AI understands and generates documentation for any compliance framework — popular standards 
+            or industry-specific requirements. If it exists, we can help you document it.
+          </p>
           <div className="flex flex-wrap justify-center gap-4">
-            {['SOC 2', 'ISO 27001', 'GDPR', 'HIPAA', 'PCI DSS', 'NIST', 'CCPA'].map((framework) => (
+            {['SOC 2', 'ISO 27001', 'GDPR', 'HIPAA', 'PCI DSS', 'NIST', 'CCPA', 'and more...'].map((framework) => (
               <div
                 key={framework}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border"
+                className={`flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border ${framework === 'and more...' ? 'border-dashed text-muted-foreground' : ''}`}
               >
-                <CheckCircle2 className="h-4 w-4 text-primary" />
-                <span className="text-foreground">{framework}</span>
+                {framework !== 'and more...' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                <span className={framework === 'and more...' ? 'text-muted-foreground italic' : 'text-foreground'}>{framework}</span>
               </div>
             ))}
           </div>

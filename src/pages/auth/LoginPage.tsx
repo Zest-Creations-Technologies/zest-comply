@@ -67,7 +67,7 @@ export default function LoginPage() {
               <ShieldCheck className="h-8 w-8 text-primary" />
               <Zap className="h-4 w-4 text-accent absolute -bottom-1 -right-1" />
             </div>
-            <span className="font-bold text-xl text-foreground">Zest Comply</span>
+            <span className="font-logo text-xl text-foreground tracking-wide">ZEST COMPLY</span>
           </Link>
           <CardTitle className="text-2xl text-foreground">Welcome back</CardTitle>
           <CardDescription>Sign in to your account to continue</CardDescription>

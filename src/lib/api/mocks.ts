@@ -17,6 +17,8 @@ export const mockPlans: Plan[] = [
     description: 'Perfect for getting started with compliance',
     price_cents: 2900,
     interval: 'month',
+    trial_days: 7,
+    trial_interval: 'day',
     features: [
       '5 compliance documents/month',
       '1 framework',
@@ -30,6 +32,8 @@ export const mockPlans: Plan[] = [
     description: 'For growing teams needing more power',
     price_cents: 7900,
     interval: 'month',
+    trial_days: 14,
+    trial_interval: 'day',
     features: [
       'Unlimited documents',
       'All frameworks',
