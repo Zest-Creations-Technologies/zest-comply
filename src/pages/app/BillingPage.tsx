@@ -29,6 +29,7 @@ export default function BillingPage() {
   useEffect(() => {
     const checkoutStatus = searchParams.get('checkout');
     if (checkoutStatus === 'success') {
+      refreshUser(); // Refresh user to get updated subscription
       toast({
         title: 'Payment successful',
         description: 'Your subscription has been activated',
@@ -42,7 +43,7 @@ export default function BillingPage() {
       });
       setSearchParams({}, { replace: true });
     }
-  }, [searchParams, setSearchParams, toast]);
+  }, [searchParams, setSearchParams, toast, refreshUser]);
 
   useEffect(() => {
     loadData();
