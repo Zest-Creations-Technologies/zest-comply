@@ -1,6 +1,6 @@
 // Mock data for development
 
-import type { User, Plan, UserPlan, Conversation, Invoice, LinkedProviderInfo } from './types';
+import type { User, Plan, UserPlan, ConversationSession, Invoice, LinkedProviderInfo } from './types';
 
 export const mockUser: User = {
   id: 'user-1',
@@ -79,31 +79,58 @@ export const mockSubscription: UserPlan = {
   plan: mockPlans[1],
 };
 
-export const mockConversations: Conversation[] = [
+export const mockConversationSessions: ConversationSession[] = [
   {
     id: 'conv-1',
     user_id: 'user-1',
-    title: 'SOC 2 Type II Compliance Assessment',
-    phase: 'document_generation',
-    status: 'active',
+    company_name: 'Acme Corp',
+    company_industry: 'Technology',
+    company_sector: 'Cloud Services',
+    company_size: '50-200 employees',
+    company_location: 'United States',
+    company_system_type: 'SaaS',
+    company_description: 'Cloud-based project management platform',
+    current_phase: 'document_generation',
+    is_archived: false,
+    archived_at: null,
+    messages: [],
+    facts: [],
     created_at: '2024-11-20T14:30:00Z',
     updated_at: '2024-11-25T09:15:00Z',
   },
   {
     id: 'conv-2',
     user_id: 'user-1',
-    title: 'GDPR Data Processing Documentation',
-    phase: 'completed',
-    status: 'completed',
+    company_name: 'TechStart Inc',
+    company_industry: 'Healthcare',
+    company_sector: 'Health Tech',
+    company_size: '10-50 employees',
+    company_location: 'Germany',
+    company_system_type: 'Web Application',
+    company_description: 'Patient data management system',
+    current_phase: 'completed',
+    is_archived: false,
+    archived_at: null,
+    messages: [],
+    facts: [],
     created_at: '2024-11-10T08:00:00Z',
     updated_at: '2024-11-15T16:45:00Z',
   },
   {
     id: 'conv-3',
     user_id: 'user-1',
-    title: 'ISO 27001 Initial Assessment',
-    phase: 'framework_selection',
-    status: 'archived',
+    company_name: 'SecureData LLC',
+    company_industry: 'Finance',
+    company_sector: 'FinTech',
+    company_size: '200-500 employees',
+    company_location: 'United Kingdom',
+    company_system_type: 'API Platform',
+    company_description: 'Payment processing API',
+    current_phase: 'framework_selection',
+    is_archived: true,
+    archived_at: '2024-10-08T13:00:00Z',
+    messages: [],
+    facts: [],
     created_at: '2024-10-05T11:20:00Z',
     updated_at: '2024-10-08T13:00:00Z',
   },

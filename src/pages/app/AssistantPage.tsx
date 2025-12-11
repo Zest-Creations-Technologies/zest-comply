@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Send, 
@@ -16,11 +15,14 @@ import {
   FileText,
   CheckCircle2
 } from 'lucide-react';
-import { conversationsApi, type Message, type ConversationPhase } from '@/lib/api';
+import { conversationsApi, type ConversationMessage } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { API_CONFIG, getWebSocketUrl } from '@/lib/api/config';
 
-const phaseConfig: Record<ConversationPhase, { label: string; icon: React.ElementType }> = {
+type Phase = 'initiation' | 'discovery' | 'framework_selection' | 'structure_approval' | 'document_generation' | 'completed';
+
+const phaseConfig: Record<Phase, { label: string; icon: React.ElementType }> = {
+  initiation: { label: 'Initiation', icon: MessageSquare },
   discovery: { label: 'Discovery', icon: MessageSquare },
   framework_selection: { label: 'Framework Selection', icon: Shield },
   structure_approval: { label: 'Structure Approval', icon: FolderTree },
@@ -29,11 +31,11 @@ const phaseConfig: Record<ConversationPhase, { label: string; icon: React.Elemen
 };
 
 export default function AssistantPage() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [currentPhase, setCurrentPhase] = useState<ConversationPhase>('discovery');
+  const [currentPhase, setCurrentPhase] = useState<Phase>('discovery');
   const [conversationId, setConversationId] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -51,17 +53,25 @@ export default function AssistantPage() {
   const startNewConversation = useCallback(async () => {
     setIsLoading(true);
     try {
-      const conversation = await conversationsApi.createConversation();
-      setConversationId(conversation.id);
-      setCurrentPhase(conversation.phase);
+      // For now, we'll create a new session ID and start with default messages
+      const newId = 'conv-' + Date.now();
+      setConversationId(newId);
+      setCurrentPhase('discovery');
       
-      // Load initial messages
-      const initialMessages = await conversationsApi.getMessages(conversation.id);
-      setMessages(initialMessages);
+      // Set initial welcome message
+      const initialMessage: ConversationMessage = {
+        id: 'msg-welcome',
+        session_id: newId,
+        role: 'assistant',
+        content: "Welcome to Zest Comply! I'm here to help you create comprehensive compliance documentation. Let's start by understanding your organization. What industry are you in?",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      setMessages([initialMessage]);
       
       // Connect to WebSocket if not in mock mode
       if (!API_CONFIG.useMocks) {
-        connectWebSocket(conversation.id);
+        connectWebSocket(newId);
       }
     } catch (error) {
       toast({
@@ -120,12 +130,13 @@ export default function AssistantPage() {
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
     
-    const userMessage: Message = {
+    const userMessage: ConversationMessage = {
       id: 'temp-' + Date.now(),
-      conversation_id: conversationId || '',
+      session_id: conversationId || '',
       role: 'user',
       content: inputValue,
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
     
     setMessages((prev) => [...prev, userMessage]);
@@ -135,12 +146,13 @@ export default function AssistantPage() {
     if (API_CONFIG.useMocks) {
       // Simulate AI response in mock mode
       setTimeout(() => {
-        const assistantMessage: Message = {
+        const assistantMessage: ConversationMessage = {
           id: 'msg-' + Date.now(),
-          conversation_id: conversationId || '',
+          session_id: conversationId || '',
           role: 'assistant',
           content: getMockResponse(inputValue, currentPhase),
           created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, assistantMessage]);
         setIsLoading(false);
@@ -158,7 +170,8 @@ export default function AssistantPage() {
     }
   };
 
-  const PhaseIcon = phaseConfig[currentPhase].icon;
+  const PhaseIcon = phaseConfig[currentPhase]?.icon || MessageSquare;
+  const phaseLabel = phaseConfig[currentPhase]?.label || currentPhase;
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
@@ -169,13 +182,13 @@ export default function AssistantPage() {
             <div className="flex items-center gap-2">
               <PhaseIcon className="h-5 w-5 text-primary" />
               <span className="font-medium text-foreground">
-                {phaseConfig[currentPhase].label}
+                {phaseLabel}
               </span>
             </div>
             {/* Phase progress */}
             <div className="hidden md:flex items-center gap-2">
-              {(Object.keys(phaseConfig) as ConversationPhase[]).map((phase, index) => {
-                const phases = Object.keys(phaseConfig) as ConversationPhase[];
+              {(Object.keys(phaseConfig) as Phase[]).map((phase, index) => {
+                const phases = Object.keys(phaseConfig) as Phase[];
                 const currentIndex = phases.indexOf(currentPhase);
                 const isCompleted = index < currentIndex;
                 const isCurrent = index === currentIndex;
@@ -288,10 +301,10 @@ export default function AssistantPage() {
 }
 
 // Mock responses for demo mode
-function getMockResponse(input: string, phase: ConversationPhase): string {
+function getMockResponse(input: string, phase: Phase): string {
   const lowerInput = input.toLowerCase();
   
-  if (phase === 'discovery') {
+  if (phase === 'discovery' || phase === 'initiation') {
     if (lowerInput.includes('tech') || lowerInput.includes('software') || lowerInput.includes('saas')) {
       return "Great! As a technology/SaaS company, you'll likely need to demonstrate strong security controls to your customers. Based on this, I'd recommend considering SOC 2 Type II, which is the gold standard for SaaS companies.\n\nCan you tell me more about:\n1. How many employees does your company have?\n2. Do you handle any personal data from EU residents?\n3. Do you process any healthcare-related information?";
     }
