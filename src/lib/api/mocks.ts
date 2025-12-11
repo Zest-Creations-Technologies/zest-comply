@@ -135,7 +135,6 @@ export const mockInvoices: Invoice[] = [
 export const mockCloudProviders: LinkedProviderInfo[] = [
   {
     provider: 'google_drive',
-    email: 'demo@gmail.com',
     linked_at: '2024-10-15T09:00:00Z',
   },
 ];

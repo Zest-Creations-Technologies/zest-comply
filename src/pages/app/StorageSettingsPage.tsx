@@ -51,13 +51,14 @@ export default function StorageSettingsPage() {
   const handleLink = async (provider: StorageProvider) => {
     setActionLoading(provider);
     try {
-      const { auth_url } = await storageApi.linkProvider(provider);
-      if (auth_url.startsWith('#')) {
+      const redirectUri = `${window.location.origin}/app/settings/storage`;
+      const { authorization_url } = await storageApi.linkProvider(provider, redirectUri);
+      if (authorization_url.startsWith('#')) {
         // Mock mode
         toast({ title: 'Demo mode', description: 'Would redirect to OAuth flow' });
         await loadProviders();
       } else {
-        window.location.href = auth_url;
+        window.location.href = authorization_url;
       }
     } catch {
       toast({
@@ -141,7 +142,7 @@ export default function StorageSettingsPage() {
                     </div>
                     {linked && info && (
                       <p className="text-sm text-muted-foreground">
-                        {info.email} • Connected {formatDate(info.linked_at)}
+                        Connected {formatDate(info.linked_at)}
                       </p>
                     )}
                     {!linked && (
