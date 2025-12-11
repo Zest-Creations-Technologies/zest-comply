@@ -1,9 +1,9 @@
 // Plans & Billing API client
 
-import { apiClient } from './client';
-import { API_CONFIG } from './config';
-import { mockPlans, mockSubscription, mockInvoices, delay } from './mocks';
-import type { Plan, Subscription, Invoice } from './types';
+import { apiClient } from "./client";
+import { API_CONFIG } from "./config";
+import { mockPlans, mockSubscription, mockInvoices, delay } from "./mocks";
+import type { Plan, Subscription, Invoice } from "./types";
 
 export const plansApi = {
   async getPlans(): Promise<Plan[]> {
@@ -11,7 +11,7 @@ export const plansApi = {
       await delay(300);
       return mockPlans;
     }
-    return apiClient.get<Plan[]>('/plans');
+    return apiClient.get<Plan[]>("/plans/");
   },
 
   async getSubscription(): Promise<Subscription | null> {
@@ -20,7 +20,7 @@ export const plansApi = {
       return mockSubscription;
     }
     try {
-      return await apiClient.get<Subscription>('/subscription');
+      return await apiClient.get<Subscription>("/subscription");
     } catch {
       return null;
     }
@@ -30,9 +30,9 @@ export const plansApi = {
     if (API_CONFIG.useMocks) {
       await delay();
       // In mock mode, just return a placeholder
-      return { checkout_url: '#checkout-mock' };
+      return { checkout_url: "#checkout-mock" };
     }
-    return apiClient.post<{ checkout_url: string }>('/subscription/checkout', { plan_id: planId });
+    return apiClient.post<{ checkout_url: string }>("/subscription/checkout", { plan_id: planId });
   },
 
   async cancelSubscription(): Promise<void> {
@@ -40,7 +40,7 @@ export const plansApi = {
       await delay();
       return;
     }
-    await apiClient.post('/subscription/cancel');
+    await apiClient.post("/subscription/cancel");
   },
 
   async resumeSubscription(): Promise<void> {
@@ -48,7 +48,7 @@ export const plansApi = {
       await delay();
       return;
     }
-    await apiClient.post('/subscription/resume');
+    await apiClient.post("/subscription/resume");
   },
 
   async getInvoices(): Promise<Invoice[]> {
@@ -56,6 +56,6 @@ export const plansApi = {
       await delay(300);
       return mockInvoices;
     }
-    return apiClient.get<Invoice[]>('/invoices');
+    return apiClient.get<Invoice[]>("/invoices");
   },
 };
