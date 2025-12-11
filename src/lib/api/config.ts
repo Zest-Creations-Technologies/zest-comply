@@ -1,6 +1,6 @@
 // API Configuration
 
-const API_BASE_URL = "https://api.zestcomply.com/v1";
+const API_BASE_URL = "https://zct.onrender.com/v1";
 
 export const API_CONFIG = {
   baseUrl: API_BASE_URL,
