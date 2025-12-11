@@ -13,30 +13,35 @@ import {
   Shield,
   FolderTree,
   FileText,
-  CheckCircle2
 } from 'lucide-react';
 import { conversationsApi, type ConversationMessage } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { API_CONFIG, getWebSocketUrl } from '@/lib/api/config';
 
-type Phase = 'initiation' | 'discovery' | 'framework_selection' | 'structure_approval' | 'document_generation' | 'completed';
+type Phase = 'initiation' | 'information_discovery' | 'framework_determination' | 'structure_synthesis' | 'content_generation';
 
 const phaseConfig: Record<Phase, { label: string; icon: React.ElementType }> = {
   initiation: { label: 'Initiation', icon: MessageSquare },
-  discovery: { label: 'Discovery', icon: MessageSquare },
-  framework_selection: { label: 'Framework Selection', icon: Shield },
-  structure_approval: { label: 'Structure Approval', icon: FolderTree },
-  document_generation: { label: 'Generating Documents', icon: FileText },
-  completed: { label: 'Completed', icon: CheckCircle2 },
+  information_discovery: { label: 'Information Discovery', icon: MessageSquare },
+  framework_determination: { label: 'Framework Determination', icon: Shield },
+  structure_synthesis: { label: 'Structure Synthesis', icon: FolderTree },
+  content_generation: { label: 'Content Generation', icon: FileText },
 };
+
+interface GenerationProgress {
+  file: string;
+  progress: number;
+  status: string;
+}
 
 export default function AssistantPage() {
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [currentPhase, setCurrentPhase] = useState<Phase>('discovery');
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [currentPhase, setCurrentPhase] = useState<Phase>('initiation');
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [generationProgress, setGenerationProgress] = useState<GenerationProgress | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -50,64 +55,112 @@ export default function AssistantPage() {
     scrollToBottom();
   }, [messages]);
 
-  const startNewConversation = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      // For now, we'll create a new session ID and start with default messages
-      const newId = 'conv-' + Date.now();
-      setConversationId(newId);
-      setCurrentPhase('discovery');
-      
-      // Set initial welcome message
-      const initialMessage: ConversationMessage = {
-        id: 'msg-welcome',
-        session_id: newId,
-        role: 'assistant',
-        content: "Welcome to Zest Comply! I'm here to help you create comprehensive compliance documentation. Let's start by understanding your organization. What industry are you in?",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      setMessages([initialMessage]);
-      
-      // Connect to WebSocket if not in mock mode
-      if (!API_CONFIG.useMocks) {
-        connectWebSocket(newId);
-      }
-    } catch (error) {
+  const connectWebSocket = useCallback((existingSessionId?: string) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
       toast({
-        title: 'Error',
-        description: 'Failed to start conversation',
+        title: 'Authentication required',
+        description: 'Please log in to use the assistant',
         variant: 'destructive',
       });
-    } finally {
-      setIsLoading(false);
+      return;
     }
-  }, [toast]);
 
-  const connectWebSocket = (convId: string) => {
-    const token = localStorage.getItem('access_token');
-    const wsUrl = `${getWebSocketUrl()}?conversation_id=${convId}&token=${token}`;
+    // Build WebSocket URL with token and optional session_id
+    let wsUrl = `${getWebSocketUrl()}?token=${token}`;
+    if (existingSessionId) {
+      wsUrl += `&session_id=${existingSessionId}`;
+    }
     
     const ws = new WebSocket(wsUrl);
     
     ws.onopen = () => {
+      console.log('WebSocket connected');
       setIsConnected(true);
+      setIsLoading(false);
     };
     
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.type === 'message') {
-        setMessages((prev) => [...prev, data.message]);
-      } else if (data.type === 'phase_change') {
-        setCurrentPhase(data.phase);
+      console.log('WebSocket message:', data);
+      
+      switch (data.event_type) {
+        case 'info':
+          // Session initialization
+          if (data.session_id) {
+            setSessionId(data.session_id);
+          }
+          if (data.payload?.phase) {
+            setCurrentPhase(data.payload.phase as Phase);
+          }
+          break;
+          
+        case 'question':
+          // Agent asking a question
+          const questionMessage: ConversationMessage = {
+            id: `msg-${Date.now()}`,
+            session_id: data.session_id || sessionId || '',
+            role: 'assistant',
+            content: data.text,
+            created_at: data.timestamp || new Date().toISOString(),
+            updated_at: data.timestamp || new Date().toISOString(),
+          };
+          setMessages((prev) => [...prev, questionMessage]);
+          setIsLoading(false);
+          break;
+          
+        case 'phase_change':
+          // Phase transition
+          setCurrentPhase(data.payload.phase as Phase);
+          toast({
+            title: 'Phase changed',
+            description: data.payload.description,
+          });
+          break;
+          
+        case 'file_generated':
+          // Document created
+          toast({
+            title: 'File generated',
+            description: `Created: ${data.payload.path}`,
+          });
+          break;
+          
+        case 'generation_progress':
+          // Progress update
+          setGenerationProgress({
+            file: data.payload.file,
+            progress: data.payload.progress,
+            status: data.payload.status,
+          });
+          break;
+          
+        case 'error':
+          // Error occurred
+          toast({
+            title: 'Error',
+            description: data.payload.error,
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          break;
       }
     };
     
-    ws.onclose = () => {
+    ws.onclose = (event) => {
+      console.log('WebSocket closed:', event.code, event.reason);
       setIsConnected(false);
+      if (event.code === 1008) {
+        toast({
+          title: 'Connection closed',
+          description: event.reason || 'Authentication failed',
+          variant: 'destructive',
+        });
+      }
     };
     
-    ws.onerror = () => {
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
       toast({
         title: 'Connection error',
         description: 'Failed to connect to assistant',
@@ -116,7 +169,36 @@ export default function AssistantPage() {
     };
     
     wsRef.current = ws;
-  };
+  }, [toast, sessionId]);
+
+  const startNewConversation = useCallback(() => {
+    setIsLoading(true);
+    setMessages([]);
+    setSessionId(null);
+    setCurrentPhase('initiation');
+    setGenerationProgress(null);
+    
+    // Close existing connection
+    wsRef.current?.close();
+    
+    if (API_CONFIG.useMocks) {
+      // Mock mode
+      const initialMessage: ConversationMessage = {
+        id: 'msg-welcome',
+        session_id: 'mock-session',
+        role: 'assistant',
+        content: "Welcome to Zest Comply! I'm here to help you create comprehensive compliance documentation. Let's start by understanding your organization. What industry are you in?",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      setMessages([initialMessage]);
+      setSessionId('mock-session');
+      setIsLoading(false);
+    } else {
+      // Connect to real WebSocket (no session_id for new conversation)
+      connectWebSocket();
+    }
+  }, [connectWebSocket]);
 
   useEffect(() => {
     // Auto-start a conversation on mount
@@ -132,7 +214,7 @@ export default function AssistantPage() {
     
     const userMessage: ConversationMessage = {
       id: 'temp-' + Date.now(),
-      session_id: conversationId || '',
+      session_id: sessionId || '',
       role: 'user',
       content: inputValue,
       created_at: new Date().toISOString(),
@@ -140,6 +222,7 @@ export default function AssistantPage() {
     };
     
     setMessages((prev) => [...prev, userMessage]);
+    const messageText = inputValue;
     setInputValue('');
     setIsLoading(true);
     
@@ -148,9 +231,9 @@ export default function AssistantPage() {
       setTimeout(() => {
         const assistantMessage: ConversationMessage = {
           id: 'msg-' + Date.now(),
-          session_id: conversationId || '',
+          session_id: sessionId || '',
           role: 'assistant',
-          content: getMockResponse(inputValue, currentPhase),
+          content: getMockResponse(messageText, currentPhase),
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
@@ -158,8 +241,11 @@ export default function AssistantPage() {
         setIsLoading(false);
       }, 1500);
     } else if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: 'message', content: inputValue }));
-      setIsLoading(false);
+      // Send answer event per API spec
+      wsRef.current.send(JSON.stringify({
+        event_type: 'answer',
+        text: messageText,
+      }));
     }
   };
 
@@ -304,7 +390,7 @@ export default function AssistantPage() {
 function getMockResponse(input: string, phase: Phase): string {
   const lowerInput = input.toLowerCase();
   
-  if (phase === 'discovery' || phase === 'initiation') {
+  if (phase === 'information_discovery' || phase === 'initiation') {
     if (lowerInput.includes('tech') || lowerInput.includes('software') || lowerInput.includes('saas')) {
       return "Great! As a technology/SaaS company, you'll likely need to demonstrate strong security controls to your customers. Based on this, I'd recommend considering SOC 2 Type II, which is the gold standard for SaaS companies.\n\nCan you tell me more about:\n1. How many employees does your company have?\n2. Do you handle any personal data from EU residents?\n3. Do you process any healthcare-related information?";
     }

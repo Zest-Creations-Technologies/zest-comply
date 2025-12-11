@@ -17,8 +17,8 @@ export const getApiUrl = (path: string): string => {
 
 export const getWebSocketUrl = (): string => {
   if (API_CONFIG.useMocks) {
-    return "ws://localhost:8000/ws";
+    return "ws://localhost:8000/ws/agent";
   }
   const wsUrl = API_CONFIG.baseUrl.replace(/^http/, "ws");
-  return `${wsUrl}/ws`;
+  return `${wsUrl}/ws/agent`;
 };
