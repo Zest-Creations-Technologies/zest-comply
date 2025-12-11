@@ -97,7 +97,7 @@ export function AppSidebar() {
               {user?.full_name || user?.email}
             </p>
             <Badge variant="secondary" className="text-xs">
-              Professional
+              {user?.user_plan?.plan?.name || 'No plan'}
             </Badge>
           </div>
         </div>
