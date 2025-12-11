@@ -1,6 +1,6 @@
 // Mock data for development
 
-import type { User, Plan, Subscription, Conversation, Invoice, LinkedProviderInfo } from './types';
+import type { User, Plan, UserPlan, Conversation, Invoice, LinkedProviderInfo } from './types';
 
 export const mockUser: User = {
   id: 'user-1',
@@ -68,7 +68,7 @@ export const mockPlans: Plan[] = [
   },
 ];
 
-export const mockSubscription: Subscription = {
+export const mockSubscription: UserPlan = {
   id: 'sub-1',
   user_id: 'user-1',
   plan_id: 'plan-pro',
@@ -76,6 +76,7 @@ export const mockSubscription: Subscription = {
   current_period_start: '2024-11-01T00:00:00Z',
   current_period_end: '2024-12-01T00:00:00Z',
   cancel_at_period_end: false,
+  plan: mockPlans[1],
 };
 
 export const mockConversations: Conversation[] = [
@@ -111,24 +112,27 @@ export const mockConversations: Conversation[] = [
 export const mockInvoices: Invoice[] = [
   {
     id: 'inv-3',
-    amount_cents: 7900,
+    amount_paid: 79.00,
+    currency: 'usd',
     status: 'paid',
-    created_at: '2024-11-01T00:00:00Z',
-    pdf_url: '#',
+    created: '2024-11-01T00:00:00Z',
+    invoice_pdf: '#',
   },
   {
     id: 'inv-2',
-    amount_cents: 7900,
+    amount_paid: 79.00,
+    currency: 'usd',
     status: 'paid',
-    created_at: '2024-10-01T00:00:00Z',
-    pdf_url: '#',
+    created: '2024-10-01T00:00:00Z',
+    invoice_pdf: '#',
   },
   {
     id: 'inv-1',
-    amount_cents: 7900,
+    amount_paid: 79.00,
+    currency: 'usd',
     status: 'paid',
-    created_at: '2024-09-01T00:00:00Z',
-    pdf_url: '#',
+    created: '2024-09-01T00:00:00Z',
+    invoice_pdf: '#',
   },
 ];
 

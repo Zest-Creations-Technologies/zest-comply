@@ -10,12 +10,12 @@ import {
   Calendar,
   RefreshCw
 } from 'lucide-react';
-import { plansApi, type Plan, type Subscription, type Invoice } from '@/lib/api';
+import { plansApi, type Plan, type UserPlan, type Invoice } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 export default function BillingPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [subscription, setSubscription] = useState<UserPlan | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -109,7 +109,7 @@ export default function BillingPage() {
     });
   };
 
-  const currentPlan = plans.find((p) => p.id === subscription?.plan_id);
+  const currentPlan = subscription?.plan;
 
   if (loading) {
     return (
@@ -182,7 +182,7 @@ export default function BillingPage() {
         </h2>
         <div className="grid md:grid-cols-3 gap-4">
           {plans.map((plan) => {
-            const isCurrent = plan.id === subscription?.plan_id;
+            const isCurrent = plan.id === subscription?.plan?.id;
             return (
               <Card
                 key={plan.id}
@@ -250,17 +250,17 @@ export default function BillingPage() {
               ) : (
                 invoices.map((invoice) => (
                   <TableRow key={invoice.id}>
-                    <TableCell>{formatDate(invoice.created_at)}</TableCell>
-                    <TableCell>${(invoice.amount_cents / 100).toFixed(2)}</TableCell>
+                    <TableCell>{formatDate(invoice.created)}</TableCell>
+                    <TableCell>${invoice.amount_paid.toFixed(2)} {invoice.currency.toUpperCase()}</TableCell>
                     <TableCell>
                       <Badge variant={invoice.status === 'paid' ? 'default' : 'secondary'}>
                         {invoice.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {invoice.pdf_url && (
+                      {invoice.invoice_pdf && (
                         <Button variant="ghost" size="sm" asChild>
-                          <a href={invoice.pdf_url} target="_blank" rel="noopener noreferrer">
+                          <a href={invoice.invoice_pdf} target="_blank" rel="noopener noreferrer">
                             <Download className="h-4 w-4" />
                           </a>
                         </Button>
