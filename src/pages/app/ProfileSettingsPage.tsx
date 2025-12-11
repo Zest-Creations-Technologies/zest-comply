@@ -38,7 +38,7 @@ export default function ProfileSettingsPage() {
               <User className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-medium text-foreground">{user?.name || 'User'}</h3>
+              <h3 className="text-lg font-medium text-foreground">{user?.full_name || 'User'}</h3>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>

@@ -5,9 +5,13 @@ import type { User, Plan, Subscription, Conversation, Invoice, CloudStorageProvi
 export const mockUser: User = {
   id: 'user-1',
   email: 'demo@zestcomply.com',
-  name: 'Demo User',
-  plan_id: 'plan-pro',
+  first_name: 'Demo',
+  last_name: 'User',
+  full_name: 'Demo User',
+  role: 'USER',
+  is_active: true,
   created_at: '2024-01-15T10:00:00Z',
+  updated_at: '2024-01-15T10:00:00Z',
 };
 
 export const mockPlans: Plan[] = [
