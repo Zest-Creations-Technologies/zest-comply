@@ -34,7 +34,7 @@ export const plansApi = {
       // In mock mode, just return a placeholder
       return { checkout_url: "#checkout-mock" };
     }
-    return apiClient.post<{ checkout_url: string }>("/subscription/checkout", { plan_id: planId });
+    return apiClient.post<{ checkout_url: string }>(`/plans/${planId}/checkout`);
   },
 
   async cancelSubscription(): Promise<void> {
