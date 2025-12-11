@@ -89,7 +89,7 @@ export default function SignupPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName">First Name (Optional)</Label>
                 <Input
                   id="firstName"
                   type="text"
@@ -101,7 +101,7 @@ export default function SignupPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName">Last Name (Optional)</Label>
                 <Input
                   id="lastName"
                   type="text"
