@@ -69,6 +69,11 @@ export function PricingSection() {
                     Most Popular
                   </Badge>
                 )}
+                {plan.trial_days && (
+                  <Badge variant="outline" className="absolute -top-3 right-4 bg-background border-accent text-accent">
+                    {plan.trial_days}-day free trial
+                  </Badge>
+                )}
                 <CardHeader className="text-center pb-4">
                   <CardTitle className="text-2xl text-foreground">{plan.name}</CardTitle>
                   <p className="text-sm text-muted-foreground">{plan.description}</p>
@@ -104,7 +109,7 @@ export function PricingSection() {
         </div>
 
         <p className="text-center text-muted-foreground mt-8">
-          All plans include a 14-day free trial. No credit card required.
+          No credit card required to start your free trial.
         </p>
       </div>
     </section>

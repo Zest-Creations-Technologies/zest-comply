@@ -76,7 +76,7 @@ export default function SignupPage() {
               <ShieldCheck className="h-8 w-8 text-primary" />
               <Zap className="h-4 w-4 text-accent absolute -bottom-1 -right-1" />
             </div>
-            <span className="font-bold text-xl text-foreground">Zest Comply</span>
+            <span className="font-logo text-xl text-foreground tracking-wide">ZEST COMPLY</span>
           </Link>
           <CardTitle className="text-2xl text-foreground">Create your account</CardTitle>
           <CardDescription>Start your 14-day free trial today</CardDescription>

@@ -55,7 +55,7 @@ export function AppSidebar() {
             <ShieldCheck className="h-6 w-6 text-primary" />
             <Zap className="h-3 w-3 text-accent absolute -bottom-0.5 -right-0.5" />
           </div>
-          <span className="font-bold text-lg text-sidebar-foreground">Zest Comply</span>
+          <span className="font-logo text-lg text-sidebar-foreground tracking-wide">ZEST COMPLY</span>
         </Link>
       </SidebarHeader>
 
