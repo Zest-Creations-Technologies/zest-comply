@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
-import logoIcon from '@/assets/logo-icon.png';
+import { Logo } from '@/components/Logo';
 
 const mainNavItems = [
   { title: 'Action Center', url: '/app', icon: Home },
@@ -49,10 +49,7 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="p-4">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logoIcon} alt="Zest Comply logo" className="h-6 w-6" />
-          <span className="font-logo text-lg text-sidebar-foreground tracking-wide">ZEST COMPLY</span>
-        </Link>
+        <Logo size="md" textClassName="text-sidebar-foreground" />
       </SidebarHeader>
 
       <SidebarContent>

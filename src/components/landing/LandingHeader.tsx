@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import logoIcon from '@/assets/logo-icon.png';
+import { Logo } from '@/components/Logo';
 
 export function LandingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -13,10 +13,7 @@ export function LandingHeader() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logoIcon} alt="Zest Comply logo" className="h-8 w-8" />
-            <span className="font-logo text-xl text-foreground tracking-wide">ZEST COMPLY</span>
-          </Link>
+          <Logo size="lg" textClassName="text-foreground" />
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-6">
