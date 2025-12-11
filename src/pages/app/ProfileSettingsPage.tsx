@@ -66,7 +66,9 @@ export default function ProfileSettingsPage() {
               <Label>Current Plan</Label>
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-muted-foreground" />
-                <Badge variant="secondary">Professional</Badge>
+                <Badge variant="secondary">
+                  {user?.user_plan?.plan?.name || 'No Plan'}
+                </Badge>
               </div>
             </div>
           </div>
