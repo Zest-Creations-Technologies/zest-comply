@@ -59,7 +59,7 @@ export default function LoginPage() {
 
     setIsLoading(true);
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
       navigate(from, { replace: true });
     } catch {
       // Error is handled by AuthContext toast
