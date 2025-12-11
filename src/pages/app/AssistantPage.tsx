@@ -98,21 +98,11 @@ export default function AssistantPage() {
   }, [messages]);
 
   // Load conversations list
-  useEffect(() => {
-    loadConversations();
-  }, []);
-
-  // Handle URL param for opening a conversation
-  useEffect(() => {
-    const conversationId = searchParams.get('conversation');
-    if (conversationId && view === 'list') {
-      openConversation(conversationId);
-    }
-  }, [searchParams]);
-
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
+    setListLoading(true);
     try {
-      const data = await conversationsApi.getConversations();
+      const isArchived = activeTab === 'archived' ? true : undefined;
+      const data = await conversationsApi.getConversations(isArchived);
       setConversations(data);
     } catch (error) {
       toast({
@@ -123,7 +113,19 @@ export default function AssistantPage() {
     } finally {
       setListLoading(false);
     }
-  };
+  }, [activeTab, toast]);
+
+  useEffect(() => {
+    loadConversations();
+  }, [loadConversations]);
+
+  // Handle URL param for opening a conversation
+  useEffect(() => {
+    const conversationId = searchParams.get('conversation');
+    if (conversationId && view === 'list') {
+      openConversation(conversationId);
+    }
+  }, [searchParams]);
 
   const connectWebSocket = useCallback((existingSessionId?: string) => {
     const token = localStorage.getItem('access_token');
