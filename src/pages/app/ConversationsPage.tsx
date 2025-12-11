@@ -5,6 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { 
   Search, 
   MessageSquare, 
@@ -12,7 +22,8 @@ import {
   Archive,
   ArrowRight,
   Loader2,
-  Building2
+  Building2,
+  Trash2
 } from 'lucide-react';
 import { conversationsApi, type ConversationSession } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +42,8 @@ export default function ConversationsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState<ConversationSession | null>(null);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -66,6 +79,30 @@ export default function ConversationsPage() {
         description: 'Failed to archive conversation',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleDeleteClick = (conv: ConversationSession, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setConversationToDelete(conv);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!conversationToDelete) return;
+    try {
+      await conversationsApi.deleteConversation(conversationToDelete.id);
+      await loadConversations();
+      toast({ title: 'Conversation deleted' });
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete conversation',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+      setConversationToDelete(null);
     }
   };
 
@@ -214,6 +251,14 @@ export default function ConversationsPage() {
                           <Archive className="h-4 w-4" />
                         </Button>
                       )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => handleDeleteClick(conv, e)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="sm">
                         <ArrowRight className="h-4 w-4" />
                       </Button>
@@ -225,6 +270,27 @@ export default function ConversationsPage() {
           })}
         </div>
       )}
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Conversation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{conversationToDelete ? getSessionTitle(conversationToDelete) : ''}"? 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
