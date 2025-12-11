@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +21,27 @@ export default function BillingPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
+
+  // Handle checkout redirect feedback
+  useEffect(() => {
+    const checkoutStatus = searchParams.get('checkout');
+    if (checkoutStatus === 'success') {
+      toast({
+        title: 'Payment successful',
+        description: 'Your subscription has been activated',
+      });
+      setSearchParams({}, { replace: true });
+    } else if (checkoutStatus === 'cancelled') {
+      toast({
+        title: 'Checkout cancelled',
+        description: 'No changes were made to your subscription',
+        variant: 'destructive',
+      });
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams, toast]);
 
   useEffect(() => {
     loadData();
