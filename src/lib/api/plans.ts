@@ -11,7 +11,8 @@ export const plansApi = {
       await delay(300);
       return mockPlans;
     }
-    return apiClient.get<Plan[]>("/plans/");
+    const response = await apiClient.get<{ plans: Plan[]; count: number }>("/plans/");
+    return response.plans;
   },
 
   async getSubscription(): Promise<Subscription | null> {
