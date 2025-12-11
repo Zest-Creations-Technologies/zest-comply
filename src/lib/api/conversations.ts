@@ -6,13 +6,17 @@ import { mockConversationSessions, delay } from "./mocks";
 import type { ConversationSession, ConversationMessage } from "./types";
 
 export const conversationsApi = {
-  async getConversations(): Promise<ConversationSession[]> {
+  async getConversations(isArchived?: boolean): Promise<ConversationSession[]> {
     if (API_CONFIG.useMocks) {
       await delay(300);
+      if (isArchived !== undefined) {
+        return mockConversationSessions.filter(c => c.is_archived === isArchived);
+      }
       return mockConversationSessions;
     }
     try {
-      const response = await apiClient.get<{ sessions: ConversationSession[]; count: number }>("/conversations/all");
+      const params = isArchived !== undefined ? `?is_archived=${isArchived}` : '';
+      const response = await apiClient.get<{ sessions: ConversationSession[]; count: number }>(`/conversations/all${params}`);
       return response.sessions;
     } catch {
       return [];
