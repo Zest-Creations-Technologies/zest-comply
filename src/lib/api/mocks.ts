@@ -1,6 +1,6 @@
 // Mock data for development
 
-import type { User, Plan, Subscription, Conversation, Invoice, CloudStorageProvider } from './types';
+import type { User, Plan, Subscription, Conversation, Invoice, LinkedProviderInfo } from './types';
 
 export const mockUser: User = {
   id: 'user-1',
@@ -132,23 +132,11 @@ export const mockInvoices: Invoice[] = [
   },
 ];
 
-export const mockCloudProviders: CloudStorageProvider[] = [
+export const mockCloudProviders: LinkedProviderInfo[] = [
   {
-    id: 'provider-1',
     provider: 'google_drive',
-    connected: true,
     email: 'demo@gmail.com',
-    connected_at: '2024-10-15T09:00:00Z',
-  },
-  {
-    id: 'provider-2',
-    provider: 'dropbox',
-    connected: false,
-  },
-  {
-    id: 'provider-3',
-    provider: 'onedrive',
-    connected: false,
+    linked_at: '2024-10-15T09:00:00Z',
   },
 ];
 

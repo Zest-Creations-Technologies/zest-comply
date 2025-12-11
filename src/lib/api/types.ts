@@ -92,12 +92,24 @@ export interface Message {
   metadata?: Record<string, unknown>;
 }
 
-export interface CloudStorageProvider {
-  id: string;
-  provider: "google_drive" | "dropbox" | "onedrive";
-  connected: boolean;
-  email?: string;
-  connected_at?: string;
+// Storage provider enum
+export type StorageProvider = "google_drive" | "dropbox" | "onedrive";
+
+// Linked provider info from API
+export interface LinkedProviderInfo {
+  provider: StorageProvider;
+  email: string;
+  linked_at: string;
+}
+
+// Response from GET /cloud-storage/credentials
+export interface LinkedProvidersResponse {
+  providers: LinkedProviderInfo[];
+}
+
+// Response from GET /cloud-storage/link/{provider}
+export interface OAuthLinkResponse {
+  auth_url: string;
 }
 
 export interface AuthTokens {
