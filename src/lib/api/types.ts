@@ -1,11 +1,32 @@
 // API Types based on OpenAPI spec
 
+export interface UserPlan {
+  id: string;
+  user_id: string;
+  plan_id: string;
+  status: string;
+  current_period_start: string;
+  current_period_end: string;
+  cancel_at_period_end: boolean;
+  cancel_at?: string | null;
+  canceled_at?: string | null;
+  trial_start?: string | null;
+  trial_end?: string | null;
+  ended_at?: string | null;
+  plan: Plan;
+}
+
 export interface User {
   id: string;
   email: string;
-  name?: string;
-  plan_id?: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  full_name: string;
+  role: string;
+  is_active: boolean;
+  user_plan?: UserPlan | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface PlanFeature {

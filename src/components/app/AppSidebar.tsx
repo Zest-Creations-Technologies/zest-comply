@@ -101,7 +101,7 @@ export function AppSidebar() {
         <div className="flex items-center gap-2">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-sidebar-foreground truncate">
-              {user?.name || user?.email}
+              {user?.full_name || user?.email}
             </p>
             <Badge variant="secondary" className="text-xs">
               Professional
