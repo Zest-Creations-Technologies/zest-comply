@@ -8,10 +8,10 @@ import { useToast } from '@/hooks/use-toast';
 
 const ALL_PROVIDERS: StorageProvider[] = ['google_drive', 'dropbox', 'onedrive'];
 
-const providerConfig: Record<StorageProvider, { name: string; icon: string; color: string }> = {
-  google_drive: { name: 'Google Drive', icon: '📁', color: 'bg-blue-500/10 text-blue-500' },
-  dropbox: { name: 'Dropbox', icon: '📦', color: 'bg-sky-500/10 text-sky-500' },
-  onedrive: { name: 'OneDrive', icon: '☁️', color: 'bg-cyan-500/10 text-cyan-500' },
+const providerConfig: Record<StorageProvider, { name: string; iconClass: string; iconColor: string; bgColor: string }> = {
+  google_drive: { name: 'Google Drive', iconClass: 'fa-brands fa-google-drive', iconColor: '#4285F4', bgColor: 'bg-blue-500/10' },
+  dropbox: { name: 'Dropbox', iconClass: 'fa-brands fa-dropbox', iconColor: '#0061FF', bgColor: 'bg-sky-500/10' },
+  onedrive: { name: 'OneDrive', iconClass: 'fa-solid fa-cloud', iconColor: '#0078D4', bgColor: 'bg-cyan-500/10' },
 };
 
 export default function StorageSettingsPage() {
@@ -123,8 +123,8 @@ export default function StorageSettingsPage() {
             <Card key={provider} className="bg-card">
               <CardContent className="flex items-center justify-between p-6">
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-lg ${config.color} flex items-center justify-center text-2xl`}>
-                    {config.icon}
+                  <div className={`w-12 h-12 rounded-lg ${config.bgColor} flex items-center justify-center`}>
+                    <i className={config.iconClass} style={{ color: config.iconColor, fontSize: '24px' }} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
