@@ -9,7 +9,7 @@ export const storageApi = {
   async getLinkedProviders(): Promise<LinkedProvidersResponse> {
     if (API_CONFIG.useMocks) {
       await delay(300);
-      return { providers: mockCloudProviders };
+      return { linked_providers: mockCloudProviders };
     }
     return apiClient.get<LinkedProvidersResponse>('/cloud-storage/credentials');
   },

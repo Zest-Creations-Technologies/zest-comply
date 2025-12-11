@@ -28,7 +28,7 @@ export default function StorageSettingsPage() {
   const loadProviders = async () => {
     try {
       const data = await storageApi.getLinkedProviders();
-      setLinkedProviders(data.providers);
+      setLinkedProviders(data.linked_providers);
     } catch (error) {
       toast({
         title: 'Error',

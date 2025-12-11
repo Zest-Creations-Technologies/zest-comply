@@ -103,7 +103,7 @@ export interface LinkedProviderInfo {
 
 // Response from GET /cloud-storage/credentials
 export interface LinkedProvidersResponse {
-  providers: LinkedProviderInfo[];
+  linked_providers: LinkedProviderInfo[];
 }
 
 // Response from GET /cloud-storage/link/{provider}
