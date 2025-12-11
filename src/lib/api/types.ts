@@ -13,10 +13,10 @@ export interface Plan {
   name: string;
   description: string;
   price_cents: number;
-  interval: 'day' | 'week' 'month' | 'year';
+  interval: "day" | "week" | "month" | "year";
   features: string[];
   trial_days?: number;
-  trial_interval?: 'day' | 'week' | 'month';
+  trial_interval?: "day" | "week" | "month";
   stripe_price_id?: string;
 }
 
@@ -24,7 +24,7 @@ export interface Subscription {
   id: string;
   user_id: string;
   plan_id: string;
-  status: 'active' | 'canceled' | 'past_due' | 'trialing';
+  status: "active" | "canceled" | "past_due" | "trialing";
   current_period_start: string;
   current_period_end: string;
   cancel_at_period_end: boolean;
@@ -33,7 +33,7 @@ export interface Subscription {
 export interface Invoice {
   id: string;
   amount_cents: number;
-  status: 'paid' | 'open' | 'void' | 'uncollectible';
+  status: "paid" | "open" | "void" | "uncollectible";
   created_at: string;
   pdf_url?: string;
 }
@@ -43,22 +43,22 @@ export interface Conversation {
   user_id: string;
   title: string;
   phase: ConversationPhase;
-  status: 'active' | 'completed' | 'archived';
+  status: "active" | "completed" | "archived";
   created_at: string;
   updated_at: string;
 }
 
-export type ConversationPhase = 
-  | 'discovery' 
-  | 'framework_selection' 
-  | 'structure_approval' 
-  | 'document_generation' 
-  | 'completed';
+export type ConversationPhase =
+  | "discovery"
+  | "framework_selection"
+  | "structure_approval"
+  | "document_generation"
+  | "completed";
 
 export interface Message {
   id: string;
   conversation_id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   created_at: string;
   metadata?: Record<string, unknown>;
@@ -66,7 +66,7 @@ export interface Message {
 
 export interface CloudStorageProvider {
   id: string;
-  provider: 'google_drive' | 'dropbox' | 'onedrive';
+  provider: "google_drive" | "dropbox" | "onedrive";
   connected: boolean;
   email?: string;
   connected_at?: string;
