@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, Zap, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import logoIcon from '@/assets/logo-icon.png';
 
 export function LandingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -13,10 +14,7 @@ export function LandingHeader() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
-            <div className="relative">
-              <ShieldCheck className="h-8 w-8 text-primary" />
-              <Zap className="h-4 w-4 text-accent absolute -bottom-1 -right-1" />
-            </div>
+            <img src={logoIcon} alt="Zest Comply logo" className="h-8 w-8" />
             <span className="font-logo text-xl text-foreground tracking-wide">ZEST COMPLY</span>
           </Link>
 
