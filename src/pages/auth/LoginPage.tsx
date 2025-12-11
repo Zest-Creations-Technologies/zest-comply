@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from '@/components/ui/checkbox';
 import { ShieldCheck, Zap, Loader2, Eye, EyeOff } from 'lucide-react';
 import { z } from 'zod';
+
+// Clear any stale mock tokens on login page load
+const clearStaleTokens = () => {
+  const accessToken = localStorage.getItem('access_token');
+  if (accessToken?.startsWith('mock-')) {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    console.log('Cleared stale mock tokens');
+  }
+};
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -26,6 +36,11 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/app';
+
+  // Clear any stale mock tokens on mount
+  useEffect(() => {
+    clearStaleTokens();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
