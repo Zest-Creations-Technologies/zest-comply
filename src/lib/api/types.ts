@@ -16,7 +16,6 @@ export interface Plan {
   interval: "day" | "week" | "month" | "year";
   features: string[];
   trial_days?: number;
-  trial_interval?: "day" | "week" | "month";
   stripe_price_id?: string;
 }
 
