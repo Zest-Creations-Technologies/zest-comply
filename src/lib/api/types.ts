@@ -8,15 +8,23 @@ export interface User {
   created_at: string;
 }
 
+export interface PlanFeature {
+  title: string;
+  description: string;
+  value?: string | boolean | null;
+  category?: string | null;
+}
+
 export interface Plan {
   id: string;
   name: string;
-  description: string;
-  price_cents: number;
-  interval: "day" | "week" | "month" | "year";
-  features: string[];
-  trial_days?: number;
-  stripe_price_id?: string;
+  description?: string | null;
+  display_price?: string | null;
+  is_active: boolean;
+  trial_days?: number | null;
+  features: PlanFeature[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Subscription {

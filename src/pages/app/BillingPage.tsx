@@ -3,13 +3,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Separator } from '@/components/ui/separator';
 import { 
   Check, 
-  CreditCard, 
   Download, 
   Loader2,
-  AlertCircle,
   Calendar,
   RefreshCw
 } from 'lucide-react';
@@ -36,7 +33,7 @@ export default function BillingPage() {
         plansApi.getSubscription(),
         plansApi.getInvoices(),
       ]);
-      setPlans(plansData);
+      setPlans(plansData.filter(p => p.is_active));
       setSubscription(subData);
       setInvoices(invoicesData);
     } catch (error) {
@@ -104,14 +101,6 @@ export default function BillingPage() {
     }
   };
 
-  const formatPrice = (cents: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-    }).format(cents / 100);
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'long',
@@ -165,9 +154,8 @@ export default function BillingPage() {
                   : `Next billing date: ${formatDate(subscription.current_period_end)}`}
               </span>
             </div>
-            <div className="flex items-center gap-2 text-foreground text-2xl font-bold">
-              {formatPrice(currentPlan.price_cents)}
-              <span className="text-sm font-normal text-muted-foreground">/{currentPlan.interval}</span>
+            <div className="text-foreground text-2xl font-bold">
+              {currentPlan.display_price || 'Contact us'}
             </div>
           </CardContent>
           <CardFooter className="flex gap-2">
@@ -210,15 +198,14 @@ export default function BillingPage() {
                 <CardContent>
                   <div className="mb-4">
                     <span className="text-3xl font-bold text-foreground">
-                      {formatPrice(plan.price_cents)}
+                      {plan.display_price || 'Contact us'}
                     </span>
-                    <span className="text-muted-foreground">/{plan.interval}</span>
                   </div>
                   <ul className="space-y-2">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm">
                         <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <span className="text-muted-foreground">{feature}</span>
+                        <span className="text-muted-foreground">{feature.title}</span>
                       </li>
                     ))}
                   </ul>
@@ -264,7 +251,7 @@ export default function BillingPage() {
                 invoices.map((invoice) => (
                   <TableRow key={invoice.id}>
                     <TableCell>{formatDate(invoice.created_at)}</TableCell>
-                    <TableCell>{formatPrice(invoice.amount_cents)}</TableCell>
+                    <TableCell>${(invoice.amount_cents / 100).toFixed(2)}</TableCell>
                     <TableCell>
                       <Badge variant={invoice.status === 'paid' ? 'default' : 'secondary'}>
                         {invoice.status}

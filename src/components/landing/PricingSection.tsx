@@ -14,7 +14,8 @@ export function PricingSection() {
     const loadPlans = async () => {
       try {
         const data = await plansApi.getPlans();
-        setPlans(data);
+        // Only show active plans
+        setPlans(data.filter(p => p.is_active));
       } catch (error) {
         console.error('Failed to load plans:', error);
       } finally {
@@ -23,14 +24,6 @@ export function PricingSection() {
     };
     loadPlans();
   }, []);
-
-  const formatPrice = (cents: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-    }).format(cents / 100);
-  };
 
   if (loading) {
     return (
@@ -81,15 +74,14 @@ export function PricingSection() {
                 <CardContent className="text-center">
                   <div className="mb-6">
                     <span className="text-4xl font-bold text-foreground">
-                      {formatPrice(plan.price_cents)}
+                      {plan.display_price || 'Contact us'}
                     </span>
-                    <span className="text-muted-foreground">/{plan.interval}</span>
                   </div>
                   <ul className="space-y-3 text-left">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                        <span className="text-muted-foreground">{feature}</span>
+                        <span className="text-muted-foreground">{feature.title}</span>
                       </li>
                     ))}
                   </ul>
