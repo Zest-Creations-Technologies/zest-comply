@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ShieldCheck, Zap, Loader2, Eye, EyeOff, Check, X } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Check, X } from 'lucide-react';
 import { z } from 'zod';
+import { Logo } from '@/components/Logo';
 
 const signupSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -74,13 +75,9 @@ export default function SignupPage() {
 
       <Card className="w-full max-w-md relative z-10 bg-card/80 backdrop-blur-sm border-border">
         <CardHeader className="text-center">
-          <Link to="/" className="flex items-center justify-center gap-2 mb-4">
-            <div className="relative">
-              <ShieldCheck className="h-8 w-8 text-primary" />
-              <Zap className="h-4 w-4 text-accent absolute -bottom-1 -right-1" />
-            </div>
-            <span className="font-logo text-xl text-foreground tracking-wide">ZEST COMPLY</span>
-          </Link>
+          <div className="flex justify-center mb-4">
+            <Logo size="lg" textClassName="text-foreground" />
+          </div>
           <CardTitle className="text-2xl text-foreground">Create your account</CardTitle>
           <CardDescription>Start your 14-day free trial today</CardDescription>
         </CardHeader>
