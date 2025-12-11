@@ -1,22 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Search, 
   MessageSquare, 
   Clock, 
   Archive,
   ArrowRight,
-  Loader2
+  Loader2,
+  Building2
 } from 'lucide-react';
-import { conversationsApi, type Conversation, type ConversationPhase } from '@/lib/api';
+import { conversationsApi, type ConversationSession } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
-const phaseLabels: Record<ConversationPhase, string> = {
+const phaseLabels: Record<string, string> = {
+  initiation: 'Initiation',
   discovery: 'Discovery',
   framework_selection: 'Framework Selection',
   structure_approval: 'Structure Approval',
@@ -24,14 +26,8 @@ const phaseLabels: Record<ConversationPhase, string> = {
   completed: 'Completed',
 };
 
-const statusStyles: Record<string, string> = {
-  active: 'bg-primary/10 text-primary',
-  completed: 'bg-accent/10 text-accent-foreground',
-  archived: 'bg-muted text-muted-foreground',
-};
-
 export default function ConversationsPage() {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversations, setConversations] = useState<ConversationSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
@@ -73,13 +69,34 @@ export default function ConversationsPage() {
     }
   };
 
+  const getSessionTitle = (conv: ConversationSession): string => {
+    if (conv.company_name) return conv.company_name;
+    if (conv.company_industry) return `${conv.company_industry} Assessment`;
+    return 'Compliance Assessment';
+  };
+
+  const getSessionStatus = (conv: ConversationSession): 'active' | 'completed' | 'archived' => {
+    if (conv.is_archived) return 'archived';
+    if (conv.current_phase === 'completed') return 'completed';
+    return 'active';
+  };
+
+  const statusStyles: Record<string, string> = {
+    active: 'bg-primary/10 text-primary',
+    completed: 'bg-accent/10 text-accent-foreground',
+    archived: 'bg-muted text-muted-foreground',
+  };
+
   const filteredConversations = conversations.filter((conv) => {
-    const matchesSearch = conv.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const title = getSessionTitle(conv);
+    const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (conv.company_industry?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+    const status = getSessionStatus(conv);
     const matchesTab = 
       activeTab === 'all' || 
-      (activeTab === 'active' && conv.status === 'active') ||
-      (activeTab === 'completed' && conv.status === 'completed') ||
-      (activeTab === 'archived' && conv.status === 'archived');
+      (activeTab === 'active' && status === 'active') ||
+      (activeTab === 'completed' && status === 'completed') ||
+      (activeTab === 'archived' && status === 'archived');
     return matchesSearch && matchesTab;
   });
 
@@ -153,49 +170,59 @@ export default function ConversationsPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {filteredConversations.map((conv) => (
-            <Card
-              key={conv.id}
-              className="bg-card hover:border-primary/50 transition-colors cursor-pointer"
-              onClick={() => navigate(`/app/assistant?conversation=${conv.id}`)}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-medium text-foreground truncate">
-                        {conv.title}
-                      </h3>
-                      <Badge variant="secondary" className={statusStyles[conv.status]}>
-                        {conv.status}
-                      </Badge>
+          {filteredConversations.map((conv) => {
+            const title = getSessionTitle(conv);
+            const status = getSessionStatus(conv);
+            return (
+              <Card
+                key={conv.id}
+                className="bg-card hover:border-primary/50 transition-colors cursor-pointer"
+                onClick={() => navigate(`/app/assistant?conversation=${conv.id}`)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-medium text-foreground truncate">
+                          {title}
+                        </h3>
+                        <Badge variant="secondary" className={statusStyles[status]}>
+                          {status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5" />
+                          {formatDate(conv.updated_at)}
+                        </span>
+                        {conv.company_industry && (
+                          <span className="flex items-center gap-1">
+                            <Building2 className="h-3.5 w-3.5" />
+                            {conv.company_industry}
+                          </span>
+                        )}
+                        <span>Phase: {phaseLabels[conv.current_phase] || conv.current_phase}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" />
-                        {formatDate(conv.updated_at)}
-                      </span>
-                      <span>Phase: {phaseLabels[conv.phase]}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {conv.status !== 'archived' && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => handleArchive(conv.id, e)}
-                      >
-                        <Archive className="h-4 w-4" />
+                    <div className="flex items-center gap-2">
+                      {status !== 'archived' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => handleArchive(conv.id, e)}
+                        >
+                          <Archive className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="sm">
+                        <ArrowRight className="h-4 w-4" />
                       </Button>
-                    )}
-                    <Button variant="ghost" size="sm">
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

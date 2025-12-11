@@ -57,31 +57,49 @@ export interface Invoice {
   invoice_pdf?: string | null;
 }
 
-export interface Conversation {
+export interface ConversationMessage {
   id: string;
-  user_id: string;
-  title: string;
-  phase: ConversationPhase;
-  status: "active" | "completed" | "archived";
+  session_id: string;
+  role: "user" | "assistant";
+  content: string;
   created_at: string;
   updated_at: string;
 }
 
-export type ConversationPhase =
-  | "discovery"
-  | "framework_selection"
-  | "structure_approval"
-  | "document_generation"
-  | "completed";
-
-export interface Message {
+export interface ConversationFact {
   id: string;
-  conversation_id: string;
-  role: "user" | "assistant" | "system";
-  content: string;
+  session_id: string;
+  category: string;
+  key: string;
+  value: unknown;
+  confidence: number;
+  source: string;
   created_at: string;
-  metadata?: Record<string, unknown>;
+  updated_at: string;
 }
+
+export interface ConversationSession {
+  id: string;
+  user_id: string | null;
+  company_name: string | null;
+  company_industry: string | null;
+  company_sector: string | null;
+  company_size: string | null;
+  company_location: string | null;
+  company_system_type: string | null;
+  company_description: string | null;
+  current_phase: string;
+  is_archived: boolean;
+  archived_at: string | null;
+  messages: ConversationMessage[];
+  facts: ConversationFact[];
+  created_at: string;
+  updated_at: string;
+}
+
+// Legacy alias for backwards compatibility
+export type Conversation = ConversationSession;
+export type Message = ConversationMessage;
 
 // Storage provider enum
 export type StorageProvider = "google_drive" | "dropbox" | "onedrive";
