@@ -14,7 +14,6 @@ import {
 import { 
   Home, 
   MessageSquare, 
-  History, 
   CreditCard, 
   Cloud, 
   User,
@@ -26,7 +25,6 @@ import { Logo } from '@/components/Logo';
 const mainNavItems = [
   { title: 'Action Center', url: '/app', icon: Home },
   { title: 'AI Assistant', url: '/app/assistant', icon: MessageSquare },
-  { title: 'Conversations', url: '/app/conversations', icon: History },
 ];
 
 const settingsNavItems = [
