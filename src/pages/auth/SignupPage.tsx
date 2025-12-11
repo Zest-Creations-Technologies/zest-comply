@@ -12,7 +12,8 @@ import { z } from 'zod';
 const signupSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  name: z.string().optional(),
+  first_name: z.string().max(100).optional(),
+  last_name: z.string().max(100).optional(),
 });
 
 const passwordRequirements = [
@@ -20,12 +21,14 @@ const passwordRequirements = [
   { label: 'One uppercase letter', test: (p: string) => /[A-Z]/.test(p) },
   { label: 'One lowercase letter', test: (p: string) => /[a-z]/.test(p) },
   { label: 'One number', test: (p: string) => /[0-9]/.test(p) },
+  { label: 'One special character', test: (p: string) => /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(p) },
 ];
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
@@ -40,7 +43,7 @@ export default function SignupPage() {
     e.preventDefault();
     setErrors({});
 
-    const result = signupSchema.safeParse({ email, password, name });
+    const result = signupSchema.safeParse({ email, password, first_name: firstName || undefined, last_name: lastName || undefined });
     if (!result.success) {
       const fieldErrors: { email?: string; password?: string } = {};
       result.error.errors.forEach((err) => {
@@ -53,7 +56,7 @@ export default function SignupPage() {
 
     setIsLoading(true);
     try {
-      await signup(email, password, name || undefined);
+      await signup(email, password, firstName || undefined, lastName || undefined);
       navigate('/app', { replace: true });
     } catch {
       // Error is handled by AuthContext toast
@@ -84,16 +87,31 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name (optional)</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={isLoading}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  type="text"
+                  placeholder="John"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  disabled={isLoading}
+                  maxLength={100}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  placeholder="Doe"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  disabled={isLoading}
+                  maxLength={100}
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -122,6 +140,7 @@ export default function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
+                  maxLength={128}
                   className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
                 />
                 <button
