@@ -1,6 +1,6 @@
 // API Configuration
 
-const API_BASE_URL = 'https://zct.onrender.com/v1';
+const API_BASE_URL = "https://api.zestcomply.com/v1";
 
 export const API_CONFIG = {
   baseUrl: API_BASE_URL,
@@ -17,8 +17,8 @@ export const getApiUrl = (path: string): string => {
 
 export const getWebSocketUrl = (): string => {
   if (API_CONFIG.useMocks) {
-    return 'ws://localhost:8000/ws';
+    return "ws://localhost:8000/ws";
   }
-  const wsUrl = API_CONFIG.baseUrl.replace(/^http/, 'ws');
+  const wsUrl = API_CONFIG.baseUrl.replace(/^http/, "ws");
   return `${wsUrl}/ws`;
 };
