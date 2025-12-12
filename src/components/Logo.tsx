@@ -10,9 +10,9 @@ interface LogoProps {
 }
 
 const sizeConfig = {
-  sm: { icon: 'h-7 w-7', text: 'text-xs' },
-  md: { icon: 'h-9 w-9', text: 'text-sm' },
-  lg: { icon: 'h-12 w-12', text: 'text-base' },
+  sm: { icon: 'h-8 w-8', text: 'text-sm' },
+  md: { icon: 'h-10 w-10', text: 'text-base' },
+  lg: { icon: 'h-14 w-14', text: 'text-lg' },
 };
 
 export function Logo({ size = 'md', linkTo = '/', className, textClassName }: LogoProps) {
@@ -27,7 +27,7 @@ export function Logo({ size = 'md', linkTo = '/', className, textClassName }: Lo
       />
       <div className={cn('font-logo font-black tracking-wide transition-colors duration-300 group-hover:text-primary', text, textClassName)}>
         <div className="leading-none">ZEST</div>
-        <div className="leading-none -mt-0.5">COMPLY</div>
+        <div className="leading-none mt-px">COMPLY</div>
       </div>
     </div>
   );
