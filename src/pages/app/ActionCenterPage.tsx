@@ -1,15 +1,8 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { 
-  MessageSquare, 
-  History, 
-  CreditCard, 
-  Cloud, 
-  ArrowRight,
-  Sparkles
-} from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { MessageSquare, History, CreditCard, Cloud, ArrowRight, Sparkles } from "lucide-react";
 
 export default function ActionCenterPage() {
   const { user } = useAuth();
@@ -17,29 +10,29 @@ export default function ActionCenterPage() {
 
   const quickActions = [
     {
-      title: 'Start New Assessment',
-      description: 'Begin a new AI-guided compliance documentation process',
+      title: "Start New Assessment",
+      description: "Begin a new AI-guided compliance documentation process",
       icon: MessageSquare,
-      action: () => navigate('/app/assistant'),
+      action: () => navigate("/app/assistant"),
       primary: true,
     },
     {
-      title: 'Continue Last Assessment',
-      description: 'Resume your most recent compliance session',
+      title: "Continue Last Assessment",
+      description: "Resume your most recent compliance session",
       icon: History,
-      action: () => navigate('/app/conversations'),
+      action: () => navigate("/app/conversations"),
     },
     {
-      title: 'Manage Billing',
-      description: 'View subscription, invoices, and payment methods',
+      title: "Manage Billing",
+      description: "View subscription, invoices, and payment methods",
       icon: CreditCard,
-      action: () => navigate('/app/billing'),
+      action: () => navigate("/app/billing"),
     },
     {
-      title: 'Link Cloud Storage',
-      description: 'Connect Google Drive, Dropbox, or OneDrive',
+      title: "Link Cloud Storage",
+      description: "Connect Google Drive, Dropbox, or OneDrive",
       icon: Cloud,
-      action: () => navigate('/app/settings/storage'),
+      action: () => navigate("/app/settings/storage"),
     },
   ];
 
@@ -48,11 +41,9 @@ export default function ActionCenterPage() {
       {/* Welcome section */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-foreground">
-          Welcome back, {user?.full_name || user?.first_name || 'there'}!
+          Welcome back, {user?.full_name || user?.first_name || "there"}!
         </h1>
-        <p className="text-muted-foreground">
-          What would you like to work on today?
-        </p>
+        <p className="text-muted-foreground">What would you like to work on today?</p>
       </div>
 
       {/* Featured action */}
@@ -63,15 +54,13 @@ export default function ActionCenterPage() {
               <Sparkles className="h-7 w-7 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-foreground">
-                Start Your AI-Powered Assessment
-              </h2>
+              <h2 className="text-xl font-semibold text-foreground">Start Your AI-Powered Assessment</h2>
               <p className="text-muted-foreground">
                 Our AI assistant will guide you through creating comprehensive compliance documentation
               </p>
             </div>
           </div>
-          <Button size="lg" onClick={() => navigate('/app/assistant')}>
+          <Button size="lg" onClick={() => navigate("/app/assistant")}>
             Get Started
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
@@ -109,19 +98,19 @@ export default function ActionCenterPage() {
         <Card className="bg-card">
           <CardHeader className="pb-2">
             <CardDescription>Active Assessments</CardDescription>
-            <CardTitle className="text-3xl">2</CardTitle>
+            <CardTitle className="text-3xl">--</CardTitle>
           </CardHeader>
         </Card>
         <Card className="bg-card">
           <CardHeader className="pb-2">
             <CardDescription>Documents Generated</CardDescription>
-            <CardTitle className="text-3xl">12</CardTitle>
+            <CardTitle className="text-3xl">--</CardTitle>
           </CardHeader>
         </Card>
         <Card className="bg-card">
           <CardHeader className="pb-2">
             <CardDescription>Frameworks Covered</CardDescription>
-            <CardTitle className="text-3xl">3</CardTitle>
+            <CardTitle className="text-3xl">--</CardTitle>
           </CardHeader>
         </Card>
       </div>
