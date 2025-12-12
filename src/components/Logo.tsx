@@ -25,9 +25,9 @@ export function Logo({ size = 'md', linkTo = '/', className, textClassName }: Lo
         alt="Zest Comply logo" 
         className={cn(icon, 'transition-transform duration-300 group-hover:scale-110')} 
       />
-      <div className={cn('font-logo font-bold tracking-wide leading-[0.75] transition-colors duration-300 group-hover:text-primary', text, textClassName)}>
-        <div>ZEST</div>
-        <div>COMPLY</div>
+      <div className={cn('font-logo font-black tracking-wide transition-colors duration-300 group-hover:text-primary', text, textClassName)}>
+        <div className="leading-none">ZEST</div>
+        <div className="leading-none -mt-0.5">COMPLY</div>
       </div>
     </div>
   );
