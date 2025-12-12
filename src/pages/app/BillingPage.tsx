@@ -122,9 +122,12 @@ export default function BillingPage() {
   const handleResumeSubscription = async () => {
     setActionLoading('resume');
     try {
-      await plansApi.resumeSubscription();
+      const result = await plansApi.resumeSubscription();
       await refreshUser();
-      toast({ title: 'Subscription resumed' });
+      toast({ 
+        title: 'Subscription resumed', 
+        description: `Your subscription will continue. Next billing: ${formatDate(result.next_billing_date)}` 
+      });
     } catch {
       toast({
         title: 'Error',
