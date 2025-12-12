@@ -106,7 +106,7 @@ export default function BillingPage() {
       await refreshUser();
       toast({ 
         title: 'Subscription cancelled', 
-        description: result.message || 'Your subscription will end at the current period' 
+        description: `You will retain access until ${formatDate(result.current_period_end)}` 
       });
     } catch {
       toast({
