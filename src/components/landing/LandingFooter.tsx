@@ -1,5 +1,5 @@
-import { Logo } from '@/components/Logo';
-import { Mail, Phone, Globe } from 'lucide-react';
+import { Logo } from "@/components/Logo";
+import { Mail, Phone, Globe } from "lucide-react";
 
 export function LandingFooter() {
   return (
@@ -10,14 +10,12 @@ export function LandingFooter() {
             <div className="mb-4">
               <Logo size="md" textClassName="text-foreground" />
             </div>
-            <p className="text-sm text-muted-foreground mb-2">
-              AI-powered compliance documentation made simple.
-            </p>
+            <p className="text-sm text-muted-foreground mb-2">AI-powered compliance documentation made simple.</p>
             <p className="text-xs text-muted-foreground">
-              A product of{' '}
-              <a 
-                href="https://www.zestcyber.com" 
-                target="_blank" 
+              A product of{" "}
+              <a
+                href="https://www.zestcyber.com"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
@@ -30,7 +28,10 @@ export function LandingFooter() {
             <h4 className="font-semibold text-foreground mb-4">Product</h4>
             <ul className="space-y-2">
               <li>
-                <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a
+                  href="#how-it-works"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   How It Works
                 </a>
               </li>
@@ -51,9 +52,9 @@ export function LandingFooter() {
             <h4 className="font-semibold text-foreground mb-4">Company</h4>
             <ul className="space-y-2">
               <li>
-                <a 
-                  href="https://www.zestcyber.com/about-us" 
-                  target="_blank" 
+                <a
+                  href="https://www.zestcyber.com/about-us"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -72,8 +73,8 @@ export function LandingFooter() {
             <h4 className="font-semibold text-foreground mb-4">Contact</h4>
             <ul className="space-y-3">
               <li>
-                <a 
-                  href="mailto:info@zestcyber.com" 
+                <a
+                  href="mailto:info@zestcyber.com"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
                 >
                   <Mail className="h-4 w-4" />
@@ -81,8 +82,8 @@ export function LandingFooter() {
                 </a>
               </li>
               <li>
-                <a 
-                  href="tel:+13462355062" 
+                <a
+                  href="tel:+13462355062"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
                 >
                   <Phone className="h-4 w-4" />
@@ -90,14 +91,14 @@ export function LandingFooter() {
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://www.zestcyber.com" 
-                  target="_blank" 
+                <a
+                  href="https://www.zestcyber.com"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
                 >
                   <Globe className="h-4 w-4" />
-                  zestcyber.com
+                  https://www.zestcyber.com
                 </a>
               </li>
             </ul>
