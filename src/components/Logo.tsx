@@ -10,23 +10,23 @@ interface LogoProps {
 }
 
 const sizeConfig = {
-  sm: { icon: 'h-5 w-5', text: 'text-base' },
-  md: { icon: 'h-6 w-6', text: 'text-lg' },
-  lg: { icon: 'h-8 w-8', text: 'text-xl' },
+  sm: { icon: 'h-7 w-7', text: 'text-xs' },
+  md: { icon: 'h-9 w-9', text: 'text-sm' },
+  lg: { icon: 'h-12 w-12', text: 'text-base' },
 };
 
 export function Logo({ size = 'md', linkTo = '/', className, textClassName }: LogoProps) {
   const { icon, text } = sizeConfig[size];
 
   const content = (
-    <div className={cn('flex items-center gap-2 group', className)}>
+    <div className={cn('flex items-center gap-1.5 group', className)}>
       <img 
         src={logoIcon} 
         alt="Zest Comply logo" 
         className={cn(icon, 'transition-transform duration-300 group-hover:scale-110')} 
       />
-      <div className={cn('font-logo font-bold tracking-wide leading-[0.75]', text, textClassName)}>
-        <div className="transition-colors duration-300 group-hover:text-primary">ZEST</div>
+      <div className={cn('font-logo font-bold tracking-wide leading-[0.75] transition-colors duration-300 group-hover:text-primary', text, textClassName)}>
+        <div>ZEST</div>
         <div>COMPLY</div>
       </div>
     </div>
