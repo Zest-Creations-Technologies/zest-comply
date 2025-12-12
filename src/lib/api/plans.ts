@@ -40,20 +40,20 @@ export const plansApi = {
     });
   },
 
-  async cancelSubscription(): Promise<{ message: string; current_period_end: string }> {
+  async cancelSubscription(): Promise<{ message: string; current_period_end: string; canceled_at: string | null }> {
     if (API_CONFIG.useMocks) {
       await delay();
-      return { message: "Subscription canceled successfully.", current_period_end: new Date().toISOString() };
+      return { message: "Subscription canceled successfully.", current_period_end: new Date().toISOString(), canceled_at: null };
     }
-    return apiClient.post<{ message: string; current_period_end: string }>("/plans/subscription/cancel");
+    return apiClient.post<{ message: string; current_period_end: string; canceled_at: string | null }>("/plans/subscription/cancel");
   },
 
-  async resumeSubscription(): Promise<void> {
+  async resumeSubscription(): Promise<{ message: string; next_billing_date: string; resumed_at: string }> {
     if (API_CONFIG.useMocks) {
       await delay();
-      return;
+      return { message: "Subscription resumed successfully.", next_billing_date: new Date().toISOString(), resumed_at: new Date().toISOString() };
     }
-    await apiClient.post("/subscription/resume");
+    return apiClient.post<{ message: string; next_billing_date: string; resumed_at: string }>("/plans/subscription/resume");
   },
 
   async getInvoices(): Promise<Invoice[]> {
