@@ -19,10 +19,14 @@ export function Logo({ size = 'md', linkTo = '/', className, textClassName }: Lo
   const { icon, text } = sizeConfig[size];
 
   const content = (
-    <div className={cn('flex items-center gap-2', className)}>
-      <img src={logoIcon} alt="Zest Comply logo" className={icon} />
-      <div className={cn('font-logo font-bold tracking-wide leading-[0.50]', text, textClassName)}>
-        <div>ZEST</div>
+    <div className={cn('flex items-center gap-2 group', className)}>
+      <img 
+        src={logoIcon} 
+        alt="Zest Comply logo" 
+        className={cn(icon, 'transition-transform duration-300 group-hover:scale-110')} 
+      />
+      <div className={cn('font-logo font-bold tracking-wide leading-[0.75]', text, textClassName)}>
+        <div className="transition-colors duration-300 group-hover:text-primary">ZEST</div>
         <div>COMPLY</div>
       </div>
     </div>
