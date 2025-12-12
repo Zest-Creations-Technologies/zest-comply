@@ -21,7 +21,10 @@ export function Logo({ size = 'md', linkTo = '/', className, textClassName }: Lo
   const content = (
     <div className={cn('flex items-center gap-2', className)}>
       <img src={logoIcon} alt="Zest Comply logo" className={icon} />
-      <span className={cn('font-logo tracking-wide', text, textClassName)}>ZEST COMPLY</span>
+      <div className={cn('font-logo font-bold tracking-wide leading-[0.85]', text, textClassName)}>
+        <div>ZEST</div>
+        <div>COMPLY</div>
+      </div>
     </div>
   );
 
