@@ -79,19 +79,37 @@ export default function BillingPage() {
     }
   };
 
-  const handleCheckout = async (planId: string) => {
+  const handleChangePlan = async (planId: string) => {
     setActionLoading(planId);
     try {
-      const { checkout_url } = await plansApi.createCheckoutSession(planId);
-      if (checkout_url !== '#checkout-mock') {
-        window.location.href = checkout_url;
-      } else {
-        toast({ title: 'Demo mode', description: 'Checkout would redirect to Stripe' });
+      const result = await plansApi.changePlan(planId);
+      
+      // FREE → PAID: Redirect to Stripe checkout
+      if (result.paid_plan_change?.checkout_url) {
+        if (result.paid_plan_change.checkout_url !== '#checkout-mock') {
+          window.location.href = result.paid_plan_change.checkout_url;
+        } else {
+          toast({ title: 'Demo mode', description: 'Checkout would redirect to Stripe' });
+        }
+        return;
+      }
+      
+      // FREE→FREE, PAID→PAID, or PAID→FREE: Immediate migration
+      if (result.migrate_plan_change) {
+        await refreshUser();
+        const { new_plan_name, proration_amount, effective_date } = result.migrate_plan_change;
+        const prorationText = proration_amount !== 0 
+          ? ` Proration: $${Math.abs(proration_amount).toFixed(2)} ${proration_amount > 0 ? 'charged' : 'credited'}.`
+          : '';
+        toast({ 
+          title: `Switched to ${new_plan_name}`, 
+          description: `Effective ${formatDate(effective_date)}.${prorationText}` 
+        });
       }
     } catch {
       toast({
         title: 'Error',
-        description: 'Failed to start checkout',
+        description: 'Failed to change plan',
         variant: 'destructive',
       });
     } finally {
@@ -272,7 +290,7 @@ export default function BillingPage() {
                     className="w-full"
                     variant={isCurrent ? 'outline' : 'default'}
                     disabled={isCurrent || actionLoading === plan.id}
-                    onClick={() => handleCheckout(plan.id)}
+                    onClick={() => handleChangePlan(plan.id)}
                   >
                     {actionLoading === plan.id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {isCurrent ? 'Current Plan' : 'Select Plan'}

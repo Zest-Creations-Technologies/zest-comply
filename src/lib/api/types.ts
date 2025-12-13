@@ -57,6 +57,36 @@ export interface Invoice {
   invoice_pdf?: string | null;
 }
 
+// Plan change response types
+export interface PaidPlanChangeResponse {
+  checkout_url: string;
+}
+
+export interface MigratePlanChangeResponse {
+  old_plan_name: string | null;
+  new_plan_name: string;
+  proration_amount: number;
+  effective_date: string;
+}
+
+export interface PlanChangeResponse {
+  message: string;
+  paid_plan_change: PaidPlanChangeResponse | null;
+  migrate_plan_change: MigratePlanChangeResponse | null;
+}
+
+export interface CancelSubscriptionResponse {
+  message: string;
+  current_period_end: string | null;
+  canceled_at: string | null;
+}
+
+export interface ResumeSubscriptionResponse {
+  message: string;
+  next_billing_date: string | null;
+  resumed_at: string | null;
+}
+
 export interface ConversationMessage {
   id: string;
   session_id: string;
