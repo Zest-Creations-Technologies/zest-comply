@@ -3,7 +3,14 @@
 import { apiClient } from "./client";
 import { API_CONFIG } from "./config";
 import { mockPlans, mockSubscription, mockInvoices, delay } from "./mocks";
-import type { Plan, UserPlan, Invoice } from "./types";
+import type { 
+  Plan, 
+  UserPlan, 
+  Invoice, 
+  PlanChangeResponse, 
+  CancelSubscriptionResponse, 
+  ResumeSubscriptionResponse 
+} from "./types";
 
 export const plansApi = {
   async getPlans(): Promise<Plan[]> {
@@ -28,32 +35,45 @@ export const plansApi = {
     }
   },
 
-  async createCheckoutSession(planId: string): Promise<{ checkout_url: string }> {
+  async changePlan(targetPlanId: string): Promise<PlanChangeResponse> {
     if (API_CONFIG.useMocks) {
       await delay();
-      return { checkout_url: "#checkout-mock" };
+      return { 
+        message: "Plan changed successfully", 
+        paid_plan_change: { checkout_url: "#checkout-mock" },
+        migrate_plan_change: null 
+      };
     }
     const baseUrl = window.location.origin;
-    return apiClient.post<{ checkout_url: string }>(`/plans/${planId}/checkout`, {
+    return apiClient.post<PlanChangeResponse>("/plans/change", {
+      target_plan_id: targetPlanId,
       success_url: `${baseUrl}/app/billing?checkout=success`,
       cancel_url: `${baseUrl}/app/billing?checkout=cancelled`,
     });
   },
 
-  async cancelSubscription(): Promise<{ message: string; current_period_end: string; canceled_at: string | null }> {
+  async cancelSubscription(): Promise<CancelSubscriptionResponse> {
     if (API_CONFIG.useMocks) {
       await delay();
-      return { message: "Subscription canceled successfully.", current_period_end: new Date().toISOString(), canceled_at: null };
+      return { 
+        message: "Subscription canceled successfully.", 
+        current_period_end: new Date().toISOString(), 
+        canceled_at: new Date().toISOString() 
+      };
     }
-    return apiClient.post<{ message: string; current_period_end: string; canceled_at: string | null }>("/plans/subscription/cancel");
+    return apiClient.post<CancelSubscriptionResponse>("/plans/subscription/cancel");
   },
 
-  async resumeSubscription(): Promise<{ message: string; next_billing_date: string; resumed_at: string }> {
+  async resumeSubscription(): Promise<ResumeSubscriptionResponse> {
     if (API_CONFIG.useMocks) {
       await delay();
-      return { message: "Subscription resumed successfully.", next_billing_date: new Date().toISOString(), resumed_at: new Date().toISOString() };
+      return { 
+        message: "Subscription resumed successfully.", 
+        next_billing_date: new Date().toISOString(), 
+        resumed_at: new Date().toISOString() 
+      };
     }
-    return apiClient.post<{ message: string; next_billing_date: string; resumed_at: string }>("/plans/subscription/resume");
+    return apiClient.post<ResumeSubscriptionResponse>("/plans/subscription/resume");
   },
 
   async getInvoices(): Promise<Invoice[]> {
