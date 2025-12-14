@@ -22,9 +22,10 @@ import {
   Calendar,
   RefreshCw
 } from 'lucide-react';
-import { plansApi, type Plan, type Invoice } from '@/lib/api';
+import { plansApi, type Plan, type Invoice, type PreviewPlanChangeResponse } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { ProrationPreviewDialog } from '@/components/app/ProrationPreviewDialog';
 
 export default function BillingPage() {
   const { user, refreshUser } = useAuth();
@@ -32,6 +33,12 @@ export default function BillingPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  
+  // Proration preview state
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewData, setPreviewData] = useState<PreviewPlanChangeResponse | null>(null);
+  const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
   
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
@@ -79,7 +86,42 @@ export default function BillingPage() {
     }
   };
 
-  const handleChangePlan = async (planId: string) => {
+  const handleSelectPlan = async (planId: string) => {
+    const subscription = user?.user_plan;
+    const currentPlanId = subscription?.plan?.id;
+    
+    // Check if this is a PAID→PAID change (user has active paid subscription)
+    const hasPaidSubscription = subscription && 
+      subscription.status === 'active' && 
+      !subscription.cancel_at_period_end;
+    
+    if (hasPaidSubscription && currentPlanId && currentPlanId !== planId) {
+      // Show proration preview for PAID→PAID changes
+      setPendingPlanId(planId);
+      setPreviewDialogOpen(true);
+      setPreviewLoading(true);
+      setPreviewData(null);
+      
+      try {
+        const preview = await plansApi.previewPlanChange(planId);
+        setPreviewData(preview);
+      } catch {
+        toast({
+          title: 'Error',
+          description: 'Failed to load proration preview',
+          variant: 'destructive',
+        });
+      } finally {
+        setPreviewLoading(false);
+      }
+      return;
+    }
+    
+    // For FREE→PAID or other flows, proceed directly
+    await executeChangePlan(planId);
+  };
+
+  const executeChangePlan = async (planId: string) => {
     setActionLoading(planId);
     try {
       const result = await plansApi.changePlan(planId);
@@ -115,6 +157,14 @@ export default function BillingPage() {
     } finally {
       setActionLoading(null);
     }
+  };
+
+  const handleConfirmProrationChange = async () => {
+    if (!pendingPlanId) return;
+    setPreviewDialogOpen(false);
+    await executeChangePlan(pendingPlanId);
+    setPendingPlanId(null);
+    setPreviewData(null);
   };
 
   const handleCancelSubscription = async () => {
@@ -290,7 +340,7 @@ export default function BillingPage() {
                     className="w-full"
                     variant={isCurrent ? 'outline' : 'default'}
                     disabled={isCurrent || actionLoading === plan.id}
-                    onClick={() => handleChangePlan(plan.id)}
+                    onClick={() => handleSelectPlan(plan.id)}
                   >
                     {actionLoading === plan.id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {isCurrent ? 'Current Plan' : 'Select Plan'}
@@ -348,6 +398,15 @@ export default function BillingPage() {
           </Table>
         </Card>
       </div>
+
+      {/* Proration Preview Dialog */}
+      <ProrationPreviewDialog
+        open={previewDialogOpen}
+        onOpenChange={setPreviewDialogOpen}
+        preview={previewData}
+        loading={previewLoading}
+        onConfirm={handleConfirmProrationChange}
+      />
     </div>
   );
 }

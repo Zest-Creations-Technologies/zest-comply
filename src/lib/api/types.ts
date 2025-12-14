@@ -87,6 +87,14 @@ export interface ResumeSubscriptionResponse {
   resumed_at: string | null;
 }
 
+export interface PreviewPlanChangeResponse {
+  current_plan_name: string;
+  new_plan_name: string;
+  prorated_amount: number;
+  next_invoice_date: string;
+  is_upgrade: boolean;
+}
+
 export interface ConversationMessage {
   id: string;
   session_id: string;
