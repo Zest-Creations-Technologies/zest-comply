@@ -438,7 +438,7 @@ export default function BillingPage() {
         <AlertDialogHeader>
             <AlertDialogTitle>Downgrade to Free Plan?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to downgrade to the Free plan? You will retain access to premium features until the end of your current billing period, then your plan will switch to Free.
+              Are you sure you want to downgrade to the Free plan? You will retain access to premium features until {subscription ? formatDate(subscription.current_period_end) : 'the end of your billing period'}, then your plan will switch to Free.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
