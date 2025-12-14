@@ -76,7 +76,7 @@ export const plansApi = {
         canceled_at: new Date().toISOString() 
       };
     }
-    return apiClient.post<CancelSubscriptionResponse>("/plan/cancel");
+    return apiClient.post<CancelSubscriptionResponse>("/plans/cancel");
   },
 
   async resumeSubscription(): Promise<ResumeSubscriptionResponse> {
@@ -88,7 +88,7 @@ export const plansApi = {
         resumed_at: new Date().toISOString() 
       };
     }
-    return apiClient.post<ResumeSubscriptionResponse>("/plans/subscription/resume");
+    return apiClient.post<ResumeSubscriptionResponse>("/plans/resume");
   },
 
   async getInvoices(): Promise<Invoice[]> {
