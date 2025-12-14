@@ -16,6 +16,21 @@ export const mockUser: User = {
 
 export const mockPlans: Plan[] = [
   {
+    id: 'plan-free',
+    name: 'Free',
+    description: 'Get started with basic compliance tools',
+    display_price: 'Free',
+    type: 'free',
+    is_active: true,
+    trial_days: 0,
+    features: [
+      { title: '1 Document', description: '1 compliance document per month', value: '1', category: 'Documents' },
+      { title: 'Community Support', description: 'Get help from the community', value: true, category: 'Support' },
+    ],
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
+  },
+  {
     id: 'plan-starter',
     name: 'Starter',
     description: 'Perfect for getting started with compliance',

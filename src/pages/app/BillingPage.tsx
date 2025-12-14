@@ -40,6 +40,10 @@ export default function BillingPage() {
   const [previewData, setPreviewData] = useState<PreviewPlanChangeResponse | null>(null);
   const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
   
+  // Paid-to-free downgrade confirmation state
+  const [downgradeDialogOpen, setDowngradeDialogOpen] = useState(false);
+  const [pendingDowngradePlanId, setPendingDowngradePlanId] = useState<string | null>(null);
+  
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
 
@@ -89,17 +93,27 @@ export default function BillingPage() {
   const handleSelectPlan = async (planId: string) => {
     const subscription = user?.user_plan;
     const currentPlanId = subscription?.plan?.id;
+    const currentPlanType = subscription?.plan?.type;
     const targetPlan = plans.find(p => p.id === planId);
     
-    // Check if this is a PAID→PAID change (user has active paid subscription)
-    // Proration preview is only for paid-to-paid changes (target plan cannot be free)
+    // Check if user has an active paid subscription
     const hasPaidSubscription = subscription && 
       subscription.status === 'active' && 
-      !subscription.cancel_at_period_end;
-    const isTargetPlanPaid = targetPlan && targetPlan.type !== 'free';
+      !subscription.cancel_at_period_end &&
+      currentPlanType === 'paid';
     
+    const isTargetPlanPaid = targetPlan && targetPlan.type !== 'free';
+    const isTargetPlanFree = targetPlan && targetPlan.type === 'free';
+    
+    // PAID→FREE: Show downgrade confirmation dialog
+    if (hasPaidSubscription && isTargetPlanFree) {
+      setPendingDowngradePlanId(planId);
+      setDowngradeDialogOpen(true);
+      return;
+    }
+    
+    // PAID→PAID: Show proration preview
     if (hasPaidSubscription && currentPlanId && currentPlanId !== planId && isTargetPlanPaid) {
-      // Show proration preview for PAID→PAID changes only
       setPendingPlanId(planId);
       setPreviewDialogOpen(true);
       setPreviewLoading(true);
@@ -120,8 +134,15 @@ export default function BillingPage() {
       return;
     }
     
-    // For FREE→PAID, PAID→FREE, or other flows, proceed directly
+    // For FREE→PAID or other flows, proceed directly
     await executeChangePlan(planId);
+  };
+
+  const handleConfirmDowngrade = async () => {
+    if (!pendingDowngradePlanId) return;
+    setDowngradeDialogOpen(false);
+    await executeChangePlan(pendingDowngradePlanId);
+    setPendingDowngradePlanId(null);
   };
 
   const executeChangePlan = async (planId: string) => {
@@ -410,6 +431,24 @@ export default function BillingPage() {
         loading={previewLoading}
         onConfirm={handleConfirmProrationChange}
       />
+
+      {/* Paid-to-Free Downgrade Confirmation Dialog */}
+      <AlertDialog open={downgradeDialogOpen} onOpenChange={setDowngradeDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Downgrade to Free Plan?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to downgrade to the Free plan? You will lose access to premium features immediately. Any remaining time on your current subscription will not be refunded.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Current Plan</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDowngrade} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Yes, Downgrade
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
