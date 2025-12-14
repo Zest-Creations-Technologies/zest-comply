@@ -376,7 +376,7 @@ export default function BillingPage() {
                 invoices.map((invoice) => (
                   <TableRow key={invoice.id}>
                     <TableCell>{formatDate(invoice.created)}</TableCell>
-                    <TableCell>${invoice.amount_paid.toFixed(2)} {invoice.currency.toUpperCase()}</TableCell>
+                    <TableCell>${Number(invoice.amount_paid).toFixed(2)} {invoice.currency.toUpperCase()}</TableCell>
                     <TableCell>
                       <Badge variant={invoice.status === 'paid' ? 'default' : 'secondary'}>
                         {invoice.status}
