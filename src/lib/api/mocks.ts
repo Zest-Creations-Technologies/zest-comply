@@ -20,6 +20,7 @@ export const mockPlans: Plan[] = [
     name: 'Starter',
     description: 'Perfect for getting started with compliance',
     display_price: '$29/month',
+    type: 'paid',
     is_active: true,
     trial_days: 7,
     features: [
@@ -36,6 +37,7 @@ export const mockPlans: Plan[] = [
     name: 'Professional',
     description: 'For growing teams needing more power',
     display_price: '$79/month',
+    type: 'paid',
     is_active: true,
     trial_days: 14,
     features: [
@@ -54,6 +56,7 @@ export const mockPlans: Plan[] = [
     name: 'Enterprise',
     description: 'Full power for large organizations',
     display_price: '$199/month',
+    type: 'paid',
     is_active: true,
     features: [
       { title: 'Everything in Pro', description: 'All Professional features included', value: true, category: 'Base' },
