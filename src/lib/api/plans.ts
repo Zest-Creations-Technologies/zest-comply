@@ -9,7 +9,8 @@ import type {
   Invoice, 
   PlanChangeResponse, 
   CancelSubscriptionResponse, 
-  ResumeSubscriptionResponse 
+  ResumeSubscriptionResponse,
+  PreviewPlanChangeResponse 
 } from "./types";
 
 export const plansApi = {
@@ -33,6 +34,20 @@ export const plansApi = {
     } catch {
       return null;
     }
+  },
+
+  async previewPlanChange(targetPlanId: string): Promise<PreviewPlanChangeResponse> {
+    if (API_CONFIG.useMocks) {
+      await delay(300);
+      return {
+        current_plan_name: "Professional",
+        new_plan_name: "Enterprise",
+        prorated_amount: 45.50,
+        next_invoice_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+        is_upgrade: true,
+      };
+    }
+    return apiClient.get<PreviewPlanChangeResponse>(`/plans/change/preview?target_plan_id=${targetPlanId}`);
   },
 
   async changePlan(targetPlanId: string): Promise<PlanChangeResponse> {
