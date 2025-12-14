@@ -435,10 +435,10 @@ export default function BillingPage() {
       {/* Paid-to-Free Downgrade Confirmation Dialog */}
       <AlertDialog open={downgradeDialogOpen} onOpenChange={setDowngradeDialogOpen}>
         <AlertDialogContent>
-          <AlertDialogHeader>
+        <AlertDialogHeader>
             <AlertDialogTitle>Downgrade to Free Plan?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to downgrade to the Free plan? You will lose access to premium features immediately. Any remaining time on your current subscription will not be refunded.
+              Are you sure you want to downgrade to the Free plan? You will retain access to premium features until the end of your current billing period, then your plan will switch to Free.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
