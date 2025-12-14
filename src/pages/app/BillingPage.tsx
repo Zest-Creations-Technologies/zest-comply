@@ -89,14 +89,17 @@ export default function BillingPage() {
   const handleSelectPlan = async (planId: string) => {
     const subscription = user?.user_plan;
     const currentPlanId = subscription?.plan?.id;
+    const targetPlan = plans.find(p => p.id === planId);
     
     // Check if this is a PAID→PAID change (user has active paid subscription)
+    // Proration preview is only for paid-to-paid changes (target plan cannot be free)
     const hasPaidSubscription = subscription && 
       subscription.status === 'active' && 
       !subscription.cancel_at_period_end;
+    const isTargetPlanPaid = targetPlan && targetPlan.type !== 'free';
     
-    if (hasPaidSubscription && currentPlanId && currentPlanId !== planId) {
-      // Show proration preview for PAID→PAID changes
+    if (hasPaidSubscription && currentPlanId && currentPlanId !== planId && isTargetPlanPaid) {
+      // Show proration preview for PAID→PAID changes only
       setPendingPlanId(planId);
       setPreviewDialogOpen(true);
       setPreviewLoading(true);
@@ -117,7 +120,7 @@ export default function BillingPage() {
       return;
     }
     
-    // For FREE→PAID or other flows, proceed directly
+    // For FREE→PAID, PAID→FREE, or other flows, proceed directly
     await executeChangePlan(planId);
   };
 

@@ -41,6 +41,7 @@ export interface Plan {
   name: string;
   description?: string | null;
   display_price?: string | null;
+  type: 'free' | 'paid';
   is_active: boolean;
   trial_days?: number | null;
   features: PlanFeature[];
