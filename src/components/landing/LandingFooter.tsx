@@ -1,9 +1,17 @@
 import { Logo } from "@/components/Logo";
 import { Mail, Phone, Globe } from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export function LandingFooter() {
+  const [footerRef, footerVisible] = useScrollReveal<HTMLElement>();
+
   return (
-    <footer className="py-12 bg-background border-t border-border">
+    <footer 
+      ref={footerRef}
+      className={`py-12 bg-background border-t border-border transition-all duration-700 ease-out ${
+        footerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }`}
+    >
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-5 gap-8">
           <div className="col-span-1">
@@ -17,7 +25,7 @@ export function LandingFooter() {
                 href="https://www.zestcyber.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:underline"
+                className="text-primary hover:underline transition-colors duration-200"
               >
                 Zest Creations Technologies
               </a>
@@ -30,18 +38,18 @@ export function LandingFooter() {
               <li>
                 <a
                   href="#how-it-works"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
                 >
                   How It Works
                 </a>
               </li>
               <li>
-                <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                   Pricing
                 </a>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                   Frameworks
                 </a>
               </li>
@@ -56,13 +64,13 @@ export function LandingFooter() {
                   href="https://www.zestcyber.com/about-us"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
                 >
                   About
                 </a>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                   Blog
                 </a>
               </li>
@@ -75,18 +83,18 @@ export function LandingFooter() {
               <li>
                 <a
                   href="mailto:info@zestcyber.com"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-2 group"
                 >
-                  <Mail className="h-4 w-4" />
+                  <Mail className="h-4 w-4 transition-colors duration-200 group-hover:text-primary" />
                   info@zestcyber.com
                 </a>
               </li>
               <li>
                 <a
                   href="tel:+13462355062"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-2 group"
                 >
-                  <Phone className="h-4 w-4" />
+                  <Phone className="h-4 w-4 transition-colors duration-200 group-hover:text-primary" />
                   (346) 235-5062
                 </a>
               </li>
@@ -95,9 +103,9 @@ export function LandingFooter() {
                   href="https://www.zestcyber.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-2 group"
                 >
-                  <Globe className="h-4 w-4" />
+                  <Globe className="h-4 w-4 transition-colors duration-200 group-hover:text-primary" />
                   https://www.zestcyber.com
                 </a>
               </li>
@@ -108,17 +116,17 @@ export function LandingFooter() {
             <h4 className="font-semibold text-foreground mb-4">Legal</h4>
             <ul className="space-y-2">
               <li>
-                <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                   Privacy Policy
                 </a>
               </li>
               <li>
-                <a href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                   Terms of Service
                 </a>
               </li>
               <li>
-                <a href="/security" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a href="/security" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                   Security
                 </a>
               </li>
@@ -131,15 +139,15 @@ export function LandingFooter() {
             © {new Date().getFullYear()} Zest Comply. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-              Twitter
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-              LinkedIn
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-              GitHub
-            </a>
+            {['Twitter', 'LinkedIn', 'GitHub'].map((social) => (
+              <a 
+                key={social}
+                href="#" 
+                className="text-muted-foreground hover:text-foreground transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+              >
+                {social}
+              </a>
+            ))}
           </div>
         </div>
       </div>
