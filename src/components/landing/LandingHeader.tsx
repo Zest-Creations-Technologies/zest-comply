@@ -40,7 +40,7 @@ export function LandingHeader() {
               <a 
                 key={link.href}
                 href={link.href} 
-                className="text-primary font-bold hover:text-primary/80 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+                className="text-muted-foreground hover:text-foreground transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
               >
                 {link.label}
               </a>
@@ -49,7 +49,7 @@ export function LandingHeader() {
               href="/documents/ZestCreations_Capability_Statement.pdf" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-primary font-bold hover:text-primary/80 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+              className="text-muted-foreground hover:text-foreground transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
             >
               Capability Statement
             </a>
@@ -57,7 +57,7 @@ export function LandingHeader() {
               href="https://www.zestcyber.com/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-primary font-bold hover:text-primary/80 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+              className="text-muted-foreground hover:text-foreground transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
             >
               Corporate Home
             </a>
@@ -65,7 +65,7 @@ export function LandingHeader() {
               href="https://www.zestcreationstechnologies.com/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-primary font-bold hover:text-primary/80 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+              className="text-muted-foreground hover:text-foreground transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
             >
               Secure Cloud & Hosting
             </a>
@@ -104,22 +104,22 @@ export function LandingHeader() {
           } border-t border-border`}
         >
           <nav className="flex flex-col gap-4">
-            <a href="#why" className="text-primary font-bold hover:text-primary/80 transition-colors duration-200">
+            <a href="#why" className="text-muted-foreground hover:text-foreground transition-colors duration-200">
               Why ZestComply
             </a>
-            <a href="#how-it-works" className="text-primary font-bold hover:text-primary/80 transition-colors duration-200">
+            <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors duration-200">
               How It Works
             </a>
-            <a href="#pricing" className="text-primary font-bold hover:text-primary/80 transition-colors duration-200">
+            <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors duration-200">
               Pricing
             </a>
-            <a href="/documents/ZestCreations_Capability_Statement.pdf" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:text-primary/80 transition-colors duration-200">
+            <a href="/documents/ZestCreations_Capability_Statement.pdf" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors duration-200">
               Capability Statement
             </a>
-            <a href="https://www.zestcyber.com/" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:text-primary/80 transition-colors duration-200">
+            <a href="https://www.zestcyber.com/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors duration-200">
               Corporate Home
             </a>
-            <a href="https://www.zestcreationstechnologies.com/" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:text-primary/80 transition-colors duration-200">
+            <a href="https://www.zestcreationstechnologies.com/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors duration-200">
               Secure Cloud & Hosting
             </a>
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
