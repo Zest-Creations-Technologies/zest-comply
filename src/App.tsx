@@ -11,6 +11,9 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicyPage from "./pages/legal/PrivacyPolicyPage";
+import TermsOfServicePage from "./pages/legal/TermsOfServicePage";
+import SecurityPage from "./pages/legal/SecurityPage";
 
 // App pages
 import AppLayout from "./pages/app/AppLayout";
@@ -40,6 +43,9 @@ const App = () => {
               <Route path="/" element={<LandingPage />} />
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/auth/signup" element={<SignupPage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsOfServicePage />} />
+              <Route path="/security" element={<SecurityPage />} />
 
               {/* Protected app routes */}
               <Route
