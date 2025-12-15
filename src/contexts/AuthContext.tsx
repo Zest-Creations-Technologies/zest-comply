@@ -1,3 +1,4 @@
+// Authentication context for managing user sessions
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authApi, type User } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
