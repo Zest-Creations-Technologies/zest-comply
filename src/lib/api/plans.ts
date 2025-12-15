@@ -19,7 +19,7 @@ export const plansApi = {
       await delay(300);
       return mockPlans;
     }
-    const response = await apiClient.get<{ plans: Plan[]; count: number }>("/plans/");
+    const response = await apiClient.get<{ plans: Plan[]; count: number }>("/plans/", { skipAuth: true });
     return response.plans;
   },
 
