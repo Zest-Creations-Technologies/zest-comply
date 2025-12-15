@@ -67,33 +67,48 @@ class ApiClient {
     }
 
     const url = getApiUrl(path);
-    let response = await fetch(url, { ...fetchOptions, headers });
 
-    // Handle 401 - try to refresh token
-    if (response.status === 401 && !skipAuth) {
-      const refreshed = await this.refreshAccessToken();
-      if (refreshed) {
-        headers['Authorization'] = `Bearer ${this.getAccessToken()}`;
-        response = await fetch(url, { ...fetchOptions, headers });
-      } else {
-        window.dispatchEvent(new CustomEvent('auth:logout'));
-        throw new Error('Session expired. Please log in again.');
+    const controller = fetchOptions.signal ? null : new AbortController();
+    const signal = fetchOptions.signal ?? controller?.signal;
+    const timeoutMs = API_CONFIG.timeout ?? 30000;
+    const timeoutId = controller ? window.setTimeout(() => controller.abort(), timeoutMs) : null;
+
+    try {
+      let response = await fetch(url, { ...fetchOptions, headers, signal });
+
+      // Handle 401 - try to refresh token
+      if (response.status === 401 && !skipAuth) {
+        const refreshed = await this.refreshAccessToken();
+        if (refreshed) {
+          headers['Authorization'] = `Bearer ${this.getAccessToken()}`;
+          response = await fetch(url, { ...fetchOptions, headers, signal });
+        } else {
+          window.dispatchEvent(new CustomEvent('auth:logout'));
+          throw new Error('Session expired. Please log in again.');
+        }
       }
-    }
 
-    if (!response.ok) {
-      const error: ApiError = await response.json().catch(() => ({ 
-        detail: 'An unexpected error occurred',
-        status_code: response.status 
-      }));
-      throw new Error(error.detail);
-    }
+      if (!response.ok) {
+        const error: ApiError = await response.json().catch(() => ({
+          detail: 'An unexpected error occurred',
+          status_code: response.status,
+        }));
+        throw new Error(error.detail);
+      }
 
-    // Handle empty responses
-    const text = await response.text();
-    if (!text) return {} as T;
-    
-    return JSON.parse(text);
+      // Handle empty responses
+      const text = await response.text();
+      if (!text) return {} as T;
+
+      return JSON.parse(text);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        throw new Error('Request timed out. Please try again.');
+      }
+      throw err;
+    } finally {
+      if (timeoutId) window.clearTimeout(timeoutId);
+    }
   }
 
   get<T>(path: string, options?: RequestOptions): Promise<T> {

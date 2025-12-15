@@ -1,6 +1,7 @@
 import { Logo } from "@/components/Logo";
 import { Mail, Phone, Globe } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { Link } from "react-router-dom";
 
 export function LandingFooter() {
   const [footerRef, footerVisible] = useScrollReveal<HTMLElement>();
@@ -116,19 +117,19 @@ export function LandingFooter() {
             <h4 className="font-semibold text-foreground mb-4">Legal</h4>
             <ul className="space-y-2">
               <li>
-                <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/security" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                <Link to="/security" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                   Security
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
