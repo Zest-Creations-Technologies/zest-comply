@@ -96,7 +96,12 @@ export function PricingSection() {
                         style={{ transitionDelay: cardsVisible ? `${(index * 150) + (i * 50)}ms` : '0ms' }}
                       >
                         <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                        <span className="text-muted-foreground">{feature.title}</span>
+                        <div className="flex flex-col">
+                          <span className="text-foreground font-medium">{feature.title}</span>
+                          {feature.description && (
+                            <span className="text-sm text-muted-foreground">{feature.description}</span>
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>
