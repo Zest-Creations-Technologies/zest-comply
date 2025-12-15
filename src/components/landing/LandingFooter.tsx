@@ -137,7 +137,7 @@ export function LandingFooter() {
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Zest Comply. All rights reserved.
+            © {new Date().getFullYear()} Zest Creations Technologies, LLC. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             {['Twitter', 'LinkedIn', 'GitHub'].map((social) => (
