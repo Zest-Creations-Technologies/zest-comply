@@ -157,6 +157,14 @@ export default function LoginPage() {
                 Sign up
               </Link>
             </p>
+
+            <p className="text-xs text-muted-foreground text-center">
+              <Link to="/privacy" className="text-primary hover:underline">Privacy</Link>
+              {' '}•{' '}
+              <Link to="/terms" className="text-primary hover:underline">Terms</Link>
+              {' '}•{' '}
+              <Link to="/security" className="text-primary hover:underline">Security</Link>
+            </p>
           </CardFooter>
         </form>
       </Card>

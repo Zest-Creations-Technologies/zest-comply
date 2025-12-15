@@ -1,6 +1,8 @@
 // API Configuration
 
-const API_BASE_URL = "https://api.zestcomply.com/v1";
+const API_BASE_URL =
+  (import.meta.env.VITE_API_URL as string | undefined) ||
+  "https://zct.onrender.com";
 
 export const API_CONFIG = {
   baseUrl: API_BASE_URL,

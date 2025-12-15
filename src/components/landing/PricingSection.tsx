@@ -10,16 +10,24 @@ import { useScrollReveal, getStaggerDelay } from '@/hooks/useScrollReveal';
 export function PricingSection() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [headerRef, headerVisible] = useScrollReveal<HTMLDivElement>();
   const [cardsRef, cardsVisible] = useScrollReveal<HTMLDivElement>();
 
   useEffect(() => {
     const loadPlans = async () => {
       try {
+        setError(null);
         const data = await plansApi.getPlans();
         // Only show active plans
-        setPlans(data.filter(p => p.is_active));
+        const activePlans = data.filter(p => p.is_active);
+        setPlans(activePlans);
+        if (activePlans.length === 0) {
+          setError('Pricing is temporarily unavailable. Please try again later.');
+        }
       } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to load pricing.';
+        setError(message);
         console.error('Failed to load plans:', error);
       } finally {
         setLoading(false);
@@ -55,76 +63,97 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div ref={cardsRef} className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {plans.map((plan, index) => {
-            const isPopular = index === 1;
-            return (
-              <Card
-                key={plan.id}
-                className={`relative bg-background border-border transition-all duration-500 ease-out hover:shadow-xl hover:-translate-y-2 ${
-                  isPopular ? 'border-primary ring-2 ring-primary/20 hover:shadow-primary/10' : 'hover:border-primary/50 hover:shadow-lg'
-                } ${cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-                style={{ transitionDelay: cardsVisible ? getStaggerDelay(index, 150) : '0ms' }}
-              >
-                {isPopular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground shadow-md shadow-primary/30">
-                    Most Popular
-                  </Badge>
-                )}
-                {plan.trial_days && (
-                  <Badge variant="outline" className="absolute -top-3 right-4 bg-background border-accent text-accent">
-                    {plan.trial_days}-day free trial
-                  </Badge>
-                )}
-                <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-2xl text-foreground">{plan.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{plan.description}</p>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <div className="mb-6">
-                    <span className="text-4xl font-bold text-foreground">
-                      {plan.display_price || 'Contact us'}
-                    </span>
-                  </div>
-                  <ul className="space-y-3 text-left">
-                    {plan.features.map((feature, i) => (
-                      <li 
-                        key={i} 
-                        className={`flex items-start gap-2 transition-all duration-300 ${
-                          cardsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
-                        }`}
-                        style={{ transitionDelay: cardsVisible ? `${(index * 150) + (i * 50)}ms` : '0ms' }}
-                      >
-                        <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                        <div className="flex flex-col">
-                          <span className="text-foreground font-medium">{feature.title}</span>
-                          {feature.description && (
-                            <span className="text-sm text-muted-foreground">{feature.description}</span>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className={`w-full transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${
-                      isPopular ? 'hover:shadow-primary/25' : ''
-                    }`}
-                    variant={isPopular ? 'default' : 'outline'}
-                    asChild
-                  >
-                    <Link to="/auth/signup">Get Started</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            );
-          })}
-        </div>
+        {error ? (
+          <div className="max-w-3xl mx-auto">
+            <Card className="bg-background border-border">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl text-foreground">Pricing</CardTitle>
+                <p className="text-sm text-muted-foreground">{error}</p>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-muted-foreground">
+                  You can still start a free assessment, and we’ll help you choose the right plan later.
+                </p>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button asChild>
+                  <Link to="/auth/signup">Get Started</Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        ) : (
+          <div ref={cardsRef} className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {plans.map((plan, index) => {
+              const isPopular = index === 1;
+              return (
+                <Card
+                  key={plan.id}
+                  className={`relative bg-background border-border transition-all duration-500 ease-out hover:shadow-xl hover:-translate-y-2 ${
+                    isPopular ? 'border-primary ring-2 ring-primary/20 hover:shadow-primary/10' : 'hover:border-primary/50 hover:shadow-lg'
+                  } ${cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                  style={{ transitionDelay: cardsVisible ? getStaggerDelay(index, 150) : '0ms' }}
+                >
+                  {isPopular && (
+                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground shadow-md shadow-primary/30">
+                      Most Popular
+                    </Badge>
+                  )}
+                  {plan.trial_days && (
+                    <Badge variant="outline" className="absolute -top-3 right-4 bg-background border-accent text-accent">
+                      {plan.trial_days}-day free trial
+                    </Badge>
+                  )}
+                  <CardHeader className="text-center pb-4">
+                    <CardTitle className="text-2xl text-foreground">{plan.name}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{plan.description}</p>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <div className="mb-6">
+                      <span className="text-4xl font-bold text-foreground">
+                        {plan.display_price || 'Contact us'}
+                      </span>
+                    </div>
+                    <ul className="space-y-3 text-left">
+                      {plan.features.map((feature, i) => (
+                        <li
+                          key={i}
+                          className={`flex items-start gap-2 transition-all duration-300 ${
+                            cardsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
+                          }`}
+                          style={{ transitionDelay: cardsVisible ? `${(index * 150) + (i * 50)}ms` : '0ms' }}
+                        >
+                          <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                          <div className="flex flex-col">
+                            <span className="text-foreground font-medium">{feature.title}</span>
+                            {feature.description && (
+                              <span className="text-sm text-muted-foreground">{feature.description}</span>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                  <CardFooter>
+                    <Button
+                      className={`w-full transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${
+                        isPopular ? 'hover:shadow-primary/25' : ''
+                      }`}
+                      variant={isPopular ? 'default' : 'outline'}
+                      asChild
+                    >
+                      <Link to="/auth/signup">Get Started</Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              );
+            })}
+          </div>
+        )}
 
         <p 
           className={`text-center text-muted-foreground mt-8 transition-all duration-500 ${
-            cardsVisible ? 'opacity-100' : 'opacity-0'
+            cardsVisible || !!error ? 'opacity-100' : 'opacity-0'
           }`}
           style={{ transitionDelay: '600ms' }}
         >
