@@ -8,6 +8,7 @@ import {
   FileCheck,
   ArrowRight
 } from 'lucide-react';
+import { useScrollReveal, getStaggerDelay } from '@/hooks/useScrollReveal';
 
 const problems = [
   {
@@ -33,10 +34,19 @@ const problems = [
 ];
 
 export function WhySection() {
+  const [headerRef, headerVisible] = useScrollReveal<HTMLDivElement>();
+  const [cardsRef, cardsVisible] = useScrollReveal<HTMLDivElement>();
+  const [benefitsRef, benefitsVisible] = useScrollReveal<HTMLDivElement>();
+
   return (
     <section id="why" className="py-20 bg-card">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div 
+          ref={headerRef}
+          className={`text-center mb-16 transition-all duration-700 ease-out ${
+            headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Why Choose ZestComply?
           </h2>
@@ -45,11 +55,17 @@ export function WhySection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div ref={cardsRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {problems.map((item, index) => (
-            <Card key={index} className="bg-background border-border hover:border-primary/50 transition-colors">
+            <Card 
+              key={index} 
+              className={`bg-background border-border transition-all duration-500 ease-out hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1 ${
+                cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}
+              style={{ transitionDelay: cardsVisible ? getStaggerDelay(index, 100) : '0ms' }}
+            >
               <CardContent className="p-6">
-                <item.icon className="h-10 w-10 text-primary mb-4" />
+                <item.icon className="h-10 w-10 text-primary mb-4 transition-transform duration-300 group-hover:scale-110" />
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-destructive">
                     <span className="text-sm line-through">{item.problem}</span>
@@ -65,34 +81,29 @@ export function WhySection() {
         </div>
 
         {/* Additional benefits */}
-        <div className="mt-16 grid md:grid-cols-3 gap-8 text-center">
-          <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Zap className="h-8 w-8 text-primary" />
+        <div 
+          ref={benefitsRef}
+          className="mt-16 grid md:grid-cols-3 gap-8 text-center"
+        >
+          {[
+            { icon: Zap, title: '10x Faster', desc: 'Generate comprehensive documentation in hours, not weeks' },
+            { icon: FileCheck, title: 'Audit-Ready', desc: 'Documentation that meets auditor expectations every time' },
+            { icon: Brain, title: 'AI-Guided', desc: 'Intelligent assistant that understands compliance requirements' }
+          ].map((benefit, index) => (
+            <div 
+              key={benefit.title}
+              className={`flex flex-col items-center transition-all duration-700 ease-out ${
+                benefitsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}
+              style={{ transitionDelay: benefitsVisible ? getStaggerDelay(index, 150) : '0ms' }}
+            >
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 transition-all duration-300 hover:bg-primary/20 hover:scale-105">
+                <benefit.icon className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">{benefit.title}</h3>
+              <p className="text-muted-foreground">{benefit.desc}</p>
             </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">10x Faster</h3>
-            <p className="text-muted-foreground">
-              Generate comprehensive documentation in hours, not weeks
-            </p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <FileCheck className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">Audit-Ready</h3>
-            <p className="text-muted-foreground">
-              Documentation that meets auditor expectations every time
-            </p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Brain className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">AI-Guided</h3>
-            <p className="text-muted-foreground">
-              Intelligent assistant that understands compliance requirements
-            </p>
-          </div>
+          ))}
         </div>
       </div>
     </section>
