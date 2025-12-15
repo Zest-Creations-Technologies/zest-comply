@@ -18,13 +18,22 @@ export function LandingHeader() {
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-6">
             <a href="#why" className="text-muted-foreground hover:text-foreground transition-colors">
-              Why Zest
+              Why ZestComply
             </a>
             <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
               How It Works
             </a>
             <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
               Pricing
+            </a>
+            <a href="/documents/ZestCreations_Capability_Statement.pdf" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+              Capability Statement
+            </a>
+            <a href="https://www.zestcyber.com/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+              Corporate Home
+            </a>
+            <a href="https://www.zestcreationstechnologies.com/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+              Secure Cloud & Hosting
             </a>
           </nav>
 
@@ -59,13 +68,22 @@ export function LandingHeader() {
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col gap-4">
               <a href="#why" className="text-muted-foreground hover:text-foreground transition-colors">
-                Why Zest
+                Why ZestComply
               </a>
               <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
                 How It Works
               </a>
               <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
                 Pricing
+              </a>
+              <a href="/documents/ZestCreations_Capability_Statement.pdf" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+                Capability Statement
+              </a>
+              <a href="https://www.zestcyber.com/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+                Corporate Home
+              </a>
+              <a href="https://www.zestcreationstechnologies.com/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+                Secure Cloud & Hosting
               </a>
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
                 {isAuthenticated ? (
