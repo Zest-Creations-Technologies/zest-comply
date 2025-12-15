@@ -19,7 +19,7 @@ export function LandingFooter() {
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                Zest Cyber
+                Zest Creations Technologies
               </a>
             </p>
           </div>
