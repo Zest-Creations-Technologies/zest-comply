@@ -50,7 +50,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string, rememberMe?: boolean) => {
     try {
       await authApi.login({ email, password, remember_me: rememberMe });
-      await refreshUser();
+      // Try to fetch user, but don't fail the login if it doesn't work
+      try {
+        await refreshUser();
+      } catch {
+        // If user fetch fails, we still consider login successful
+        // The user can be fetched again later
+        console.warn('Could not fetch user details after login');
+      }
       toast({ title: 'Welcome back!', description: 'You have been logged in successfully.' });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed';
@@ -62,7 +69,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signup = async (email: string, password: string, firstName?: string, lastName?: string) => {
     try {
       await authApi.signup({ email, password, first_name: firstName, last_name: lastName });
-      await refreshUser();
+      // Check isAuthenticated from tokens directly after signup
+      const isAuth = authApi.isAuthenticated();
+      if (isAuth) {
+        try {
+          await refreshUser();
+        } catch {
+          console.warn('Could not fetch user details after signup');
+        }
+      }
       toast({ title: 'Account created!', description: 'Welcome to Zest Comply.' });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Signup failed';
@@ -82,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user || authApi.isAuthenticated(),
         login,
         signup,
         logout,
