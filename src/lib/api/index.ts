@@ -7,3 +7,4 @@ export { authApi } from './auth';
 export { plansApi } from './plans';
 export { conversationsApi } from './conversations';
 export { storageApi } from './storage';
+export { passwordResetApi } from './password-reset';
