@@ -32,37 +32,96 @@ import {
   ArrowLeft,
   Building2,
   Trash2,
+  RotateCcw,
+  Package,
+  CheckCircle,
+  Download,
 } from 'lucide-react';
 import { conversationsApi, type ConversationMessage, type ConversationSession } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { API_CONFIG, getWebSocketUrl } from '@/lib/api/config';
 
-type Phase = 'initiation' | 'information_discovery' | 'framework_determination' | 'structure_synthesis' | 'content_generation';
+// Updated phases to match 7-stage workflow
+type Phase = 
+  | 'initiation' 
+  | 'information_discovery' 
+  | 'framework_analysis' 
+  | 'structure_generation' 
+  | 'document_generation' 
+  | 'package_finalization' 
+  | 'completed';
 
-const phaseConfig: Record<Phase, { label: string; icon: React.ElementType }> = {
-  initiation: { label: 'Initiation', icon: MessageSquare },
-  information_discovery: { label: 'Information Discovery', icon: MessageSquare },
-  framework_determination: { label: 'Framework Determination', icon: Shield },
-  structure_synthesis: { label: 'Structure Synthesis', icon: FolderTree },
-  content_generation: { label: 'Content Generation', icon: FileText },
+const phaseConfig: Record<Phase, { label: string; icon: React.ElementType; description: string }> = {
+  initiation: { 
+    label: 'Getting Started', 
+    icon: MessageSquare,
+    description: 'Welcome and initial setup'
+  },
+  information_discovery: { 
+    label: 'Information Discovery', 
+    icon: MessageSquare,
+    description: 'Gathering company details'
+  },
+  framework_analysis: { 
+    label: 'Framework Analysis', 
+    icon: Shield,
+    description: 'Analyzing compliance requirements'
+  },
+  structure_generation: { 
+    label: 'Structure Generation', 
+    icon: FolderTree,
+    description: 'Creating package structure'
+  },
+  document_generation: { 
+    label: 'Document Generation', 
+    icon: FileText,
+    description: 'Generating compliance documents'
+  },
+  package_finalization: { 
+    label: 'Finalizing', 
+    icon: Package,
+    description: 'Creating your download package'
+  },
+  completed: { 
+    label: 'Completed', 
+    icon: CheckCircle,
+    description: 'Your package is ready!'
+  },
 };
 
 const phaseLabels: Record<string, string> = {
   initiation: 'Initiation',
   information_discovery: 'Discovery',
-  framework_determination: 'Framework Selection',
-  structure_synthesis: 'Structure Approval',
-  content_generation: 'Generating',
+  framework_analysis: 'Framework Analysis',
+  structure_generation: 'Structure Generation',
+  document_generation: 'Generating Documents',
+  package_finalization: 'Finalizing',
   completed: 'Completed',
 };
 
-interface GenerationProgress {
-  file: string;
-  progress: number;
-  status: string;
+// Helper to detect retryable error messages
+function isRetryableError(message: string): boolean {
+  const retryKeywords = [
+    "sorry, i couldn't",
+    "couldn't generate",
+    "couldn't determine",
+    "couldn't finalize",
+    "please type 'try again'",
+    "please type 'retry'",
+  ];
+  return retryKeywords.some(keyword =>
+    message.toLowerCase().includes(keyword.toLowerCase())
+  );
+}
+
+interface ChatMessage extends ConversationMessage {
+  showRetryButton?: boolean;
+  isSystemMessage?: boolean;
 }
 
 type View = 'list' | 'chat';
+
+const SESSION_STORAGE_KEY = 'agent_session_id';
 
 export default function AssistantPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -77,16 +136,20 @@ export default function AssistantPage() {
   const [conversationToDelete, setConversationToDelete] = useState<ConversationSession | null>(null);
   
   // Chat state
-  const [messages, setMessages] = useState<ConversationMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
   const [currentPhase, setCurrentPhase] = useState<Phase>('initiation');
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [generationProgress, setGenerationProgress] = useState<GenerationProgress | null>(null);
+  const [phaseStartTime, setPhaseStartTime] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const maxReconnectAttempts = 3;
   const { toast } = useToast();
 
   const scrollToBottom = () => {
@@ -96,6 +159,21 @@ export default function AssistantPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Timer for long-running phases
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (phaseStartTime && (currentPhase === 'document_generation' || currentPhase === 'structure_generation')) {
+      interval = setInterval(() => {
+        setElapsedTime(Math.floor((Date.now() - phaseStartTime) / 1000));
+      }, 1000);
+    } else {
+      setElapsedTime(0);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [phaseStartTime, currentPhase]);
 
   // Load conversations list
   const loadConversations = useCallback(async () => {
@@ -144,84 +222,152 @@ export default function AssistantPage() {
       wsUrl += `&session_id=${existingSessionId}`;
     }
     
+    console.log('Connecting to WebSocket:', wsUrl.replace(token, '[TOKEN]'));
     const ws = new WebSocket(wsUrl);
     
     ws.onopen = () => {
       console.log('WebSocket connected');
       setIsConnected(true);
+      setIsReconnecting(false);
       setIsLoading(false);
+      reconnectAttemptsRef.current = 0;
     };
     
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log('WebSocket message:', data);
       
+      // Store session_id from any message that includes it
+      if (data.session_id && !sessionId) {
+        setSessionId(data.session_id);
+        localStorage.setItem(SESSION_STORAGE_KEY, data.session_id);
+      }
+      
       switch (data.event_type) {
-        case 'info':
-          if (data.session_id) {
-            setSessionId(data.session_id);
+        case 'info': {
+          // Handle session initialization/resumption
+          if (data.payload?.resumed !== undefined) {
+            toast({
+              title: data.payload.resumed ? 'Session resumed' : 'Session started',
+              description: data.payload.message,
+            });
           }
+          
+          // Update phase if present
           if (data.payload?.phase) {
-            setCurrentPhase(data.payload.phase as Phase);
+            const newPhase = data.payload.phase as Phase;
+            if (newPhase !== currentPhase) {
+              setCurrentPhase(newPhase);
+              if (newPhase === 'document_generation' || newPhase === 'structure_generation') {
+                setPhaseStartTime(Date.now());
+              } else {
+                setPhaseStartTime(null);
+              }
+            }
+          }
+          
+          // Show info messages in chat as system messages (optional display)
+          if (data.payload?.message && !data.payload?.resumed) {
+            const infoMessage: ChatMessage = {
+              id: `info-${Date.now()}`,
+              session_id: data.session_id || sessionId || '',
+              role: 'assistant',
+              content: data.payload.message,
+              created_at: data.timestamp || new Date().toISOString(),
+              updated_at: data.timestamp || new Date().toISOString(),
+              isSystemMessage: true,
+              showRetryButton: isRetryableError(data.payload.message),
+            };
+            setMessages((prev) => [...prev, infoMessage]);
+            setIsLoading(false);
           }
           break;
+        }
           
-        case 'question':
-          const questionMessage: ConversationMessage = {
+        case 'question': {
+          const questionMessage: ChatMessage = {
             id: `msg-${Date.now()}`,
             session_id: data.session_id || sessionId || '',
             role: 'assistant',
-            content: data.text,
+            content: data.payload?.message || data.text || '',
             created_at: data.timestamp || new Date().toISOString(),
             updated_at: data.timestamp || new Date().toISOString(),
           };
           setMessages((prev) => [...prev, questionMessage]);
           setIsLoading(false);
           break;
+        }
           
-        case 'phase_change':
-          setCurrentPhase(data.payload.phase as Phase);
+        case 'phase_change': {
+          const { from_phase, to_phase, description } = data.payload;
+          console.log(`Phase change: ${from_phase} → ${to_phase}`);
+          
+          const newPhase = to_phase as Phase;
+          setCurrentPhase(newPhase);
+          
+          // Start timer for long phases
+          if (newPhase === 'document_generation' || newPhase === 'structure_generation') {
+            setPhaseStartTime(Date.now());
+          } else {
+            setPhaseStartTime(null);
+          }
+          
           toast({
             title: 'Phase changed',
-            description: data.payload.description,
+            description: description || `Moving to ${phaseLabels[newPhase] || newPhase}`,
           });
           break;
+        }
           
-        case 'file_generated':
-          toast({
-            title: 'File generated',
-            description: `Created: ${data.payload.path}`,
-          });
-          break;
-          
-        case 'generation_progress':
-          setGenerationProgress({
-            file: data.payload.file,
-            progress: data.payload.progress,
-            status: data.payload.status,
-          });
-          break;
-          
-        case 'error':
+        case 'error': {
+          const errorMessage = data.payload?.error || 'An error occurred';
           toast({
             title: 'Error',
-            description: data.payload.error,
+            description: errorMessage,
             variant: 'destructive',
           });
           setIsLoading(false);
+          
+          // Add error to chat if it's a retryable workflow error
+          if (data.payload?.code === 'workflow_error') {
+            const errorChatMessage: ChatMessage = {
+              id: `error-${Date.now()}`,
+              session_id: data.session_id || sessionId || '',
+              role: 'assistant',
+              content: errorMessage,
+              created_at: data.timestamp || new Date().toISOString(),
+              updated_at: data.timestamp || new Date().toISOString(),
+              showRetryButton: true,
+            };
+            setMessages((prev) => [...prev, errorChatMessage]);
+          }
           break;
+        }
       }
     };
     
     ws.onclose = (event) => {
       console.log('WebSocket closed:', event.code, event.reason);
       setIsConnected(false);
+      
       if (event.code === 1008) {
+        // Authentication error
         toast({
           title: 'Connection closed',
           description: event.reason || 'Authentication failed',
           variant: 'destructive',
         });
+      } else if (event.code !== 1000 && reconnectAttemptsRef.current < maxReconnectAttempts) {
+        // Attempt reconnection for unexpected closures
+        setIsReconnecting(true);
+        reconnectAttemptsRef.current++;
+        const delay = 2000 * reconnectAttemptsRef.current;
+        console.log(`Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current})`);
+        setTimeout(() => {
+          if (sessionId) {
+            connectWebSocket(sessionId);
+          }
+        }, delay);
       }
     };
     
@@ -235,7 +381,7 @@ export default function AssistantPage() {
     };
     
     wsRef.current = ws;
-  }, [toast, sessionId]);
+  }, [toast, sessionId, currentPhase]);
 
   const startNewConversation = useCallback(() => {
     setView('chat');
@@ -243,17 +389,18 @@ export default function AssistantPage() {
     setMessages([]);
     setSessionId(null);
     setCurrentPhase('initiation');
-    setGenerationProgress(null);
+    setPhaseStartTime(null);
     setSearchParams({});
+    localStorage.removeItem(SESSION_STORAGE_KEY);
     
     wsRef.current?.close();
     
     if (API_CONFIG.useMocks) {
-      const initialMessage: ConversationMessage = {
+      const initialMessage: ChatMessage = {
         id: 'msg-welcome',
         session_id: 'mock-session',
         role: 'assistant',
-        content: "Welcome to Zest Comply! I'm here to help you create comprehensive compliance documentation. Let's start by understanding your organization. What industry are you in?",
+        content: "Hi! I'm Zest Comply, and I'm here to help you create a professional compliance documentation package. To get started, what's your company name?",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -270,7 +417,7 @@ export default function AssistantPage() {
     setIsLoading(true);
     setMessages([]);
     setSessionId(conversationId);
-    setGenerationProgress(null);
+    setPhaseStartTime(null);
     
     wsRef.current?.close();
     
@@ -314,26 +461,26 @@ export default function AssistantPage() {
     loadConversations();
   };
 
-  const sendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  const sendMessage = (text?: string) => {
+    const messageText = text || inputValue.trim();
+    if (!messageText || isLoading) return;
     
-    const userMessage: ConversationMessage = {
+    const userMessage: ChatMessage = {
       id: 'temp-' + Date.now(),
       session_id: sessionId || '',
       role: 'user',
-      content: inputValue,
+      content: messageText,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
     
     setMessages((prev) => [...prev, userMessage]);
-    const messageText = inputValue;
-    setInputValue('');
+    if (!text) setInputValue('');
     setIsLoading(true);
     
     if (API_CONFIG.useMocks) {
       setTimeout(() => {
-        const assistantMessage: ConversationMessage = {
+        const assistantMessage: ChatMessage = {
           id: 'msg-' + Date.now(),
           session_id: sessionId || '',
           role: 'assistant',
@@ -345,11 +492,13 @@ export default function AssistantPage() {
         setIsLoading(false);
       }, 1500);
     } else if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        event_type: 'answer',
-        text: messageText,
-      }));
+      // Send message in new format: { text: "..." }
+      wsRef.current.send(JSON.stringify({ text: messageText }));
     }
+  };
+
+  const handleRetry = () => {
+    sendMessage('try again');
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -438,6 +587,12 @@ export default function AssistantPage() {
     });
   };
 
+  const formatElapsedTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -447,6 +602,15 @@ export default function AssistantPage() {
 
   const PhaseIcon = phaseConfig[currentPhase]?.icon || MessageSquare;
   const phaseLabel = phaseConfig[currentPhase]?.label || currentPhase;
+  const phases = Object.keys(phaseConfig) as Phase[];
+
+  // Get connection status text
+  const getConnectionStatus = (): string => {
+    if (API_CONFIG.useMocks) return 'Demo mode';
+    if (isReconnecting) return 'Reconnecting...';
+    if (isConnected) return 'Connected';
+    return 'Connecting...';
+  };
 
   // Render conversations list view
   if (view === 'list') {
@@ -613,11 +777,15 @@ export default function AssistantPage() {
               <span className="font-medium text-foreground">
                 {phaseLabel}
               </span>
+              {phaseStartTime && elapsedTime > 0 && (
+                <span className="text-sm text-muted-foreground">
+                  ({formatElapsedTime(elapsedTime)})
+                </span>
+              )}
             </div>
             {/* Phase progress */}
             <div className="hidden md:flex items-center gap-2">
-              {(Object.keys(phaseConfig) as Phase[]).map((phase, index) => {
-                const phases = Object.keys(phaseConfig) as Phase[];
+              {phases.map((phase, index) => {
                 const currentIndex = phases.indexOf(currentPhase);
                 const isCompleted = index < currentIndex;
                 const isCurrent = index === currentIndex;
@@ -652,35 +820,90 @@ export default function AssistantPage() {
         </div>
       </div>
 
+      {/* Long phase warning */}
+      {(currentPhase === 'document_generation') && isLoading && (
+        <div className="bg-primary/10 border-b border-primary/20 px-6 py-3">
+          <div className="flex items-center gap-3 text-sm">
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            <span className="text-foreground">
+              Generating compliance documents... This may take 5-15 minutes. Please don't close this window.
+            </span>
+            {elapsedTime > 0 && (
+              <Badge variant="secondary" className="ml-auto">
+                {formatElapsedTime(elapsedTime)} elapsed
+              </Badge>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Completed phase - Download ready */}
+      {currentPhase === 'completed' && sessionId && (
+        <div className="bg-accent/10 border-b border-accent/20 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-5 w-5 text-accent" />
+              <span className="font-medium text-foreground">
+                Your compliance package is ready!
+              </span>
+            </div>
+            <Button asChild>
+              <a href={`${API_CONFIG.baseUrl}/api/v1/packages/${sessionId}/download`} download>
+                <Download className="h-4 w-4 mr-2" />
+                Download Package
+              </a>
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Messages area */}
       <ScrollArea className="flex-1 p-6">
         <div className="max-w-3xl mx-auto space-y-4">
           {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-3 ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              {message.role !== 'user' && (
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <Bot className="h-4 w-4 text-primary" />
-                </div>
-              )}
-              <Card
-                className={`max-w-[80%] ${
-                  message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card'
+            <div key={message.id}>
+              <div
+                className={`flex gap-3 ${
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
                 }`}
               >
-                <CardContent className="p-3">
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                </CardContent>
-              </Card>
-              {message.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                  <User className="h-4 w-4 text-muted-foreground" />
+                {message.role !== 'user' && (
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Bot className="h-4 w-4 text-primary" />
+                  </div>
+                )}
+                <Card
+                  className={`max-w-[80%] ${
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : message.isSystemMessage
+                      ? 'bg-muted/50 border-dashed'
+                      : 'bg-card'
+                  }`}
+                >
+                  <CardContent className="p-3">
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  </CardContent>
+                </Card>
+                {message.role === 'user' && (
+                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+              
+              {/* Retry button for retryable errors */}
+              {message.showRetryButton && message.role === 'assistant' && (
+                <div className="flex justify-start pl-11 mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRetry}
+                    disabled={isLoading}
+                  >
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Try Again
+                  </Button>
                 </div>
               )}
             </div>
@@ -695,7 +918,15 @@ export default function AssistantPage() {
                 <CardContent className="p-3">
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                    <span className="text-sm text-muted-foreground">Thinking...</span>
+                    <span className="text-sm text-muted-foreground">
+                      {currentPhase === 'document_generation' 
+                        ? 'Generating documents...' 
+                        : currentPhase === 'structure_generation'
+                        ? 'Creating structure...'
+                        : currentPhase === 'framework_analysis'
+                        ? 'Analyzing requirements...'
+                        : 'Thinking...'}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -710,19 +941,22 @@ export default function AssistantPage() {
       <div className="border-t border-border bg-card p-4">
         <div className="max-w-3xl mx-auto flex gap-2">
           <Input
-            placeholder="Type your message..."
+            placeholder={currentPhase === 'completed' ? 'Conversation completed' : 'Type your message...'}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            disabled={isLoading}
+            disabled={isLoading || currentPhase === 'completed'}
             className="flex-1"
           />
-          <Button onClick={sendMessage} disabled={!inputValue.trim() || isLoading}>
+          <Button 
+            onClick={() => sendMessage()} 
+            disabled={!inputValue.trim() || isLoading || currentPhase === 'completed'}
+          >
             <Send className="h-4 w-4" />
           </Button>
         </div>
         <p className="text-xs text-muted-foreground text-center mt-2">
-          {API_CONFIG.useMocks ? 'Running in demo mode' : isConnected ? 'Connected' : 'Connecting...'}
+          {getConnectionStatus()}
         </p>
       </div>
     </div>
