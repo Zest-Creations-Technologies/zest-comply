@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Eye, EyeOff, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowLeft, CheckCircle, RefreshCw } from 'lucide-react';
 import { z } from 'zod';
 import { Logo } from '@/components/Logo';
 import { passwordResetApi } from '@/lib/api/password-reset';
 import { useToast } from '@/hooks/use-toast';
+
+const RESEND_COOLDOWN_SECONDS = 60;
 
 const emailSchema = z.object({
   email: z.string().trim().email('Please enter a valid email address'),
@@ -34,6 +36,8 @@ export default function ForgotPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { toast } = useToast();
@@ -61,6 +65,7 @@ export default function ForgotPasswordPage() {
         description: 'If an account exists, we sent you a password reset code.',
       });
       setStep('verify');
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to send reset email';
       toast({ title: 'Error', description: message, variant: 'destructive' });
@@ -68,6 +73,36 @@ export default function ForgotPasswordPage() {
       setIsLoading(false);
     }
   };
+
+  const handleResendOtp = useCallback(async () => {
+    if (resendCooldown > 0 || isResending) return;
+
+    setIsResending(true);
+    try {
+      await passwordResetApi.initiate(email);
+      toast({
+        title: 'Code resent',
+        description: 'A new reset code has been sent to your email.',
+      });
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to resend code';
+      toast({ title: 'Error', description: message, variant: 'destructive' });
+    } finally {
+      setIsResending(false);
+    }
+  }, [email, resendCooldown, isResending, toast]);
+
+  // Countdown timer for resend cooldown
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   const handleVerifySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -243,14 +278,30 @@ export default function ForgotPasswordPage() {
                 Reset Password
               </Button>
 
-              <button
-                type="button"
-                onClick={() => setStep('email')}
-                className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Use different email
-              </button>
+              <div className="flex items-center justify-between w-full">
+                <button
+                  type="button"
+                  onClick={() => setStep('email')}
+                  className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Use different email
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={resendCooldown > 0 || isResending}
+                  className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isResending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4" />
+                  )}
+                  {resendCooldown > 0 ? `Resend (${resendCooldown}s)` : 'Resend code'}
+                </button>
+              </div>
             </CardFooter>
           </form>
         )}
