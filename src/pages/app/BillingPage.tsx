@@ -231,8 +231,12 @@ export default function BillingPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    // Check for invalid date or epoch (1970)
+    if (isNaN(date.getTime()) || date.getFullYear() <= 1970) return null;
+    return date.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
@@ -280,11 +284,16 @@ export default function BillingPage() {
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="h-4 w-4" />
               <span>
-                {subscription.cancel_at_period_end
-                  ? `Access until ${formatDate(subscription.current_period_end)}`
-                  : subscription.current_period_end
-                    ? `Next billing date: ${formatDate(subscription.current_period_end)}`
-                    : 'Billing: Forever'}
+                {(() => {
+                  const formattedDate = formatDate(subscription.current_period_end);
+                  if (subscription.cancel_at_period_end && formattedDate) {
+                    return `Access until ${formattedDate}`;
+                  } else if (formattedDate) {
+                    return `Next billing date: ${formattedDate}`;
+                  } else {
+                    return 'Billing: Forever';
+                  }
+                })()}
               </span>
             </div>
             <div className="text-foreground text-2xl font-bold">
