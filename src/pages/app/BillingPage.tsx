@@ -282,7 +282,9 @@ export default function BillingPage() {
               <span>
                 {subscription.cancel_at_period_end
                   ? `Access until ${formatDate(subscription.current_period_end)}`
-                  : `Next billing date: ${formatDate(subscription.current_period_end)}`}
+                  : subscription.current_period_end
+                    ? `Next billing date: ${formatDate(subscription.current_period_end)}`
+                    : 'Billing: Forever'}
               </span>
             </div>
             <div className="text-foreground text-2xl font-bold">
