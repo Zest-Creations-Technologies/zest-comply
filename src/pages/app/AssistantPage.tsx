@@ -119,6 +119,36 @@ interface ChatMessage extends ConversationMessage {
   isSystemMessage?: boolean;
 }
 
+// Workflow progress state
+interface DocumentProgress {
+  current: number;
+  total: number;
+  currentDocument?: string;
+  folderPath?: string;
+}
+
+interface FrameworkResult {
+  framework: string;
+  confidence: string;
+  score: number;
+  reasoning: string;
+  alternatives?: string[];
+}
+
+interface StructureResult {
+  framework: string;
+  totalDocuments: number;
+  totalFolders: number;
+  rootFolder: string;
+}
+
+interface FinalizationProgress {
+  manifestCreated: boolean;
+  zipCreated: boolean;
+  zipName?: string;
+  zipSizeKb?: number;
+}
+
 type View = 'list' | 'chat';
 
 const SESSION_STORAGE_KEY = 'agent_session_id';
@@ -145,6 +175,13 @@ export default function AssistantPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [phaseStartTime, setPhaseStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
+  
+  // Workflow progress states
+  const [documentProgress, setDocumentProgress] = useState<DocumentProgress | null>(null);
+  const [frameworkResult, setFrameworkResult] = useState<FrameworkResult | null>(null);
+  const [structureResult, setStructureResult] = useState<StructureResult | null>(null);
+  const [finalizationProgress, setFinalizationProgress] = useState<FinalizationProgress | null>(null);
+  const [currentWorkflowAction, setCurrentWorkflowAction] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -297,13 +334,23 @@ export default function AssistantPage() {
           setIsLoading(false);
           break;
         }
-          
-        case 'phase_change': {
-          const { from_phase, to_phase, description } = data.payload;
-          console.log(`Phase change: ${from_phase} → ${to_phase}`);
+        
+        // Handle both old and new phase change event names  
+        case 'phase_change':
+        case 'phase_transition': {
+          const { from_phase, to_phase, auto_continued } = data.payload;
+          console.log(`Phase transition: ${from_phase} → ${to_phase}${auto_continued ? ' (auto)' : ''}`);
           
           const newPhase = to_phase as Phase;
           setCurrentPhase(newPhase);
+          
+          // Reset workflow-specific states on phase change
+          if (newPhase !== 'document_generation') {
+            setDocumentProgress(null);
+          }
+          if (newPhase !== 'package_finalization') {
+            setFinalizationProgress(null);
+          }
           
           // Start timer for long phases
           if (newPhase === 'document_generation' || newPhase === 'structure_generation') {
@@ -312,10 +359,149 @@ export default function AssistantPage() {
             setPhaseStartTime(null);
           }
           
+          if (!auto_continued) {
+            toast({
+              title: 'Phase changed',
+              description: `Moving to ${phaseLabels[newPhase] || newPhase}`,
+            });
+          }
+          break;
+        }
+        
+        case 'workflow_started': {
+          const { action, message } = data.payload;
+          console.log(`Workflow started: ${action}`);
+          setCurrentWorkflowAction(action);
+          setIsLoading(true);
+          
+          // Show workflow start message
+          if (message) {
+            const workflowMessage: ChatMessage = {
+              id: `workflow-${Date.now()}`,
+              session_id: data.session_id || sessionId || '',
+              role: 'assistant',
+              content: message,
+              created_at: data.timestamp || new Date().toISOString(),
+              updated_at: data.timestamp || new Date().toISOString(),
+              isSystemMessage: true,
+            };
+            setMessages((prev) => [...prev, workflowMessage]);
+          }
+          break;
+        }
+        
+        case 'workflow_progress': {
+          const { action, message, total_documents } = data.payload;
+          console.log(`Workflow progress: ${action} - ${message}`);
+          
+          // Update document generation progress if total provided
+          if (total_documents) {
+            setDocumentProgress(prev => ({
+              ...prev,
+              total: total_documents,
+              current: prev?.current || 0,
+            }));
+          }
+          break;
+        }
+        
+        case 'workflow_completed': {
+          const { action, execution_time_ms } = data.payload;
+          console.log(`Workflow completed: ${action} in ${execution_time_ms}ms`);
+          setCurrentWorkflowAction(null);
+          setIsLoading(false);
+          break;
+        }
+        
+        case 'workflow_error': {
+          const { action, error } = data.payload;
+          console.error(`Workflow error in ${action}:`, error);
+          setCurrentWorkflowAction(null);
+          setIsLoading(false);
+          
+          const errorMessage: ChatMessage = {
+            id: `error-${Date.now()}`,
+            session_id: data.session_id || sessionId || '',
+            role: 'assistant',
+            content: `Sorry, I couldn't complete ${action}. ${error}. Please type 'try again' to retry.`,
+            created_at: data.timestamp || new Date().toISOString(),
+            updated_at: data.timestamp || new Date().toISOString(),
+            showRetryButton: true,
+          };
+          setMessages((prev) => [...prev, errorMessage]);
+          
           toast({
-            title: 'Phase changed',
-            description: description || `Moving to ${phaseLabels[newPhase] || newPhase}`,
+            title: 'Workflow Error',
+            description: error,
+            variant: 'destructive',
           });
+          break;
+        }
+        
+        case 'framework_inference_result': {
+          const { framework, confidence, score, reasoning, alternatives } = data.payload;
+          console.log(`Framework result: ${framework} (${confidence})`);
+          
+          setFrameworkResult({
+            framework,
+            confidence,
+            score,
+            reasoning,
+            alternatives,
+          });
+          setIsLoading(false);
+          break;
+        }
+        
+        case 'structure_generation_result': {
+          const { framework, total_documents, total_folders, root_folder } = data.payload;
+          console.log(`Structure result: ${total_documents} documents in ${total_folders} folders`);
+          
+          setStructureResult({
+            framework,
+            totalDocuments: total_documents,
+            totalFolders: total_folders,
+            rootFolder: root_folder,
+          });
+          setIsLoading(false);
+          break;
+        }
+        
+        case 'document_generated': {
+          const { document_name, folder_path, progress, total } = data.payload;
+          console.log(`Document generated: ${progress}/${total} - ${document_name}`);
+          
+          setDocumentProgress({
+            current: progress,
+            total,
+            currentDocument: document_name,
+            folderPath: folder_path,
+          });
+          break;
+        }
+        
+        case 'manifest_generated': {
+          console.log('Manifest generated');
+          setFinalizationProgress(prev => ({
+            ...prev,
+            manifestCreated: true,
+            zipCreated: prev?.zipCreated || false,
+          }));
+          break;
+        }
+        
+        case 'package_created': {
+          const { zip_name, zip_size_kb } = data.payload;
+          console.log(`Package created: ${zip_name} (${zip_size_kb}KB)`);
+          
+          setFinalizationProgress(prev => ({
+            ...prev,
+            manifestCreated: prev?.manifestCreated || true,
+            zipCreated: true,
+            zipName: zip_name,
+            zipSizeKb: zip_size_kb,
+          }));
+          setIsLoading(false);
           break;
         }
           
@@ -392,6 +578,13 @@ export default function AssistantPage() {
     setPhaseStartTime(null);
     setSearchParams({});
     localStorage.removeItem(SESSION_STORAGE_KEY);
+    
+    // Reset workflow progress states
+    setDocumentProgress(null);
+    setFrameworkResult(null);
+    setStructureResult(null);
+    setFinalizationProgress(null);
+    setCurrentWorkflowAction(null);
     
     wsRef.current?.close();
     
@@ -820,19 +1013,122 @@ export default function AssistantPage() {
         </div>
       </div>
 
-      {/* Long phase warning */}
-      {(currentPhase === 'document_generation') && isLoading && (
-        <div className="bg-primary/10 border-b border-primary/20 px-6 py-3">
-          <div className="flex items-center gap-3 text-sm">
-            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            <span className="text-foreground">
-              Generating compliance documents... This may take 5-15 minutes. Please don't close this window.
-            </span>
-            {elapsedTime > 0 && (
-              <Badge variant="secondary" className="ml-auto">
-                {formatElapsedTime(elapsedTime)} elapsed
-              </Badge>
+      {/* Framework Result Display */}
+      {frameworkResult && currentPhase === 'framework_analysis' && (
+        <div className="bg-primary/5 border-b border-primary/20 px-6 py-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Shield className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-semibold text-foreground">Recommended Framework</h3>
+                  <Badge variant={frameworkResult.confidence === 'high' ? 'default' : 'secondary'}>
+                    {frameworkResult.confidence} confidence ({Math.round(frameworkResult.score * 100)}%)
+                  </Badge>
+                </div>
+                <p className="text-xl font-bold text-primary mb-2">{frameworkResult.framework}</p>
+                <p className="text-sm text-muted-foreground mb-2">{frameworkResult.reasoning}</p>
+                {frameworkResult.alternatives && frameworkResult.alternatives.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Alternatives: {frameworkResult.alternatives.join(', ')}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Structure Result Display */}
+      {structureResult && (currentPhase === 'structure_generation' || currentPhase === 'document_generation') && (
+        <div className="bg-muted/50 border-b border-border px-6 py-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                <FolderTree className="h-5 w-5 text-foreground" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-foreground mb-1">Package Structure Created</h3>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span>Framework: {structureResult.framework}</span>
+                  <span>•</span>
+                  <span>{structureResult.totalDocuments} documents</span>
+                  <span>•</span>
+                  <span>{structureResult.totalFolders} folders</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Document Generation Progress */}
+      {currentPhase === 'document_generation' && (isLoading || documentProgress) && (
+        <div className="bg-primary/10 border-b border-primary/20 px-6 py-4">
+          <div className="max-w-3xl mx-auto space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <span className="font-medium text-foreground">
+                  Generating compliance documents...
+                </span>
+              </div>
+              {elapsedTime > 0 && (
+                <Badge variant="secondary">
+                  {formatElapsedTime(elapsedTime)} elapsed
+                </Badge>
+              )}
+            </div>
+            
+            {documentProgress && (
+              <>
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="bg-primary h-full transition-all duration-300"
+                    style={{ width: `${(documentProgress.current / documentProgress.total) * 100}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>
+                    {documentProgress.currentDocument && (
+                      <>Currently: {documentProgress.currentDocument}</>
+                    )}
+                    {documentProgress.folderPath && (
+                      <span className="text-xs ml-2">({documentProgress.folderPath})</span>
+                    )}
+                  </span>
+                  <span>{documentProgress.current} of {documentProgress.total}</span>
+                </div>
+              </>
             )}
+            
+            <p className="text-xs text-muted-foreground">
+              This may take 5-15 minutes. Please don't close this window.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Package Finalization Progress */}
+      {currentPhase === 'package_finalization' && (
+        <div className="bg-muted/50 border-b border-border px-6 py-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center gap-4">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <div className="flex-1">
+                <h3 className="font-medium text-foreground mb-2">Finalizing Package...</h3>
+                <div className="flex items-center gap-6 text-sm">
+                  <span className={finalizationProgress?.manifestCreated ? 'text-primary' : 'text-muted-foreground'}>
+                    {finalizationProgress?.manifestCreated ? '✓' : '○'} Manifest created
+                  </span>
+                  <span className={finalizationProgress?.zipCreated ? 'text-primary' : 'text-muted-foreground'}>
+                    {finalizationProgress?.zipCreated ? '✓' : '○'} ZIP package created
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -840,12 +1136,19 @@ export default function AssistantPage() {
       {/* Completed phase - Download ready */}
       {currentPhase === 'completed' && sessionId && (
         <div className="bg-accent/10 border-b border-accent/20 px-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between max-w-3xl mx-auto">
             <div className="flex items-center gap-3">
               <CheckCircle className="h-5 w-5 text-accent" />
-              <span className="font-medium text-foreground">
-                Your compliance package is ready!
-              </span>
+              <div>
+                <span className="font-medium text-foreground">
+                  Your compliance package is ready!
+                </span>
+                {finalizationProgress?.zipSizeKb && (
+                  <span className="text-sm text-muted-foreground ml-2">
+                    ({finalizationProgress.zipSizeKb.toFixed(1)} KB)
+                  </span>
+                )}
+              </div>
             </div>
             <Button asChild>
               <a href={`${API_CONFIG.baseUrl}/api/v1/packages/${sessionId}/download`} download>
@@ -909,7 +1212,7 @@ export default function AssistantPage() {
             </div>
           ))}
           
-          {isLoading && (
+          {isLoading && currentPhase !== 'document_generation' && (
             <div className="flex gap-3 justify-start">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <Bot className="h-4 w-4 text-primary" />
@@ -919,12 +1222,18 @@ export default function AssistantPage() {
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin text-primary" />
                     <span className="text-sm text-muted-foreground">
-                      {currentPhase === 'document_generation' 
-                        ? 'Generating documents...' 
+                      {currentWorkflowAction === 'framework_inference'
+                        ? 'Analyzing compliance requirements...'
+                        : currentWorkflowAction === 'structure_generation'
+                        ? 'Creating package structure...'
+                        : currentWorkflowAction === 'package_finalization'
+                        ? 'Finalizing package...'
                         : currentPhase === 'structure_generation'
                         ? 'Creating structure...'
                         : currentPhase === 'framework_analysis'
                         ? 'Analyzing requirements...'
+                        : currentPhase === 'package_finalization'
+                        ? 'Finalizing...'
                         : 'Thinking...'}
                     </span>
                   </div>
