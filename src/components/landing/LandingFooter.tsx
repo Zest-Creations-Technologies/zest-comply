@@ -2,6 +2,7 @@ import { Logo } from "@/components/Logo";
 import { Mail, Phone, Globe } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Link } from "react-router-dom";
+import ibmPartnerLogo from "@/assets/ibm-business-partner.png";
 
 export function LandingFooter() {
   const [footerRef, footerVisible] = useScrollReveal<HTMLElement>();
@@ -143,9 +144,9 @@ export function LandingFooter() {
               Zest Creations Technologies LLC is an authorized IBM Service Business Partner, delivering consulting, implementation, and managed services aligned with IBM technologies.
             </p>
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg"
+              src={ibmPartnerLogo}
               alt="IBM Business Partner"
-              className="h-6 opacity-60"
+              className="h-12"
             />
           </div>
         </div>
