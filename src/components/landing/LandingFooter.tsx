@@ -135,10 +135,30 @@ export function LandingFooter() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Zest Creations Technologies, LLC. All rights reserved.
-          </p>
+        {/* IBM Business Partner Section */}
+        <div className="mt-12 pt-8 border-t border-border">
+          <div className="max-w-md">
+            <h4 className="font-semibold text-foreground mb-3 text-sm">IBM Business Partner</h4>
+            <p className="text-xs text-muted-foreground leading-relaxed mb-4">
+              Zest Creations Technologies LLC is an authorized IBM Service Business Partner, delivering consulting, implementation, and managed services aligned with IBM technologies.
+            </p>
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg"
+              alt="IBM Business Partner"
+              className="h-6 opacity-60"
+            />
+          </div>
+        </div>
+
+        <div className="mt-8 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} Zest Creations Technologies, LLC. All rights reserved.
+            </p>
+            <p className="text-xs text-muted-foreground/70">
+              IBM is a trademark or registered trademark of International Business Machines Corporation. Zest Creations Technologies LLC is an independent IBM Business Partner.
+            </p>
+          </div>
           <div className="flex items-center gap-4">
             {['Twitter', 'LinkedIn', 'GitHub'].map((social) => (
               <a 
