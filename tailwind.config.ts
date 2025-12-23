@@ -91,6 +91,10 @@ export default {
 			'float': {
 				'0%, 100%': { transform: 'translateY(0)' },
 				'50%': { transform: 'translateY(-10px)' }
+			},
+			'scroll-logos': {
+				'0%': { transform: 'translateX(0)' },
+				'100%': { transform: 'translateX(-25%)' }
 			}
 		},
 		animation: {
@@ -100,7 +104,8 @@ export default {
 			'fade-in': 'fade-in 0.5s ease-out forwards',
 			'slide-up': 'slide-up 0.7s ease-out forwards',
 			'scale-in': 'scale-in 0.5s ease-out forwards',
-			'float': 'float 6s ease-in-out infinite'
+			'float': 'float 6s ease-in-out infinite',
+			'scroll-logos': 'scroll-logos 20s linear infinite'
 		},
 		fontFamily: {
 			logo: ['Orbitron', 'sans-serif'],
