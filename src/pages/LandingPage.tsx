@@ -1,5 +1,6 @@
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { HeroSection } from '@/components/landing/HeroSection';
+import { PartnersSection } from '@/components/landing/PartnersSection';
 import { WhySection } from '@/components/landing/WhySection';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { PricingSection } from '@/components/landing/PricingSection';
@@ -23,6 +24,7 @@ export default function LandingPage() {
       <LandingHeader />
       <main>
         <HeroSection />
+        <PartnersSection />
         <WhySection />
         <HowItWorksSection />
         <PricingSection />
