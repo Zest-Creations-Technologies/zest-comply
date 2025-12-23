@@ -24,12 +24,12 @@ export function PartnersSection() {
   return (
     <section
       ref={sectionRef}
-      className={`py-16 bg-muted/30 overflow-hidden transition-all duration-700 ${
+      className={`py-8 overflow-hidden transition-all duration-700 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
     >
-      <div className="container mx-auto px-4 mb-8">
-        <p className="text-center text-muted-foreground text-sm font-medium uppercase tracking-wider">
+      <div className="container mx-auto px-4 mb-4">
+        <p className="text-center text-muted-foreground text-xs font-medium uppercase tracking-wider">
           Trusted by Industry Leaders
         </p>
       </div>
