@@ -123,8 +123,11 @@ interface ChatMessage extends ConversationMessage {
 interface DocumentProgress {
   current: number;
   total: number;
+  percentage: number;
   currentDocument?: string;
   folderPath?: string;
+  status?: 'generating' | 'completed';
+  qualityScore?: number;
 }
 
 interface FrameworkResult {
@@ -133,6 +136,7 @@ interface FrameworkResult {
   score: number;
   reasoning: string;
   alternatives?: string[];
+  message?: string;
 }
 
 interface StructureResult {
@@ -140,6 +144,7 @@ interface StructureResult {
   totalDocuments: number;
   totalFolders: number;
   rootFolder: string;
+  folderTree?: string[];
 }
 
 interface FinalizationProgress {
@@ -439,7 +444,7 @@ export default function AssistantPage() {
         }
         
         case 'framework_inference_result': {
-          const { framework, confidence, score, reasoning, alternatives } = data.payload;
+          const { framework, confidence, score, reasoning, alternatives, message } = data.payload;
           console.log(`Framework result: ${framework} (${confidence})`);
           
           setFrameworkResult({
@@ -448,13 +453,27 @@ export default function AssistantPage() {
             score,
             reasoning,
             alternatives,
+            message,
           });
+          
+          // Add framework recommendation message to chat
+          if (message) {
+            const frameworkMessage: ChatMessage = {
+              id: `framework-${Date.now()}`,
+              session_id: data.session_id || sessionId || '',
+              role: 'assistant',
+              content: message,
+              created_at: data.timestamp || new Date().toISOString(),
+              updated_at: data.timestamp || new Date().toISOString(),
+            };
+            setMessages((prev) => [...prev, frameworkMessage]);
+          }
           setIsLoading(false);
           break;
         }
         
         case 'structure_generation_result': {
-          const { framework, total_documents, total_folders, root_folder } = data.payload;
+          const { framework, total_documents, total_folders, root_folder, folder_tree } = data.payload;
           console.log(`Structure result: ${total_documents} documents in ${total_folders} folders`);
           
           setStructureResult({
@@ -462,20 +481,24 @@ export default function AssistantPage() {
             totalDocuments: total_documents,
             totalFolders: total_folders,
             rootFolder: root_folder,
+            folderTree: folder_tree,
           });
           setIsLoading(false);
           break;
         }
         
         case 'document_generated': {
-          const { document_name, folder_path, progress, total } = data.payload;
-          console.log(`Document generated: ${progress}/${total} - ${document_name}`);
+          const { status, document_name, folder_path, progress, total, percentage, quality_score } = data.payload;
+          console.log(`Document ${status}: ${progress}/${total} - ${document_name}`);
           
           setDocumentProgress({
             current: progress,
             total,
+            percentage: percentage || Math.round((progress / total) * 100),
             currentDocument: document_name,
             folderPath: folder_path,
+            status,
+            qualityScore: quality_score,
           });
           break;
         }
@@ -1045,19 +1068,30 @@ export default function AssistantPage() {
       {structureResult && (currentPhase === 'structure_generation' || currentPhase === 'document_generation') && (
         <div className="bg-muted/50 border-b border-border px-6 py-4">
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-center gap-4">
+            <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
                 <FolderTree className="h-5 w-5 text-foreground" />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-foreground mb-1">Package Structure Created</h3>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                   <span>Framework: {structureResult.framework}</span>
                   <span>•</span>
                   <span>{structureResult.totalDocuments} documents</span>
                   <span>•</span>
                   <span>{structureResult.totalFolders} folders</span>
                 </div>
+                {/* Folder Tree Display */}
+                {structureResult.folderTree && structureResult.folderTree.length > 0 && (
+                  <div className="bg-background/50 rounded-md p-3 max-h-48 overflow-y-auto">
+                    <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap">
+                      {structureResult.folderTree.slice(0, 20).join('\n')}
+                      {structureResult.folderTree.length > 20 && (
+                        `\n... and ${structureResult.folderTree.length - 20} more items`
+                      )}
+                    </pre>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1070,16 +1104,29 @@ export default function AssistantPage() {
           <div className="max-w-3xl mx-auto space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                {documentProgress?.status === 'completed' ? (
+                  <CheckCircle className="h-4 w-4 text-primary" />
+                ) : (
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                )}
                 <span className="font-medium text-foreground">
-                  Generating compliance documents...
+                  {documentProgress?.status === 'generating' 
+                    ? 'Generating document...' 
+                    : 'Generating compliance documents...'}
                 </span>
               </div>
-              {elapsedTime > 0 && (
-                <Badge variant="secondary">
-                  {formatElapsedTime(elapsedTime)} elapsed
-                </Badge>
-              )}
+              <div className="flex items-center gap-2">
+                {documentProgress?.qualityScore && (
+                  <Badge variant="outline" className="text-xs">
+                    Quality: {documentProgress.qualityScore}%
+                  </Badge>
+                )}
+                {elapsedTime > 0 && (
+                  <Badge variant="secondary">
+                    {formatElapsedTime(elapsedTime)} elapsed
+                  </Badge>
+                )}
+              </div>
             </div>
             
             {documentProgress && (
@@ -1087,19 +1134,21 @@ export default function AssistantPage() {
                 <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                   <div 
                     className="bg-primary h-full transition-all duration-300"
-                    style={{ width: `${(documentProgress.current / documentProgress.total) * 100}%` }}
+                    style={{ width: `${documentProgress.percentage}%` }}
                   />
                 </div>
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>
                     {documentProgress.currentDocument && (
-                      <>Currently: {documentProgress.currentDocument}</>
+                      <>
+                        {documentProgress.status === 'generating' ? '⏳' : '✓'} {documentProgress.currentDocument}
+                      </>
                     )}
                     {documentProgress.folderPath && (
                       <span className="text-xs ml-2">({documentProgress.folderPath})</span>
                     )}
                   </span>
-                  <span>{documentProgress.current} of {documentProgress.total}</span>
+                  <span>{documentProgress.current} of {documentProgress.total} ({documentProgress.percentage}%)</span>
                 </div>
               </>
             )}
