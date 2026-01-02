@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +36,8 @@ import {
   Package,
   CheckCircle,
   Download,
+  AlertTriangle,
+  Sparkles,
 } from 'lucide-react';
 import { conversationsApi, type ConversationMessage, type ConversationSession } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
@@ -200,12 +202,15 @@ export default function AssistantPage() {
   const [finalizationProgress, setFinalizationProgress] = useState<FinalizationProgress | null>(null);
   const [currentWorkflowAction, setCurrentWorkflowAction] = useState<string | null>(null);
   const [quotaStatus, setQuotaStatus] = useState<QuotaStatus | null>(null);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [upgradeMessage, setUpgradeMessage] = useState<string>('');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const maxReconnectAttempts = 3;
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -440,6 +445,11 @@ export default function AssistantPage() {
           // Handle quota-related errors differently
           const isQuotaError = error_type === 'quota_exceeded' || error_type === 'quota_check_failed';
           
+          if (isQuotaError) {
+            setUpgradeMessage(error);
+            setShowUpgradePrompt(true);
+          }
+          
           const errorMessage: ChatMessage = {
             id: `error-${Date.now()}`,
             session_id: data.session_id || sessionId || '',
@@ -575,6 +585,9 @@ export default function AssistantPage() {
           
           // Handle subscription required error
           if (errorCode === 'SUBSCRIPTION_REQUIRED') {
+            setUpgradeMessage(errorMessage);
+            setShowUpgradePrompt(true);
+            
             toast({
               title: 'Subscription Required',
               description: errorMessage,
@@ -1033,6 +1046,42 @@ export default function AssistantPage() {
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Upgrade Prompt Dialog */}
+        <AlertDialog open={showUpgradePrompt} onOpenChange={setShowUpgradePrompt}>
+          <AlertDialogContent className="max-w-md">
+            <AlertDialogHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Sparkles className="h-6 w-6 text-primary" />
+                </div>
+                <AlertDialogTitle className="text-xl">Upgrade Your Plan</AlertDialogTitle>
+              </div>
+              <AlertDialogDescription className="space-y-3">
+                <div className="flex items-start gap-2 p-3 bg-destructive/10 rounded-lg">
+                  <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                  <p className="text-sm text-foreground">{upgradeMessage}</p>
+                </div>
+                <p className="text-muted-foreground">
+                  Unlock more documents and packages with a higher plan. Get unlimited document generation with Standard or Premium.
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+              <AlertDialogCancel>Maybe Later</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  setShowUpgradePrompt(false);
+                  navigate('/app/billing');
+                }}
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                View Plans
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
