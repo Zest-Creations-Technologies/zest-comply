@@ -154,6 +154,18 @@ interface FinalizationProgress {
   zipSizeKb?: number;
 }
 
+interface QuotaStatus {
+  documentsUsed: number;
+  documentsLimit: number | null;
+  packagesUsed: number;
+  packagesLimit: number;
+  canGenerateDocuments: boolean;
+  canGeneratePackages: boolean;
+  resetDate: string;
+  planName: string;
+  planDescription: string;
+}
+
 type View = 'list' | 'chat';
 
 const SESSION_STORAGE_KEY = 'agent_session_id';
@@ -187,6 +199,7 @@ export default function AssistantPage() {
   const [structureResult, setStructureResult] = useState<StructureResult | null>(null);
   const [finalizationProgress, setFinalizationProgress] = useState<FinalizationProgress | null>(null);
   const [currentWorkflowAction, setCurrentWorkflowAction] = useState<string | null>(null);
+  const [quotaStatus, setQuotaStatus] = useState<QuotaStatus | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -419,24 +432,29 @@ export default function AssistantPage() {
         }
         
         case 'workflow_error': {
-          const { action, error } = data.payload;
-          console.error(`Workflow error in ${action}:`, error);
+          const { action, error, error_type } = data.payload;
+          console.error(`Workflow error in ${action}:`, error, `(${error_type})`);
           setCurrentWorkflowAction(null);
           setIsLoading(false);
+          
+          // Handle quota-related errors differently
+          const isQuotaError = error_type === 'quota_exceeded' || error_type === 'quota_check_failed';
           
           const errorMessage: ChatMessage = {
             id: `error-${Date.now()}`,
             session_id: data.session_id || sessionId || '',
             role: 'assistant',
-            content: `Sorry, I couldn't complete ${action}. ${error}. Please type 'try again' to retry.`,
+            content: isQuotaError 
+              ? `⚠️ ${error}\n\nPlease upgrade your subscription to continue.`
+              : `Sorry, I couldn't complete ${action}. ${error}. Please type 'try again' to retry.`,
             created_at: data.timestamp || new Date().toISOString(),
             updated_at: data.timestamp || new Date().toISOString(),
-            showRetryButton: true,
+            showRetryButton: !isQuotaError,
           };
           setMessages((prev) => [...prev, errorMessage]);
           
           toast({
-            title: 'Workflow Error',
+            title: isQuotaError ? 'Quota Exceeded' : 'Workflow Error',
             description: error,
             variant: 'destructive',
           });
@@ -528,8 +546,54 @@ export default function AssistantPage() {
           break;
         }
           
+        case 'quota_status': {
+          const { 
+            documents_used, documents_limit, packages_used, packages_limit,
+            can_generate_documents, can_generate_packages, reset_date,
+            plan_name, plan_description 
+          } = data.payload;
+          
+          console.log(`Quota status: ${documents_used}/${documents_limit || '∞'} docs, ${packages_used}/${packages_limit} packages`);
+          
+          setQuotaStatus({
+            documentsUsed: documents_used,
+            documentsLimit: documents_limit,
+            packagesUsed: packages_used,
+            packagesLimit: packages_limit,
+            canGenerateDocuments: can_generate_documents,
+            canGeneratePackages: can_generate_packages,
+            resetDate: reset_date,
+            planName: plan_name,
+            planDescription: plan_description,
+          });
+          break;
+        }
+          
         case 'error': {
           const errorMessage = data.payload?.error || 'An error occurred';
+          const errorCode = data.payload?.code;
+          
+          // Handle subscription required error
+          if (errorCode === 'SUBSCRIPTION_REQUIRED') {
+            toast({
+              title: 'Subscription Required',
+              description: errorMessage,
+              variant: 'destructive',
+            });
+            setIsLoading(false);
+            
+            const subscriptionError: ChatMessage = {
+              id: `error-${Date.now()}`,
+              session_id: data.session_id || sessionId || '',
+              role: 'assistant',
+              content: `⚠️ ${errorMessage}\n\nPlease upgrade your subscription to continue using the assistant.`,
+              created_at: data.timestamp || new Date().toISOString(),
+              updated_at: data.timestamp || new Date().toISOString(),
+            };
+            setMessages((prev) => [...prev, subscriptionError]);
+            break;
+          }
+          
           toast({
             title: 'Error',
             description: errorMessage,
@@ -538,7 +602,7 @@ export default function AssistantPage() {
           setIsLoading(false);
           
           // Add error to chat if it's a retryable workflow error
-          if (data.payload?.code === 'workflow_error') {
+          if (errorCode === 'workflow_error') {
             const errorChatMessage: ChatMessage = {
               id: `error-${Date.now()}`,
               session_id: data.session_id || sessionId || '',
@@ -1036,7 +1100,25 @@ export default function AssistantPage() {
         </div>
       </div>
 
-      {/* Framework Result Display */}
+      {/* Quota Status Display */}
+      {quotaStatus && (
+        <div className="bg-muted/30 border-b border-border px-6 py-2">
+          <div className="max-w-3xl mx-auto flex items-center justify-between text-sm">
+            <div className="flex items-center gap-4">
+              <span className="font-medium text-foreground">{quotaStatus.planName}</span>
+              <span className="text-muted-foreground">
+                {quotaStatus.documentsLimit === null 
+                  ? `${quotaStatus.packagesUsed}/${quotaStatus.packagesLimit} packages`
+                  : `${quotaStatus.documentsUsed}/${quotaStatus.documentsLimit} documents`
+                }
+              </span>
+            </div>
+            <span className="text-muted-foreground">
+              Resets {new Date(quotaStatus.resetDate).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
+      )}
       {frameworkResult && currentPhase === 'framework_analysis' && (
         <div className="bg-primary/5 border-b border-primary/20 px-6 py-4">
           <div className="max-w-3xl mx-auto">
