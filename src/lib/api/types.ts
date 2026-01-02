@@ -13,6 +13,9 @@ export interface UserPlan {
   trial_start?: string | null;
   trial_end?: string | null;
   ended_at?: string | null;
+  documents_generated_this_period: number;
+  packages_generated_this_period: number;
+  last_quota_reset?: string | null;
   plan: Plan;
 }
 

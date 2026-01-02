@@ -94,6 +94,9 @@ export const mockSubscription: UserPlan = {
   current_period_start: '2024-11-01T00:00:00Z',
   current_period_end: '2024-12-01T00:00:00Z',
   cancel_at_period_end: false,
+  documents_generated_this_period: 3,
+  packages_generated_this_period: 1,
+  last_quota_reset: '2024-11-01T00:00:00Z',
   plan: mockPlans[1],
 };
 
