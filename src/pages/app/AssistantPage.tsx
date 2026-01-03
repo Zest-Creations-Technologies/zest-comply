@@ -42,13 +42,15 @@ import {
 import { conversationsApi, type ConversationMessage, type ConversationSession } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { API_CONFIG, getWebSocketUrl } from '@/lib/api/config';
+import { DocumentSelectionCard } from '@/components/app/DocumentSelectionCard';
 
-// Updated phases to match 7-stage workflow
+// Updated phases to match 7-stage workflow (with document_selection for Basic plan)
 type Phase = 
   | 'initiation' 
   | 'information_discovery' 
   | 'framework_analysis' 
   | 'structure_generation' 
+  | 'document_selection'
   | 'document_generation' 
   | 'package_finalization' 
   | 'completed';
@@ -74,6 +76,11 @@ const phaseConfig: Record<Phase, { label: string; icon: React.ElementType; descr
     icon: FolderTree,
     description: 'Creating package structure'
   },
+  document_selection: {
+    label: 'Select Documents',
+    icon: FileText,
+    description: 'Choose documents to generate'
+  },
   document_generation: { 
     label: 'Document Generation', 
     icon: FileText,
@@ -96,6 +103,7 @@ const phaseLabels: Record<string, string> = {
   information_discovery: 'Discovery',
   framework_analysis: 'Framework Analysis',
   structure_generation: 'Structure Generation',
+  document_selection: 'Document Selection',
   document_generation: 'Generating Documents',
   package_finalization: 'Finalizing',
   completed: 'Completed',
@@ -168,6 +176,19 @@ interface QuotaStatus {
   planDescription: string;
 }
 
+interface DocumentSelectionRequest {
+  totalDocuments: number;
+  remainingQuota: number;
+  planName: string;
+  maxSelectable: number;
+  documents: Array<{
+    filename: string;
+    folder: string;
+    subfolder: string | null;
+    description: string;
+  }>;
+}
+
 type View = 'list' | 'chat';
 
 const SESSION_STORAGE_KEY = 'agent_session_id';
@@ -204,6 +225,8 @@ export default function AssistantPage() {
   const [quotaStatus, setQuotaStatus] = useState<QuotaStatus | null>(null);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [upgradeMessage, setUpgradeMessage] = useState<string>('');
+  const [documentSelectionRequest, setDocumentSelectionRequest] = useState<DocumentSelectionRequest | null>(null);
+  const [isSubmittingSelection, setIsSubmittingSelection] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -578,6 +601,46 @@ export default function AssistantPage() {
           });
           break;
         }
+        
+        case 'document_selection_request': {
+          const { total_documents, remaining_quota, plan_name, max_selectable, documents } = data.data || data.payload;
+          console.log(`Document selection request: ${total_documents} docs, max ${max_selectable} selectable`);
+          
+          setDocumentSelectionRequest({
+            totalDocuments: total_documents,
+            remainingQuota: remaining_quota,
+            planName: plan_name,
+            maxSelectable: max_selectable,
+            documents,
+          });
+          setIsLoading(false);
+          
+          // Add a chat message explaining the selection
+          const selectionMessage: ChatMessage = {
+            id: `selection-${Date.now()}`,
+            session_id: data.session_id || sessionId || '',
+            role: 'assistant',
+            content: `Your ${plan_name} plan includes ${remaining_quota} documents per month. Your compliance package contains ${total_documents} documents. Please select which ${max_selectable} documents you'd like to generate.`,
+            created_at: data.timestamp || new Date().toISOString(),
+            updated_at: data.timestamp || new Date().toISOString(),
+          };
+          setMessages((prev) => [...prev, selectionMessage]);
+          break;
+        }
+        
+        case 'document_selection_response': {
+          const { selected_documents, count, message } = data.data || data.payload;
+          console.log(`Document selection confirmed: ${count} documents`);
+          
+          setDocumentSelectionRequest(null);
+          setIsSubmittingSelection(false);
+          
+          toast({
+            title: 'Selection Confirmed',
+            description: message || `${count} document(s) will be generated`,
+          });
+          break;
+        }
           
         case 'error': {
           const errorMessage = data.payload?.error || 'An error occurred';
@@ -685,6 +748,8 @@ export default function AssistantPage() {
     setStructureResult(null);
     setFinalizationProgress(null);
     setCurrentWorkflowAction(null);
+    setDocumentSelectionRequest(null);
+    setIsSubmittingSelection(false);
     
     wsRef.current?.close();
     
@@ -792,6 +857,35 @@ export default function AssistantPage() {
 
   const handleRetry = () => {
     sendMessage('try again');
+  };
+
+  const submitDocumentSelection = (selectedFilenames: string[]) => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      toast({
+        title: 'Connection Error',
+        description: 'Please wait for the connection to be established',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    setIsSubmittingSelection(true);
+    
+    // Send only selected_documents, no text field
+    wsRef.current.send(JSON.stringify({
+      selected_documents: selectedFilenames,
+    }));
+    
+    // Add user message showing selection
+    const selectionMessage: ChatMessage = {
+      id: `user-selection-${Date.now()}`,
+      session_id: sessionId || '',
+      role: 'user',
+      content: `Selected ${selectedFilenames.length} document(s): ${selectedFilenames.slice(0, 3).join(', ')}${selectedFilenames.length > 3 ? ` and ${selectedFilenames.length - 3} more` : ''}`,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, selectionMessage]);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -1196,7 +1290,7 @@ export default function AssistantPage() {
       )}
 
       {/* Structure Result Display */}
-      {structureResult && (currentPhase === 'structure_generation' || currentPhase === 'document_generation') && (
+      {structureResult && (currentPhase === 'structure_generation' || currentPhase === 'document_generation' || currentPhase === 'document_selection') && (
         <div className="bg-muted/50 border-b border-border px-6 py-4">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-start gap-4">
@@ -1225,6 +1319,22 @@ export default function AssistantPage() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Document Selection UI (Basic Plan) */}
+      {currentPhase === 'document_selection' && documentSelectionRequest && (
+        <div className="bg-muted/30 border-b border-border px-6 py-4">
+          <div className="max-w-3xl mx-auto">
+            <DocumentSelectionCard
+              documents={documentSelectionRequest.documents}
+              maxSelectable={documentSelectionRequest.maxSelectable}
+              remainingQuota={documentSelectionRequest.remainingQuota}
+              planName={documentSelectionRequest.planName}
+              onSubmit={submitDocumentSelection}
+              isSubmitting={isSubmittingSelection}
+            />
           </div>
         </div>
       )}
@@ -1430,16 +1540,22 @@ export default function AssistantPage() {
       <div className="border-t border-border bg-card p-4">
         <div className="max-w-3xl mx-auto flex gap-2">
           <Input
-            placeholder={currentPhase === 'completed' ? 'Conversation completed' : 'Type your message...'}
+            placeholder={
+              currentPhase === 'completed' 
+                ? 'Conversation completed' 
+                : currentPhase === 'document_selection'
+                ? 'Please select documents above...'
+                : 'Type your message...'
+            }
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            disabled={isLoading || currentPhase === 'completed'}
+            disabled={isLoading || currentPhase === 'completed' || currentPhase === 'document_selection'}
             className="flex-1"
           />
           <Button 
             onClick={() => sendMessage()} 
-            disabled={!inputValue.trim() || isLoading || currentPhase === 'completed'}
+            disabled={!inputValue.trim() || isLoading || currentPhase === 'completed' || currentPhase === 'document_selection'}
           >
             <Send className="h-4 w-4" />
           </Button>
