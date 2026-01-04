@@ -1245,20 +1245,43 @@ export default function AssistantPage() {
 
       {/* Quota Status Display */}
       {quotaStatus && (
-        <div className="bg-muted/30 border-b border-border px-6 py-2">
-          <div className="max-w-3xl mx-auto flex items-center justify-between text-sm">
-            <div className="flex items-center gap-4">
-              <span className="font-medium text-foreground">{quotaStatus.planName}</span>
+        <div className="bg-muted/30 border-b border-border px-6 py-3">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <div className="flex items-center gap-4">
+                <span className="font-medium text-foreground">{quotaStatus.planName}</span>
+                <span className="text-muted-foreground">
+                  {quotaStatus.documentsLimit === null 
+                    ? `${quotaStatus.packagesUsed}/${quotaStatus.packagesLimit} packages`
+                    : `${quotaStatus.documentsUsed}/${quotaStatus.documentsLimit} documents`
+                  }
+                </span>
+              </div>
               <span className="text-muted-foreground">
-                {quotaStatus.documentsLimit === null 
-                  ? `${quotaStatus.packagesUsed}/${quotaStatus.packagesLimit} packages`
-                  : `${quotaStatus.documentsUsed}/${quotaStatus.documentsLimit} documents`
-                }
+                Resets {new Date(quotaStatus.resetDate).toLocaleDateString()}
               </span>
             </div>
-            <span className="text-muted-foreground">
-              Resets {new Date(quotaStatus.resetDate).toLocaleDateString()}
-            </span>
+            {/* Quota Progress Bar */}
+            <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-300 ${
+                  quotaStatus.documentsLimit === null
+                    ? quotaStatus.packagesUsed / quotaStatus.packagesLimit >= 0.8
+                      ? 'bg-destructive'
+                      : 'bg-primary'
+                    : quotaStatus.documentsUsed / quotaStatus.documentsLimit >= 0.8
+                      ? 'bg-destructive'
+                      : 'bg-primary'
+                }`}
+                style={{ 
+                  width: `${
+                    quotaStatus.documentsLimit === null
+                      ? (quotaStatus.packagesUsed / quotaStatus.packagesLimit) * 100
+                      : (quotaStatus.documentsUsed / quotaStatus.documentsLimit) * 100
+                  }%` 
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
