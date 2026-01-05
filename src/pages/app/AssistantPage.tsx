@@ -1236,10 +1236,22 @@ export default function AssistantPage() {
               })}
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={startNewConversation}>
-            <Plus className="h-4 w-4 mr-1" />
-            New Session
-          </Button>
+          <div className="flex items-center gap-2">
+            {sessionId && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate(`/app/packages?conversation=${sessionId}`)}
+              >
+                <Package className="h-4 w-4 mr-1" />
+                View Packages
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={startNewConversation}>
+              <Plus className="h-4 w-4 mr-1" />
+              New Session
+            </Button>
+          </div>
         </div>
       </div>
 

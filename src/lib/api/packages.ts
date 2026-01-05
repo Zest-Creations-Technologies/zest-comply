@@ -27,7 +27,7 @@ export const packagesApi = {
     }
 
     const queryString = searchParams.toString();
-    const path = queryString ? `/api/v1/packages?${queryString}` : '/api/v1/packages';
+    const path = queryString ? `/v1/packages?${queryString}` : '/v1/packages';
     
     return apiClient.get<ListCompliancePackagesResponse>(path);
   },
@@ -36,7 +36,7 @@ export const packagesApi = {
    * Get specific package by ID
    */
   async getPackage(packageId: string): Promise<CompliancePackage> {
-    return apiClient.get<CompliancePackage>(`/api/v1/packages/${packageId}`);
+    return apiClient.get<CompliancePackage>(`/v1/packages/${packageId}`);
   },
 
   /**
@@ -46,7 +46,7 @@ export const packagesApi = {
     sessionId: string
   ): Promise<ListCompliancePackagesResponse> {
     return apiClient.get<ListCompliancePackagesResponse>(
-      `/api/v1/conversations/${sessionId}/packages`
+      `/v1/conversations/${sessionId}/packages`
     );
   },
 };
