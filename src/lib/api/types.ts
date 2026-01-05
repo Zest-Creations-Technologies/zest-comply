@@ -187,3 +187,59 @@ export interface ApiError {
   detail: string;
   status_code?: number;
 }
+
+// Compliance Packages Types
+export type PackageStorageProvider = "GOOGLE_DRIVE" | "DROPBOX" | "ONEDRIVE";
+
+export interface ManifestFile {
+  path: string;
+  filename: string;
+  size: number;
+  created_at: string;
+  file_type: string;
+  checksum: string;
+}
+
+export interface CompanyInfo {
+  name: string;
+  industry: string;
+  size: string;
+}
+
+export interface PackageManifest {
+  session_id: string;
+  framework: string;
+  company: CompanyInfo;
+  generated_at: string;
+  total_documents: number;
+  files: ManifestFile[];
+  package_version: string;
+}
+
+export interface CompliancePackage {
+  id: string;
+  session_id: string;
+  user_id: string;
+  framework: string;
+  root_folder_name: string;
+  provider: PackageStorageProvider;
+  package_url: string;
+  file_id: string;
+  package_name: string;
+  file_size: number;
+  manifest_json: PackageManifest;
+  uploaded_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ListCompliancePackagesResponse {
+  packages: CompliancePackage[];
+  count: number;
+}
+
+export interface PackagesPaginationParams {
+  limit?: number;
+  last_uploaded_at?: string;
+  last_id?: string;
+}
