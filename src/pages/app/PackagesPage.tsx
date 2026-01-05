@@ -1,10 +1,12 @@
-import { useEffect, useRef, useCallback, useState } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useCallback, useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { packagesApi, type CompliancePackage } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import { 
   Package, 
   Download, 
@@ -12,7 +14,9 @@ import {
   Building2, 
   FileText,
   ExternalLink,
-  Loader2 
+  Loader2,
+  Search,
+  X 
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -127,17 +131,20 @@ function PackageCardSkeleton() {
 }
 
 export default function PackagesPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const conversationId = searchParams.get("conversation");
   const observerTarget = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isError,
-    error,
-  } = useInfiniteQuery({
+  // Fetch conversation-specific packages if conversationId is present
+  const conversationPackagesQuery = useQuery({
+    queryKey: ["packages", "conversation", conversationId],
+    queryFn: () => packagesApi.getConversationPackages(conversationId!),
+    enabled: !!conversationId,
+  });
+
+  // Fetch all packages with infinite scroll
+  const allPackagesQuery = useInfiniteQuery({
     queryKey: ["packages"],
     queryFn: async ({ pageParam }) => {
       return packagesApi.listPackages({
@@ -157,7 +164,15 @@ export default function PackagesPage() {
       };
     },
     initialPageParam: undefined as { last_uploaded_at: string; last_id: string } | undefined,
+    enabled: !conversationId,
   });
+
+  const isLoading = conversationId ? conversationPackagesQuery.isLoading : allPackagesQuery.isLoading;
+  const isError = conversationId ? conversationPackagesQuery.isError : allPackagesQuery.isError;
+  const error = conversationId ? conversationPackagesQuery.error : allPackagesQuery.error;
+  const hasNextPage = conversationId ? false : allPackagesQuery.hasNextPage;
+  const isFetchingNextPage = conversationId ? false : allPackagesQuery.isFetchingNextPage;
+  const fetchNextPage = allPackagesQuery.fetchNextPage;
 
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -181,7 +196,24 @@ export default function PackagesPage() {
     return () => observer.disconnect();
   }, [handleObserver]);
 
-  const packages = data?.pages.flatMap((page) => page.packages) ?? [];
+  const allPackages = conversationId 
+    ? (conversationPackagesQuery.data?.packages ?? [])
+    : (allPackagesQuery.data?.pages.flatMap((page) => page.packages) ?? []);
+
+  // Filter packages by search query (company name or framework)
+  const packages = useMemo(() => {
+    if (!searchQuery.trim()) return allPackages;
+    const query = searchQuery.toLowerCase();
+    return allPackages.filter((pkg) => {
+      const companyName = pkg.manifest_json?.company?.name?.toLowerCase() || "";
+      const framework = pkg.manifest_json?.framework?.toLowerCase() || "";
+      return companyName.includes(query) || framework.includes(query);
+    });
+  }, [allPackages, searchQuery]);
+
+  const clearConversationFilter = () => {
+    setSearchParams({});
+  };
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
@@ -189,8 +221,38 @@ export default function PackagesPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-foreground">Compliance Packages</h1>
         <p className="text-muted-foreground">
-          View and manage your generated compliance documentation packages
+          {conversationId 
+            ? "Packages from this conversation"
+            : "View and manage your generated compliance documentation packages"}
         </p>
+      </div>
+
+      {/* Conversation filter badge */}
+      {conversationId && (
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="flex items-center gap-1">
+            Filtered by conversation
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-4 w-4 p-0 ml-1" 
+              onClick={clearConversationFilter}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </Badge>
+        </div>
+      )}
+
+      {/* Search bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search by company name or framework..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
       </div>
 
       {/* Error state */}
@@ -209,9 +271,13 @@ export default function PackagesPage() {
         <Card className="bg-card">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <Package className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">No packages yet</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              {searchQuery ? "No matching packages" : "No packages yet"}
+            </h3>
             <p className="text-muted-foreground max-w-sm">
-              Complete an AI assessment to generate your first compliance documentation package
+              {searchQuery 
+                ? "Try adjusting your search query"
+                : "Complete an AI assessment to generate your first compliance documentation package"}
             </p>
           </CardContent>
         </Card>
