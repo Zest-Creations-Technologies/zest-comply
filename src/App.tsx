@@ -21,6 +21,7 @@ import SecurityPage from "./pages/legal/SecurityPage";
 import AppLayout from "./pages/app/AppLayout";
 import ActionCenterPage from "./pages/app/ActionCenterPage";
 import AssistantPage from "./pages/app/AssistantPage";
+import PackagesPage from "./pages/app/PackagesPage";
 import BillingPage from "./pages/app/BillingPage";
 import StorageSettingsPage from "./pages/app/StorageSettingsPage";
 import ProfileSettingsPage from "./pages/app/ProfileSettingsPage";
@@ -61,6 +62,7 @@ const App = () => {
               >
                 <Route index element={<ActionCenterPage />} />
                 <Route path="assistant" element={<AssistantPage />} />
+                <Route path="packages" element={<PackagesPage />} />
                 <Route path="billing" element={<BillingPage />} />
                 <Route path="settings/storage" element={<StorageSettingsPage />} />
                 <Route path="settings/profile" element={<ProfileSettingsPage />} />
