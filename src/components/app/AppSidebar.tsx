@@ -17,6 +17,7 @@ import {
   CreditCard, 
   Cloud, 
   User,
+  Package,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,7 @@ import { Logo } from '@/components/Logo';
 const mainNavItems = [
   { title: 'Action Center', url: '/app', icon: Home },
   { title: 'AI Assistant', url: '/app/assistant', icon: MessageSquare },
+  { title: 'Packages', url: '/app/packages', icon: Package },
 ];
 
 const settingsNavItems = [
