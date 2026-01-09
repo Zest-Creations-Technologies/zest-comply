@@ -1,6 +1,7 @@
 // API Client with token handling
 
 import { API_CONFIG, getApiUrl } from './config';
+import { tokenStorage } from './tokenStorage';
 import type { ApiError } from './types';
 
 interface RequestOptions extends RequestInit {
@@ -9,21 +10,19 @@ interface RequestOptions extends RequestInit {
 
 class ApiClient {
   private getAccessToken(): string | null {
-    return localStorage.getItem('access_token');
+    return tokenStorage.getAccessToken();
   }
 
   private getRefreshToken(): string | null {
-    return localStorage.getItem('refresh_token');
+    return tokenStorage.getRefreshToken();
   }
 
   private setTokens(accessToken: string, refreshToken: string): void {
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
+    tokenStorage.setTokens(accessToken, refreshToken);
   }
 
   private clearTokens(): void {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    tokenStorage.clearTokens();
   }
 
   private async refreshAccessToken(): Promise<boolean> {
