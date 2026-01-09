@@ -1,4 +1,5 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import ibmSilverPartnerLogo from '@/assets/ibm-silver-partner.jpg';
 
 interface Partner {
   name: string;
@@ -8,8 +9,8 @@ interface Partner {
 
 const partners: Partner[] = [
   {
-    name: 'IBM',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg',
+    name: 'IBM Silver Partner',
+    logo: ibmSilverPartnerLogo,
     url: 'https://www.ibm.com',
   },
   // Add more partners here

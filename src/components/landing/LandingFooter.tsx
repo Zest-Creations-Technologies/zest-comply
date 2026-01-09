@@ -2,7 +2,7 @@ import { Logo } from "@/components/Logo";
 import { Mail, Phone, Globe } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Link } from "react-router-dom";
-import ibmPartnerLogo from "@/assets/ibm-business-partner.png";
+import ibmPartnerLogo from "@/assets/ibm-silver-partner.png";
 
 export function LandingFooter() {
   const [footerRef, footerVisible] = useScrollReveal<HTMLElement>();
@@ -146,7 +146,7 @@ export function LandingFooter() {
             <img
               src={ibmPartnerLogo}
               alt="IBM Business Partner"
-              className="h-12"
+              className="h-32"
             />
           </div>
         </div>
