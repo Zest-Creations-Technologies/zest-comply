@@ -146,7 +146,7 @@ export function LandingFooter() {
             <img
               src={ibmPartnerLogo}
               alt="IBM Business Partner"
-              className="h-12"
+              className="h-20"
             />
           </div>
         </div>
