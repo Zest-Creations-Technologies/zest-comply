@@ -3,7 +3,7 @@
 import { apiClient } from "./client";
 import { API_CONFIG } from "./config";
 import { mockConversationSessions, delay } from "./mocks";
-import type { ConversationSession, ConversationMessage } from "./types";
+import type { ConversationSession, ConversationMessage, ConversationLogo } from "./types";
 
 export const conversationsApi = {
   async getConversations(isArchived?: boolean): Promise<ConversationSession[]> {
@@ -66,5 +66,53 @@ export const conversationsApi = {
     }
     const session = await apiClient.get<ConversationSession>(`/conversations/history/${sessionId}`);
     return session.messages;
+  },
+
+  /**
+   * Upload a logo for a specific conversation/session
+   * @param sessionId - The conversation session ID
+   * @param file - PNG or JPEG file, max 5MB
+   * @param widthInches - Logo width in inches (0.5-5.0)
+   */
+  async uploadConversationLogo(
+    sessionId: string,
+    file: File,
+    widthInches: number = 2.0
+  ): Promise<ConversationLogo> {
+    if (API_CONFIG.useMocks) {
+      await delay(1000);
+      const now = new Date().toISOString();
+      return {
+        id: `logo-${Date.now()}`,
+        session_id: sessionId,
+        logo_cloud_path: URL.createObjectURL(file),
+        logo_width_inches: widthInches,
+        original_filename: file.name,
+        file_size: file.size,
+        mime_type: file.type,
+        created_at: now,
+        updated_at: now,
+      };
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("width_inches", widthInches.toString());
+
+    return apiClient.uploadFormData<ConversationLogo>(
+      `/conversations/${sessionId}/logo`,
+      formData
+    );
+  },
+
+  /**
+   * Delete the logo for a specific conversation/session
+   */
+  async deleteConversationLogo(sessionId: string): Promise<{ message: string }> {
+    if (API_CONFIG.useMocks) {
+      await delay(300);
+      return { message: "Conversation logo deleted successfully" };
+    }
+    return apiClient.delete<{ message: string }>(`/conversations/${sessionId}/logo`);
   },
 };

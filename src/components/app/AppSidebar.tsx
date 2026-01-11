@@ -18,6 +18,7 @@ import {
   Cloud, 
   User,
   Package,
+  FileEdit,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +33,7 @@ const mainNavItems = [
 const settingsNavItems = [
   { title: 'Billing', url: '/app/billing', icon: CreditCard },
   { title: 'Cloud Storage', url: '/app/settings/storage', icon: Cloud },
+  { title: 'Document Branding', url: '/app/settings/documents', icon: FileEdit },
   { title: 'Profile', url: '/app/settings/profile', icon: User },
 ];
 

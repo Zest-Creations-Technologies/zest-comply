@@ -39,13 +39,11 @@ import {
   AlertTriangle,
   Sparkles,
 } from 'lucide-react';
-import { conversationsApi, type ConversationMessage, type ConversationSession } from '@/lib/api';
+import { conversationsApi, type ConversationMessage, type ConversationSession, type ConversationLogo } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { API_CONFIG, getWebSocketUrl } from '@/lib/api/config';
-import { tokenStorage } from '@/lib/api/tokenStorage';
-import { parseWsMessage, sanitizeOutgoingMessage } from '@/lib/api/wsMessageSchema';
 import { DocumentSelectionCard } from '@/components/app/DocumentSelectionCard';
-
+import { ConversationLogoUpload } from '@/components/app/ConversationLogoUpload';
 // Updated phases to match 7-stage workflow (with document_selection for Basic plan)
 type Phase = 
   | 'initiation' 
@@ -229,6 +227,7 @@ export default function AssistantPage() {
   const [upgradeMessage, setUpgradeMessage] = useState<string>('');
   const [documentSelectionRequest, setDocumentSelectionRequest] = useState<DocumentSelectionRequest | null>(null);
   const [isSubmittingSelection, setIsSubmittingSelection] = useState(false);
+  const [conversationLogo, setConversationLogo] = useState<ConversationLogo | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -291,7 +290,7 @@ export default function AssistantPage() {
   }, [searchParams]);
 
   const connectWebSocket = useCallback((existingSessionId?: string) => {
-    const token = tokenStorage.getAccessToken();
+    const token = localStorage.getItem('access_token');
     if (!token) {
       toast({
         title: 'Authentication required',
@@ -302,10 +301,9 @@ export default function AssistantPage() {
     }
 
     // Build WebSocket URL with token and optional session_id
-    // Note: Token in URL is a known limitation; backend changes needed for header-based auth
-    let wsUrl = `${getWebSocketUrl()}?token=${encodeURIComponent(token)}`;
+    let wsUrl = `${getWebSocketUrl()}?token=${token}`;
     if (existingSessionId) {
-      wsUrl += `&session_id=${encodeURIComponent(existingSessionId)}`;
+      wsUrl += `&session_id=${existingSessionId}`;
     }
     
     console.log('Connecting to WebSocket:', wsUrl.replace(token, '[TOKEN]'));
@@ -320,12 +318,7 @@ export default function AssistantPage() {
     };
     
     ws.onmessage = (event) => {
-      // Validate incoming message with schema
-      const data = parseWsMessage(event.data);
-      if (!data) {
-        console.error('Failed to parse WebSocket message, ignoring');
-        return;
-      }
+      const data = JSON.parse(event.data);
       console.log('WebSocket message:', data);
       
       // Store session_id from any message that includes it
@@ -784,6 +777,7 @@ export default function AssistantPage() {
     setMessages([]);
     setSessionId(conversationId);
     setPhaseStartTime(null);
+    setConversationLogo(null);
     
     wsRef.current?.close();
     
@@ -794,6 +788,11 @@ export default function AssistantPage() {
       // Set phase from session
       if (session.current_phase) {
         setCurrentPhase(session.current_phase as Phase);
+      }
+      
+      // Set logo from session
+      if (session.logo) {
+        setConversationLogo(session.logo);
       }
       
       // Load messages
@@ -858,11 +857,8 @@ export default function AssistantPage() {
         setIsLoading(false);
       }, 1500);
     } else if (wsRef.current?.readyState === WebSocket.OPEN) {
-      // Send message with validation
-      const sanitized = sanitizeOutgoingMessage({ text: messageText });
-      if (sanitized) {
-        wsRef.current.send(sanitized);
-      }
+      // Send message in new format: { text: "..." }
+      wsRef.current.send(JSON.stringify({ text: messageText }));
     }
   };
 
@@ -882,11 +878,10 @@ export default function AssistantPage() {
     
     setIsSubmittingSelection(true);
     
-    // Send with validation
-    const sanitized = sanitizeOutgoingMessage({ selected_documents: selectedFilenames });
-    if (sanitized) {
-      wsRef.current.send(sanitized);
-    }
+    // Send only selected_documents, no text field
+    wsRef.current.send(JSON.stringify({
+      selected_documents: selectedFilenames,
+    }));
     
     // Add user message showing selection
     const selectionMessage: ChatMessage = {
@@ -1250,14 +1245,26 @@ export default function AssistantPage() {
           </div>
           <div className="flex items-center gap-2">
             {sessionId && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => navigate(`/app/packages?conversation=${sessionId}`)}
-              >
-                <Package className="h-4 w-4 mr-1" />
-                View Packages
-              </Button>
+              <>
+                <ConversationLogoUpload
+                  sessionId={sessionId}
+                  currentPhase={currentPhase}
+                  currentLogo={conversationLogo}
+                  onLogoChange={async () => {
+                    // Refresh conversation to get updated logo
+                    const session = await conversationsApi.getConversation(sessionId);
+                    setConversationLogo(session.logo);
+                  }}
+                />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate(`/app/packages?conversation=${sessionId}`)}
+                >
+                  <Package className="h-4 w-4 mr-1" />
+                  View Packages
+                </Button>
+              </>
             )}
             <Button variant="outline" size="sm" onClick={startNewConversation}>
               <Plus className="h-4 w-4 mr-1" />

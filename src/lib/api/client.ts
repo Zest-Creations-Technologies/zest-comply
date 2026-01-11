@@ -1,7 +1,6 @@
 // API Client with token handling
 
 import { API_CONFIG, getApiUrl } from './config';
-import { tokenStorage } from './tokenStorage';
 import type { ApiError } from './types';
 
 interface RequestOptions extends RequestInit {
@@ -10,19 +9,21 @@ interface RequestOptions extends RequestInit {
 
 class ApiClient {
   private getAccessToken(): string | null {
-    return tokenStorage.getAccessToken();
+    return localStorage.getItem('access_token');
   }
 
   private getRefreshToken(): string | null {
-    return tokenStorage.getRefreshToken();
+    return localStorage.getItem('refresh_token');
   }
 
   private setTokens(accessToken: string, refreshToken: string): void {
-    tokenStorage.setTokens(accessToken, refreshToken);
+    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('refresh_token', refreshToken);
   }
 
   private clearTokens(): void {
-    tokenStorage.clearTokens();
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
   }
 
   private async refreshAccessToken(): Promise<boolean> {
@@ -92,7 +93,16 @@ class ApiClient {
           detail: 'An unexpected error occurred',
           status_code: response.status,
         }));
-        throw new Error(error.detail);
+        // Create error with additional properties for plan restrictions
+        const err = new Error(error.detail || error.message || 'An unexpected error occurred') as Error & { 
+          status?: number; 
+          details?: Record<string, unknown>;
+        };
+        err.status = response.status;
+        if (error.details) {
+          err.details = error.details as Record<string, unknown>;
+        }
+        throw err;
       }
 
       // Handle empty responses
@@ -140,6 +150,85 @@ class ApiClient {
 
   delete<T>(path: string, options?: RequestOptions): Promise<T> {
     return this.request<T>(path, { ...options, method: 'DELETE' });
+  }
+
+  /**
+   * Upload FormData (for file uploads)
+   * Does NOT set Content-Type header - browser sets it with boundary
+   */
+  async uploadFormData<T>(path: string, formData: FormData, options?: RequestOptions): Promise<T> {
+    const { skipAuth = false, ...fetchOptions } = options || {};
+
+    const headers: Record<string, string> = {};
+
+    if (!skipAuth) {
+      const token = this.getAccessToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
+    const url = getApiUrl(path);
+
+    const controller = new AbortController();
+    const timeoutMs = API_CONFIG.timeout ?? 60000; // Longer timeout for uploads
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      let response = await fetch(url, {
+        ...fetchOptions,
+        method: 'POST',
+        headers,
+        body: formData,
+        signal: controller.signal,
+      });
+
+      // Handle 401 - try to refresh token
+      if (response.status === 401 && !skipAuth) {
+        const refreshed = await this.refreshAccessToken();
+        if (refreshed) {
+          headers['Authorization'] = `Bearer ${this.getAccessToken()}`;
+          response = await fetch(url, {
+            ...fetchOptions,
+            method: 'POST',
+            headers,
+            body: formData,
+            signal: controller.signal,
+          });
+        } else {
+          window.dispatchEvent(new CustomEvent('auth:logout'));
+          throw new Error('Session expired. Please log in again.');
+        }
+      }
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({
+          detail: 'An unexpected error occurred',
+          status_code: response.status,
+        }));
+        // Create error with additional properties for plan restrictions
+        const err = new Error(error.detail || error.message || 'An unexpected error occurred') as Error & { 
+          status?: number; 
+          details?: Record<string, unknown>;
+        };
+        err.status = response.status;
+        if (error.details) {
+          err.details = error.details as Record<string, unknown>;
+        }
+        throw err;
+      }
+
+      const text = await response.text();
+      if (!text) return {} as T;
+      return JSON.parse(text);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        throw new Error('Upload timed out. Please try again.');
+      }
+      throw err;
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
   }
 
   // Token management exposed for auth
