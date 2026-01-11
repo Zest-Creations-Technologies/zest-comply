@@ -25,6 +25,7 @@ import PackagesPage from "./pages/app/PackagesPage";
 import BillingPage from "./pages/app/BillingPage";
 import StorageSettingsPage from "./pages/app/StorageSettingsPage";
 import ProfileSettingsPage from "./pages/app/ProfileSettingsPage";
+import DocumentSettingsPage from "./pages/app/DocumentSettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => {
                 <Route path="billing" element={<BillingPage />} />
                 <Route path="settings/storage" element={<StorageSettingsPage />} />
                 <Route path="settings/profile" element={<ProfileSettingsPage />} />
+                <Route path="settings/documents" element={<DocumentSettingsPage />} />
               </Route>
 
               {/* Catch-all */}
