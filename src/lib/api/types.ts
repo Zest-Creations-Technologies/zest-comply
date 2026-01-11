@@ -135,6 +135,7 @@ export interface ConversationSession {
   archived_at: string | null;
   messages: ConversationMessage[];
   facts: ConversationFact[];
+  logo: ConversationLogo | null;
   created_at: string;
   updated_at: string;
 }
@@ -333,6 +334,7 @@ export interface ConversationLogo {
   file_size: number;
   mime_type: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface LetterheadLogoResponse {
