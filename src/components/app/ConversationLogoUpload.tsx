@@ -103,10 +103,13 @@ export function ConversationLogoUpload({
       setOpen(false);
       reset();
     },
-    onError: (error: Error) => {
+    onError: (error: Error & { status?: number; details?: { suggestion?: string } }) => {
+      const isPlanRestriction = error.status === 403 && error.message?.includes("not available on your plan");
       toast({
-        title: "Upload failed",
-        description: error.message,
+        title: isPlanRestriction ? "Feature not available" : "Upload failed",
+        description: isPlanRestriction 
+          ? error.details?.suggestion || "Please upgrade your plan to use custom logos"
+          : error.message,
         variant: "destructive",
       });
     },
@@ -125,10 +128,13 @@ export function ConversationLogoUpload({
       });
       onLogoChange?.();
     },
-    onError: (error: Error) => {
+    onError: (error: Error & { status?: number; details?: { suggestion?: string } }) => {
+      const isPlanRestriction = error.status === 403 && error.message?.includes("not available on your plan");
       toast({
-        title: "Error",
-        description: error.message,
+        title: isPlanRestriction ? "Feature not available" : "Error",
+        description: isPlanRestriction 
+          ? error.details?.suggestion || "Please upgrade your plan to use custom logos"
+          : error.message,
         variant: "destructive",
       });
     },

@@ -185,8 +185,14 @@ export interface SignupRequest {
 }
 
 export interface ApiError {
-  detail: string;
+  detail?: string;
+  message?: string;
   status_code?: number;
+  details?: {
+    feature?: string;
+    reason?: string;
+    suggestion?: string;
+  };
 }
 
 // Compliance Packages Types
