@@ -1,6 +1,7 @@
 // Reusable logo uploader component
 
 import { useRef, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -23,7 +24,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Upload, Trash2, Image, Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Upload, Trash2, Image, Loader2, Lock, Sparkles } from "lucide-react";
 import { useLogoUpload } from "@/hooks/useLogoUpload";
 
 interface LogoUploaderProps {
@@ -38,6 +40,8 @@ interface LogoUploaderProps {
   onShowLogoChange: (show: boolean) => void;
   title?: string;
   description?: string;
+  /** If true, the uploader is disabled with a plan upgrade prompt */
+  isPlanRestricted?: boolean;
 }
 
 export function LogoUploader({
@@ -52,6 +56,7 @@ export function LogoUploader({
   onShowLogoChange,
   title = "Company Logo",
   description = "Upload your company logo to appear on generated documents",
+  isPlanRestricted = false,
 }: LogoUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -109,21 +114,45 @@ export function LogoUploader({
   const displayedWidth = selectedFile ? widthInches : currentWidthInches;
 
   return (
-    <Card>
+    <Card className={isPlanRestricted ? "relative" : undefined}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Image className="h-5 w-5" />
           {title}
+          {isPlanRestricted && (
+            <span className="ml-auto flex items-center gap-1 text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded-full">
+              <Lock className="h-3 w-3" />
+              Premium
+            </span>
+          )}
         </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Plan restriction alert */}
+        {isPlanRestricted && (
+          <Alert className="border-primary/20 bg-primary/5">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <AlertTitle className="text-primary">Upgrade to unlock</AlertTitle>
+            <AlertDescription className="text-muted-foreground">
+              Custom letterhead and logo branding is available on Standard and Premium plans.{" "}
+              <Link to="/app/billing" className="text-primary font-medium hover:underline">
+                View plans →
+              </Link>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Upload area */}
         <div
-          className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onClick={() => fileInputRef.current?.click()}
+          className={`border-2 border-dashed border-border rounded-lg p-6 text-center transition-colors ${
+            isPlanRestricted 
+              ? "opacity-50 cursor-not-allowed" 
+              : "hover:border-primary/50 cursor-pointer"
+          }`}
+          onDrop={isPlanRestricted ? undefined : handleDrop}
+          onDragOver={isPlanRestricted ? undefined : handleDragOver}
+          onClick={isPlanRestricted ? undefined : () => fileInputRef.current?.click()}
         >
           {displayedLogo ? (
             <div className="space-y-4">
@@ -134,17 +163,21 @@ export function LogoUploader({
                 style={{ width: `${displayedWidth}in` }}
               />
               <p className="text-sm text-muted-foreground">
-                Click or drag to replace
+                {isPlanRestricted ? "Upgrade to change logo" : "Click or drag to replace"}
               </p>
             </div>
           ) : (
             <div className="space-y-2">
-              <Upload className="h-10 w-10 mx-auto text-muted-foreground" />
+              {isPlanRestricted ? (
+                <Lock className="h-10 w-10 mx-auto text-muted-foreground" />
+              ) : (
+                <Upload className="h-10 w-10 mx-auto text-muted-foreground" />
+              )}
               <p className="text-sm font-medium">
-                Drop your logo here or click to browse
+                {isPlanRestricted ? "Logo upload not available" : "Drop your logo here or click to browse"}
               </p>
               <p className="text-xs text-muted-foreground">
-                PNG or JPEG, max 5MB, min 100x100px
+                {isPlanRestricted ? "Upgrade your plan to use custom logos" : "PNG or JPEG, max 5MB, min 100x100px"}
               </p>
             </div>
           )}
@@ -154,6 +187,7 @@ export function LogoUploader({
             accept="image/png,image/jpeg"
             className="hidden"
             onChange={handleFileChange}
+            disabled={isPlanRestricted}
           />
         </div>
 
