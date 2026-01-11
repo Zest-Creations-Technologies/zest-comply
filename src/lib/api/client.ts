@@ -93,7 +93,16 @@ class ApiClient {
           detail: 'An unexpected error occurred',
           status_code: response.status,
         }));
-        throw new Error(error.detail);
+        // Create error with additional properties for plan restrictions
+        const err = new Error(error.detail || error.message || 'An unexpected error occurred') as Error & { 
+          status?: number; 
+          details?: Record<string, unknown>;
+        };
+        err.status = response.status;
+        if (error.details) {
+          err.details = error.details as Record<string, unknown>;
+        }
+        throw err;
       }
 
       // Handle empty responses
@@ -197,7 +206,16 @@ class ApiClient {
           detail: 'An unexpected error occurred',
           status_code: response.status,
         }));
-        throw new Error(error.detail);
+        // Create error with additional properties for plan restrictions
+        const err = new Error(error.detail || error.message || 'An unexpected error occurred') as Error & { 
+          status?: number; 
+          details?: Record<string, unknown>;
+        };
+        err.status = response.status;
+        if (error.details) {
+          err.details = error.details as Record<string, unknown>;
+        }
+        throw err;
       }
 
       const text = await response.text();

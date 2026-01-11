@@ -72,10 +72,13 @@ export function useSettings() {
         description: "Your company logo has been uploaded successfully",
       });
     },
-    onError: (error: Error) => {
+    onError: (error: Error & { status?: number; details?: { suggestion?: string } }) => {
+      const isPlanRestriction = error.status === 403 && error.message?.includes("not available on your plan");
       toast({
-        title: "Upload failed",
-        description: error.message || "Failed to upload logo",
+        title: isPlanRestriction ? "Feature not available" : "Upload failed",
+        description: isPlanRestriction 
+          ? error.details?.suggestion || "Please upgrade your plan to use custom letterhead"
+          : (error.message || "Failed to upload logo"),
         variant: "destructive",
       });
     },
@@ -92,10 +95,13 @@ export function useSettings() {
         description: "Your company logo has been removed",
       });
     },
-    onError: (error: Error) => {
+    onError: (error: Error & { status?: number; details?: { suggestion?: string } }) => {
+      const isPlanRestriction = error.status === 403 && error.message?.includes("not available on your plan");
       toast({
-        title: "Error",
-        description: error.message || "Failed to delete logo",
+        title: isPlanRestriction ? "Feature not available" : "Error",
+        description: isPlanRestriction 
+          ? error.details?.suggestion || "Please upgrade your plan to use custom letterhead"
+          : (error.message || "Failed to delete logo"),
         variant: "destructive",
       });
     },
