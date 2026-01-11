@@ -243,3 +243,100 @@ export interface PackagesPaginationParams {
   last_uploaded_at?: string;
   last_id?: string;
 }
+
+// ============================================
+// User Settings Types (Document Customization)
+// ============================================
+
+export interface Letterhead {
+  id: string;
+  logo_cloud_path: string | null;
+  logo_width_inches: number;
+  show_logo: boolean;
+  header_text: string | null;
+  footer_text: string | null;
+  top_margin: number;
+  bottom_margin: number;
+  left_margin: number;
+  right_margin: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StyleElement {
+  font?: string;
+  size?: number;
+  bold?: boolean;
+  italic?: boolean;
+  color?: string;
+  spacing_after?: number;
+  spacing_before?: number;
+}
+
+export interface TableStyle {
+  header_bold?: boolean;
+  header_background?: string;
+  cell_font_size?: number;
+}
+
+export interface StylesJson {
+  heading_1?: StyleElement;
+  heading_2?: StyleElement;
+  heading_3?: StyleElement;
+  paragraph?: StyleElement;
+  list_item?: StyleElement;
+  table?: TableStyle;
+}
+
+export interface StyleMap {
+  id: string;
+  user_settings_id: string;
+  styles_json: StylesJson;
+  active_template: string;
+  framework_overrides: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserSettings {
+  id: string;
+  user_id: string;
+  letterhead: Letterhead;
+  stylemap: StyleMap;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LetterheadUpdate {
+  show_logo?: boolean;
+  logo_width_inches?: number;
+  header_text?: string;
+  footer_text?: string;
+  top_margin?: number;
+  bottom_margin?: number;
+  left_margin?: number;
+  right_margin?: number;
+}
+
+export interface StyleMapUpdate {
+  styles_json?: StylesJson;
+  active_template?: string;
+  framework_overrides?: Record<string, unknown>;
+}
+
+export interface ConversationLogo {
+  id: string;
+  session_id: string;
+  logo_cloud_path: string;
+  logo_width_inches: number;
+  original_filename: string;
+  file_size: number;
+  mime_type: string;
+  created_at: string;
+}
+
+export interface LetterheadLogoResponse {
+  message: string;
+  logo_cloud_path: string;
+  logo_width_inches: number;
+}

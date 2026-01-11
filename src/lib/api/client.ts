@@ -143,6 +143,76 @@ class ApiClient {
     return this.request<T>(path, { ...options, method: 'DELETE' });
   }
 
+  /**
+   * Upload FormData (for file uploads)
+   * Does NOT set Content-Type header - browser sets it with boundary
+   */
+  async uploadFormData<T>(path: string, formData: FormData, options?: RequestOptions): Promise<T> {
+    const { skipAuth = false, ...fetchOptions } = options || {};
+
+    const headers: Record<string, string> = {};
+
+    if (!skipAuth) {
+      const token = this.getAccessToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
+    const url = getApiUrl(path);
+
+    const controller = new AbortController();
+    const timeoutMs = API_CONFIG.timeout ?? 60000; // Longer timeout for uploads
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      let response = await fetch(url, {
+        ...fetchOptions,
+        method: 'POST',
+        headers,
+        body: formData,
+        signal: controller.signal,
+      });
+
+      // Handle 401 - try to refresh token
+      if (response.status === 401 && !skipAuth) {
+        const refreshed = await this.refreshAccessToken();
+        if (refreshed) {
+          headers['Authorization'] = `Bearer ${this.getAccessToken()}`;
+          response = await fetch(url, {
+            ...fetchOptions,
+            method: 'POST',
+            headers,
+            body: formData,
+            signal: controller.signal,
+          });
+        } else {
+          window.dispatchEvent(new CustomEvent('auth:logout'));
+          throw new Error('Session expired. Please log in again.');
+        }
+      }
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({
+          detail: 'An unexpected error occurred',
+          status_code: response.status,
+        }));
+        throw new Error(error.detail);
+      }
+
+      const text = await response.text();
+      if (!text) return {} as T;
+      return JSON.parse(text);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        throw new Error('Upload timed out. Please try again.');
+      }
+      throw err;
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+  }
+
   // Token management exposed for auth
   saveTokens(accessToken: string, refreshToken: string): void {
     this.setTokens(accessToken, refreshToken);
