@@ -192,9 +192,22 @@ export function ConversationLogoUpload({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Image className="h-4 w-4" />
-          {currentLogo ? "Change Logo" : "Set Logo"}
+        <Button variant="outline" size="sm" className="gap-2 h-8">
+          {currentLogo ? (
+            <>
+              <img 
+                src={currentLogo.logo_cloud_path} 
+                alt="Package logo" 
+                className="h-5 w-5 object-contain rounded"
+              />
+              <span className="hidden sm:inline">Change Logo</span>
+            </>
+          ) : (
+            <>
+              <Image className="h-4 w-4" />
+              <span className="hidden sm:inline">Set Logo</span>
+            </>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">

@@ -39,7 +39,7 @@ import {
   AlertTriangle,
   Sparkles,
 } from 'lucide-react';
-import { conversationsApi, type ConversationMessage, type ConversationSession } from '@/lib/api';
+import { conversationsApi, type ConversationMessage, type ConversationSession, type ConversationLogo } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { API_CONFIG, getWebSocketUrl } from '@/lib/api/config';
 import { DocumentSelectionCard } from '@/components/app/DocumentSelectionCard';
@@ -227,6 +227,7 @@ export default function AssistantPage() {
   const [upgradeMessage, setUpgradeMessage] = useState<string>('');
   const [documentSelectionRequest, setDocumentSelectionRequest] = useState<DocumentSelectionRequest | null>(null);
   const [isSubmittingSelection, setIsSubmittingSelection] = useState(false);
+  const [conversationLogo, setConversationLogo] = useState<ConversationLogo | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -776,6 +777,7 @@ export default function AssistantPage() {
     setMessages([]);
     setSessionId(conversationId);
     setPhaseStartTime(null);
+    setConversationLogo(null);
     
     wsRef.current?.close();
     
@@ -786,6 +788,11 @@ export default function AssistantPage() {
       // Set phase from session
       if (session.current_phase) {
         setCurrentPhase(session.current_phase as Phase);
+      }
+      
+      // Set logo from session
+      if (session.logo) {
+        setConversationLogo(session.logo);
       }
       
       // Load messages
@@ -1242,8 +1249,11 @@ export default function AssistantPage() {
                 <ConversationLogoUpload
                   sessionId={sessionId}
                   currentPhase={currentPhase}
-                  onLogoChange={() => {
-                    // Optionally refresh conversation data
+                  currentLogo={conversationLogo}
+                  onLogoChange={async () => {
+                    // Refresh conversation to get updated logo
+                    const session = await conversationsApi.getConversation(sessionId);
+                    setConversationLogo(session.logo);
                   }}
                 />
                 <Button 
