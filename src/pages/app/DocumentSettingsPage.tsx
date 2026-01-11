@@ -3,7 +3,6 @@
 import { useState, useCallback } from "react";
 import { Loader2, Save, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -29,6 +28,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSettings } from "@/hooks/useSettings";
+import { useAuth } from "@/contexts/AuthContext";
 import { LogoUploader } from "@/components/app/LogoUploader";
 import { MarginEditor } from "@/components/app/MarginEditor";
 import {
@@ -45,6 +45,7 @@ const STYLE_TEMPLATES = [
 ];
 
 export default function DocumentSettingsPage() {
+  const { user } = useAuth();
   const {
     letterhead,
     stylemap,
@@ -58,6 +59,10 @@ export default function DocumentSettingsPage() {
     updateStyleMap,
     isUpdatingStyleMap,
   } = useSettings();
+
+  // Check if user is on Basic plan (restricted from custom letterhead)
+  const planName = user?.user_plan?.plan?.name?.toLowerCase() ?? "";
+  const isBasicPlan = planName === "basic" || planName === "free";
 
   // Local state for pending changes
   const [pendingLetterhead, setPendingLetterhead] =
@@ -209,6 +214,7 @@ export default function DocumentSettingsPage() {
             onShowLogoChange={(show) =>
               handleLetterheadChange({ show_logo: show })
             }
+            isPlanRestricted={isBasicPlan}
           />
 
           {/* Header/Footer Text */}
