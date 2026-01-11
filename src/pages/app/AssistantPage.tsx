@@ -43,7 +43,7 @@ import { conversationsApi, type ConversationMessage, type ConversationSession } 
 import { useToast } from '@/hooks/use-toast';
 import { API_CONFIG, getWebSocketUrl } from '@/lib/api/config';
 import { DocumentSelectionCard } from '@/components/app/DocumentSelectionCard';
-
+import { ConversationLogoUpload } from '@/components/app/ConversationLogoUpload';
 // Updated phases to match 7-stage workflow (with document_selection for Basic plan)
 type Phase = 
   | 'initiation' 
@@ -1238,14 +1238,23 @@ export default function AssistantPage() {
           </div>
           <div className="flex items-center gap-2">
             {sessionId && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => navigate(`/app/packages?conversation=${sessionId}`)}
-              >
-                <Package className="h-4 w-4 mr-1" />
-                View Packages
-              </Button>
+              <>
+                <ConversationLogoUpload
+                  sessionId={sessionId}
+                  currentPhase={currentPhase}
+                  onLogoChange={() => {
+                    // Optionally refresh conversation data
+                  }}
+                />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate(`/app/packages?conversation=${sessionId}`)}
+                >
+                  <Package className="h-4 w-4 mr-1" />
+                  View Packages
+                </Button>
+              </>
             )}
             <Button variant="outline" size="sm" onClick={startNewConversation}>
               <Plus className="h-4 w-4 mr-1" />

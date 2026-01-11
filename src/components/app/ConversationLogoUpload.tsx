@@ -1,10 +1,11 @@
-// Conversation-specific logo upload component
+// Conversation-specific logo upload component with phase restrictions
 
 import { useState, useRef, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Popover,
   PopoverContent,
@@ -21,20 +22,50 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Image, Upload, Trash2, Loader2, X } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Image, Upload, Trash2, Loader2, X, Lock, Info } from "lucide-react";
 import { conversationsApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useLogoUpload } from "@/hooks/useLogoUpload";
 import type { ConversationLogo } from "@/lib/api/types";
 
+// Phases where logo upload is allowed
+const ALLOWED_PHASES = [
+  'initiation',
+  'information_discovery',
+  'framework_analysis',
+  'structure_generation',
+  'document_selection',
+] as const;
+
+// Phases where logo upload is blocked
+const BLOCKED_PHASES = [
+  'document_generation',
+  'package_finalization',
+  'completed',
+] as const;
+
+type Phase = typeof ALLOWED_PHASES[number] | typeof BLOCKED_PHASES[number];
+
+function canUploadLogo(phase: Phase): boolean {
+  return ALLOWED_PHASES.includes(phase as typeof ALLOWED_PHASES[number]);
+}
+
 interface ConversationLogoUploadProps {
   sessionId: string;
+  currentPhase: Phase;
   currentLogo?: ConversationLogo | null;
   onLogoChange?: () => void;
 }
 
 export function ConversationLogoUpload({
   sessionId,
+  currentPhase,
   currentLogo,
   onLogoChange,
 }: ConversationLogoUploadProps) {
@@ -42,6 +73,8 @@ export function ConversationLogoUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  
+  const isUploadAllowed = canUploadLogo(currentPhase);
 
   // Upload mutation
   const uploadMutation = useMutation({
@@ -137,6 +170,25 @@ export function ConversationLogoUpload({
 
   const displayLogo = previewUrl || currentLogo?.logo_cloud_path;
 
+  // If upload is blocked, show a disabled button with tooltip
+  if (!isUploadAllowed) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2" disabled>
+              <Lock className="h-4 w-4" />
+              Logo Locked
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-xs">
+            <p>Logo upload is locked after document generation starts to maintain consistency in generated documents.</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -166,6 +218,12 @@ export function ConversationLogoUpload({
             Set a custom logo for this package. It will override your default
             letterhead logo.
           </p>
+          
+          {/* Info about logo priority */}
+          <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded-md p-2">
+            <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+            <span>Package logo takes priority over your default letterhead logo.</span>
+          </div>
 
           {/* Current/Preview logo */}
           {displayLogo && (
