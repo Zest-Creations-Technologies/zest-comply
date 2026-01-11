@@ -168,7 +168,8 @@ export function ConversationLogoUpload({
     }
   };
 
-  const displayLogo = previewUrl || currentLogo?.logo_cloud_path;
+  const logoPreviewUrl = currentLogo ? `${API_CONFIG.baseUrl}/conversations/${sessionId}/logo` : null;
+  const displayLogo = previewUrl || logoPreviewUrl;
 
   // If upload is blocked, show a disabled button with tooltip
   if (!isUploadAllowed) {
