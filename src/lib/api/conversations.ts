@@ -81,6 +81,7 @@ export const conversationsApi = {
   ): Promise<ConversationLogo> {
     if (API_CONFIG.useMocks) {
       await delay(1000);
+      const now = new Date().toISOString();
       return {
         id: `logo-${Date.now()}`,
         session_id: sessionId,
@@ -89,7 +90,8 @@ export const conversationsApi = {
         original_filename: file.name,
         file_size: file.size,
         mime_type: file.type,
-        created_at: new Date().toISOString(),
+        created_at: now,
+        updated_at: now,
       };
     }
 
