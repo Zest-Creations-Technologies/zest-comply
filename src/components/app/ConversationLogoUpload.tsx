@@ -29,7 +29,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Image, Upload, Trash2, Loader2, X, Lock, Info } from "lucide-react";
-import { conversationsApi } from "@/lib/api";
+import { conversationsApi, API_CONFIG } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useLogoUpload } from "@/hooks/useLogoUpload";
 import type { ConversationLogo } from "@/lib/api/types";
@@ -196,7 +196,7 @@ export function ConversationLogoUpload({
           {currentLogo ? (
             <>
               <img 
-                src={currentLogo.logo_cloud_path} 
+                src={`${API_CONFIG.baseUrl}/conversations/${sessionId}/logo`} 
                 alt="Package logo" 
                 className="h-5 w-5 object-contain rounded"
               />
