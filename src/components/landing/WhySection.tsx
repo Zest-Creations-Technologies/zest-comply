@@ -6,7 +6,8 @@ import {
   Brain,
   Zap,
   FileCheck,
-  ArrowRight
+  ArrowRight,
+  RefreshCw
 } from 'lucide-react';
 import { useScrollReveal, getStaggerDelay } from '@/hooks/useScrollReveal';
 
@@ -30,6 +31,11 @@ const problems = [
     icon: Brain,
     problem: 'Complex framework requirements',
     solution: 'Guided step-by-step process',
+  },
+  {
+    icon: RefreshCw,
+    problem: 'One-time audits, outdated docs',
+    solution: 'Continuous Compliance Monitoring',
   },
 ];
 
@@ -55,7 +61,7 @@ export function WhySection() {
           </p>
         </div>
 
-        <div ref={cardsRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div ref={cardsRef} className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
           {problems.map((item, index) => (
             <Card 
               key={index} 
