@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, X, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { plansApi, type Plan } from '@/lib/api';
 
@@ -107,9 +107,15 @@ export function PricingSection() {
                     <ul className="space-y-3 text-left">
                       {plan.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                          {feature.value ? (
+                            <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                          ) : (
+                            <X className="h-5 w-5 text-muted-foreground/50 shrink-0 mt-0.5" />
+                          )}
                           <div className="flex flex-col">
-                            <span className="text-foreground font-medium">{feature.title}</span>
+                            <span className={feature.value ? "text-foreground font-medium" : "text-muted-foreground"}>
+                              {feature.title}
+                            </span>
                             {feature.description && (
                               <span className="text-sm text-muted-foreground">{feature.description}</span>
                             )}
