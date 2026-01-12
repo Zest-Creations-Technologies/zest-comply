@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { 
   Check, 
+  X,
   Download, 
   Loader2,
   Calendar,
@@ -364,8 +365,14 @@ export default function BillingPage() {
                   <ul className="space-y-2">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm">
-                        <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <span className="text-muted-foreground">{feature.title}</span>
+                        {feature.value ? (
+                          <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        ) : (
+                          <X className="h-4 w-4 text-muted-foreground/50 shrink-0 mt-0.5" />
+                        )}
+                        <span className={feature.value ? "text-muted-foreground" : "text-muted-foreground/50"}>
+                          {feature.title}
+                        </span>
                       </li>
                     ))}
                   </ul>
