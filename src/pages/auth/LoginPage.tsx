@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { z } from 'zod';
 import { Logo } from '@/components/Logo';
+import { useToast } from '@/hooks/use-toast';
 
 // Clear any stale mock tokens on login page load
 const clearStaleTokens = () => {
@@ -32,11 +33,26 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
 
   const { login } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/app';
+  const from = (location.state as { from?: { pathname: string }; verified?: boolean; email?: string })?.from?.pathname || '/app';
+
+  // Check if user just verified their email
+  useEffect(() => {
+    const state = location.state as { verified?: boolean; email?: string } | null;
+    if (state?.verified) {
+      setShowVerifiedMessage(true);
+      if (state.email) {
+        setEmail(state.email);
+      }
+      // Clear the state to prevent showing message on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Clear any stale mock tokens on mount
   useEffect(() => {
@@ -62,8 +78,23 @@ export default function LoginPage() {
     try {
       await login(email, password, rememberMe);
       navigate(from, { replace: true });
-    } catch {
-      // Error is handled by AuthContext toast
+    } catch (error) {
+      // Check if it's an email not verified error
+      const message = error instanceof Error ? error.message : '';
+      if (message.toLowerCase().includes('email not verified') || 
+          message.toLowerCase().includes('verify your email')) {
+        toast({
+          title: 'Email not verified',
+          description: 'Please verify your email to continue.',
+          variant: 'destructive',
+        });
+        // Redirect to verification page
+        navigate('/auth/verify-email', {
+          replace: true,
+          state: { email }
+        });
+      }
+      // Other errors are handled by AuthContext toast
     } finally {
       setIsLoading(false);
     }
@@ -81,6 +112,15 @@ export default function LoginPage() {
           <div className="flex justify-center mb-4">
             <Logo size="lg" textClassName="text-foreground" />
           </div>
+          
+          {/* Show verified message */}
+          {showVerifiedMessage && (
+            <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg flex items-center gap-2 text-sm">
+              <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+              <span className="text-foreground">Email verified successfully! You can now sign in.</span>
+            </div>
+          )}
+          
           <CardTitle className="text-2xl text-foreground">Welcome back</CardTitle>
           <CardDescription>Sign in to your account to continue</CardDescription>
         </CardHeader>

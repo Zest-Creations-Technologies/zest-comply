@@ -3,7 +3,7 @@
 import { apiClient } from './client';
 import { API_CONFIG } from './config';
 import { mockUser, delay } from './mocks';
-import type { User, AuthTokens, LoginRequest, SignupRequest } from './types';
+import type { User, AuthTokens, LoginRequest, SignupRequest, SignupResponse } from './types';
 
 export const authApi = {
   async login(credentials: LoginRequest): Promise<AuthTokens> {
@@ -25,22 +25,28 @@ export const authApi = {
     return tokens;
   },
 
-  async signup(data: SignupRequest): Promise<AuthTokens> {
+  // Signup now returns user profile, NOT tokens (no auto-login)
+  async signup(data: SignupRequest): Promise<SignupResponse> {
     if (API_CONFIG.useMocks) {
       await delay();
-      const tokens: AuthTokens = {
-        access_token: 'mock-access-token-' + Date.now(),
-        refresh_token: 'mock-refresh-token-' + Date.now(),
-        token_type: 'bearer',
-        expires_in: 3600,
+      // Mock returns user profile without tokens
+      return {
+        id: 'mock-user-' + Date.now(),
+        email: data.email,
+        first_name: data.first_name || null,
+        last_name: data.last_name || null,
+        full_name: [data.first_name, data.last_name].filter(Boolean).join(' ') || data.email,
+        role: 'USER',
+        is_active: true,
+        email_verified: false,
+        email_verified_at: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
-      apiClient.saveTokens(tokens.access_token, tokens.refresh_token);
-      return tokens;
     }
 
-    const tokens = await apiClient.post<AuthTokens>('/auth/signup', data, { skipAuth: true });
-    apiClient.saveTokens(tokens.access_token, tokens.refresh_token);
-    return tokens;
+    // Signup returns user profile, no tokens saved
+    return apiClient.post<SignupResponse>('/auth/signup', data, { skipAuth: true });
   },
 
   async logout(): Promise<void> {
