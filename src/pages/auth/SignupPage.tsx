@@ -57,8 +57,12 @@ export default function SignupPage() {
 
     setIsLoading(true);
     try {
-      await signup(email, password, firstName || undefined, lastName || undefined);
-      navigate('/app', { replace: true });
+      const response = await signup(email, password, firstName || undefined, lastName || undefined);
+      // Redirect to email verification page with email in state
+      navigate('/auth/verify-email', { 
+        replace: true,
+        state: { email: response.email }
+      });
     } catch {
       // Error is handled by AuthContext toast
     } finally {
