@@ -1,6 +1,6 @@
 // Authentication context for managing user sessions
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authApi, type User } from '@/lib/api';
+import { authApi, type User, type SignupResponse } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
@@ -8,7 +8,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-  signup: (email: string, password: string, firstName?: string, lastName?: string) => Promise<void>;
+  signup: (email: string, password: string, firstName?: string, lastName?: string) => Promise<SignupResponse>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -55,30 +55,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await refreshUser();
       } catch {
         // If user fetch fails, we still consider login successful
-        // The user can be fetched again later
         console.warn('Could not fetch user details after login');
       }
       toast({ title: 'Welcome back!', description: 'You have been logged in successfully.' });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed';
+      
+      // Check if it's an email not verified error
+      if (message.toLowerCase().includes('email not verified') || 
+          message.toLowerCase().includes('verify your email')) {
+        // Don't show toast here - let the login page handle the redirect
+        throw error;
+      }
+      
       toast({ title: 'Login failed', description: message, variant: 'destructive' });
       throw error;
     }
   };
 
-  const signup = async (email: string, password: string, firstName?: string, lastName?: string) => {
+  // Signup now returns user profile (no auto-login - requires email verification)
+  const signup = async (email: string, password: string, firstName?: string, lastName?: string): Promise<SignupResponse> => {
     try {
-      await authApi.signup({ email, password, first_name: firstName, last_name: lastName });
-      // Check isAuthenticated from tokens directly after signup
-      const isAuth = authApi.isAuthenticated();
-      if (isAuth) {
-        try {
-          await refreshUser();
-        } catch {
-          console.warn('Could not fetch user details after signup');
-        }
-      }
-      toast({ title: 'Account created!', description: 'Welcome to Zest Comply.' });
+      const response = await authApi.signup({ email, password, first_name: firstName, last_name: lastName });
+      // Don't auto-login - user needs to verify email first
+      toast({ 
+        title: 'Account created!', 
+        description: 'Please check your email for the verification code.' 
+      });
+      return response;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Signup failed';
       toast({ title: 'Signup failed', description: message, variant: 'destructive' });
@@ -119,7 +123,7 @@ export function useAuth() {
       isLoading: true,
       isAuthenticated: false,
       login: async () => { throw new Error('Auth not initialized'); },
-      signup: async () => { throw new Error('Auth not initialized'); },
+      signup: async (): Promise<SignupResponse> => { throw new Error('Auth not initialized'); },
       logout: async () => { throw new Error('Auth not initialized'); },
       refreshUser: async () => { throw new Error('Auth not initialized'); },
     };

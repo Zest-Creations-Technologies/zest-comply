@@ -25,11 +25,48 @@ export interface User {
   first_name?: string | null;
   last_name?: string | null;
   full_name: string;
-  role: string;
+  role: 'USER' | 'STAFF' | 'ADMIN';
   is_active: boolean;
+  email_verified: boolean;
+  email_verified_at?: string | null;
   user_plan?: UserPlan | null;
   created_at: string;
   updated_at: string;
+}
+
+// Email verification types
+export interface SignupResponse {
+  id: string;
+  email: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  full_name: string;
+  role: 'USER' | 'STAFF' | 'ADMIN';
+  is_active: boolean;
+  email_verified: boolean;
+  email_verified_at?: string | null;
+  user_plan?: UserPlan | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VerifyEmailRequest {
+  email: string;
+  otp: string;
+}
+
+export interface VerifyEmailResponse {
+  success: boolean;
+  message: string;
+  email_verified: boolean;
+}
+
+export interface ResendOtpRequest {
+  email: string;
+}
+
+export interface ResendOtpResponse {
+  message: string;
 }
 
 export interface PlanFeature {

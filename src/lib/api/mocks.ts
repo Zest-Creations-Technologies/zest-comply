@@ -10,6 +10,8 @@ export const mockUser: User = {
   full_name: 'Demo User',
   role: 'USER',
   is_active: true,
+  email_verified: true,
+  email_verified_at: '2024-01-15T10:00:00Z',
   created_at: '2024-01-15T10:00:00Z',
   updated_at: '2024-01-15T10:00:00Z',
 };
