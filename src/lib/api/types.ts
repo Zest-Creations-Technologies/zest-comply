@@ -45,6 +45,7 @@ export interface SignupResponse {
   is_active: boolean;
   email_verified: boolean;
   email_verified_at?: string | null;
+  user_plan?: UserPlan | null;
   created_at: string;
   updated_at: string;
 }
