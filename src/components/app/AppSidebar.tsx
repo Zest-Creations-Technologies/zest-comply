@@ -23,6 +23,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { Logo } from '@/components/Logo';
+import { ApiHealthIndicator } from '@/components/app/ApiHealthIndicator';
 
 const mainNavItems = [
   { title: 'Action Center', url: '/app', icon: Home },
@@ -92,7 +93,8 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-sidebar-border">
+      <SidebarFooter className="p-4 border-t border-sidebar-border space-y-3">
+        <ApiHealthIndicator showLabel={true} />
         <div className="flex items-center gap-2">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-sidebar-foreground truncate">
