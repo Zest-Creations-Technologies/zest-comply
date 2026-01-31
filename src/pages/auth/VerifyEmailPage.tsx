@@ -26,15 +26,19 @@ export default function VerifyEmailPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get email from navigation state or query params
-  const emailFromState = (location.state as { email?: string })?.email;
+  // Get email and source from navigation state or query params
+  const state = location.state as { email?: string; fromLogin?: boolean } | null;
+  const emailFromState = state?.email;
+  const fromLogin = state?.fromLogin ?? false;
   const emailFromQuery = new URLSearchParams(location.search).get('email');
   const email = emailFromState || emailFromQuery || '';
 
-  // Set initial expiry time when component mounts with valid email
+  // Set initial expiry time and cooldown when component mounts with valid email
   useEffect(() => {
     if (email) {
       setExpiryTime(new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000));
+      // Start with cooldown to prevent immediate resend spam
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
     }
   }, [email]);
 
@@ -235,8 +239,18 @@ export default function VerifyEmailPage() {
           
           <CardTitle className="text-2xl text-foreground">Verify Your Email</CardTitle>
           <CardDescription className="space-y-1">
-            <p>We sent a verification code to:</p>
-            <p className="font-medium text-foreground">{email}</p>
+            {fromLogin ? (
+              <>
+                <p>Your email hasn't been verified yet.</p>
+                <p className="font-medium text-foreground">{email}</p>
+                <p className="text-xs mt-2">Check your inbox or click "Resend code" below.</p>
+              </>
+            ) : (
+              <>
+                <p>We sent a verification code to:</p>
+                <p className="font-medium text-foreground">{email}</p>
+              </>
+            )}
           </CardDescription>
         </CardHeader>
 
@@ -311,13 +325,13 @@ export default function VerifyEmailPage() {
             )}
           </div>
 
-          {/* Back to signup */}
+          {/* Back to login/signup */}
           <Link
-            to="/auth/signup"
+            to={fromLogin ? "/auth/login" : "/auth/signup"}
             className="flex items-center justify-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to signup
+            {fromLogin ? "Back to login" : "Back to signup"}
           </Link>
         </CardFooter>
       </Card>
