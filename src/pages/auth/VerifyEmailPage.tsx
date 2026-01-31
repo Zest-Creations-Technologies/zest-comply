@@ -33,10 +33,12 @@ export default function VerifyEmailPage() {
   const emailFromQuery = new URLSearchParams(location.search).get('email');
   const email = emailFromState || emailFromQuery || '';
 
-  // Set initial expiry time when component mounts with valid email
+  // Set initial expiry time and cooldown when component mounts with valid email
   useEffect(() => {
     if (email) {
       setExpiryTime(new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000));
+      // Start with cooldown to prevent immediate resend spam
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
     }
   }, [email]);
 
