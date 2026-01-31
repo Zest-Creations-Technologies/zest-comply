@@ -84,14 +84,13 @@ export default function LoginPage() {
       if (message.toLowerCase().includes('email not verified') || 
           message.toLowerCase().includes('verify your email')) {
         toast({
-          title: 'Email not verified',
+          title: 'Email verification required',
           description: 'Please verify your email to continue.',
-          variant: 'destructive',
         });
-        // Redirect to verification page
+        // Redirect to verification page with fromLogin flag
         navigate('/auth/verify-email', {
           replace: true,
-          state: { email }
+          state: { email, fromLogin: true }
         });
       }
       // Other errors are handled by AuthContext toast
