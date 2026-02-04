@@ -770,7 +770,8 @@ export default function AssistantPage() {
     setDocumentSelectionRequest(null);
     setIsSubmittingSelection(false);
     
-    wsRef.current?.close();
+    // Close existing connection without triggering reconnection
+    closeWebSocket();
     
     if (API_CONFIG.useMocks) {
       const initialMessage: ChatMessage = {
@@ -787,7 +788,7 @@ export default function AssistantPage() {
     } else {
       connectWebSocket();
     }
-  }, [connectWebSocket, setSearchParams]);
+  }, [closeWebSocket, connectWebSocket, setSearchParams]);
 
   const openConversation = useCallback(async (conversationId: string) => {
     setView('chat');
