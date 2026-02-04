@@ -232,6 +232,7 @@ export default function AssistantPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectAttemptsRef = useRef(0);
+  const intentionalCloseRef = useRef(false);
   const maxReconnectAttempts = 3;
   const { toast } = useToast();
   const navigate = useNavigate();
