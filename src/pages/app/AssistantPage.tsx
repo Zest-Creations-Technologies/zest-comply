@@ -741,6 +741,16 @@ export default function AssistantPage() {
     wsRef.current = ws;
   }, [toast, sessionId, currentPhase]);
 
+  // Helper to properly close WebSocket without triggering reconnection
+  const closeWebSocket = useCallback(() => {
+    if (wsRef.current) {
+      intentionalCloseRef.current = true;
+      wsRef.current.close(1000, 'User initiated close');
+      wsRef.current = null;
+    }
+    reconnectAttemptsRef.current = 0;
+  }, []);
+
   const startNewConversation = useCallback(() => {
     setView('chat');
     setIsLoading(true);
