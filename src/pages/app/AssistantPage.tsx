@@ -701,6 +701,13 @@ export default function AssistantPage() {
       console.log('WebSocket closed:', event.code, event.reason);
       setIsConnected(false);
       
+      // Skip reconnection if this was an intentional close
+      if (intentionalCloseRef.current) {
+        console.log('WebSocket closed intentionally, skipping reconnection');
+        intentionalCloseRef.current = false;
+        return;
+      }
+      
       if (event.code === 1008) {
         // Authentication error
         toast({
