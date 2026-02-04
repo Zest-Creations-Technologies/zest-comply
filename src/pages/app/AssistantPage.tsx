@@ -798,7 +798,8 @@ export default function AssistantPage() {
     setPhaseStartTime(null);
     setConversationLogo(null);
     
-    wsRef.current?.close();
+    // Close existing connection without triggering reconnection
+    closeWebSocket();
     
     try {
       // Fetch conversation history
@@ -834,16 +835,16 @@ export default function AssistantPage() {
       setView('list');
       setIsLoading(false);
     }
-  }, [connectWebSocket, toast]);
+  }, [closeWebSocket, connectWebSocket, toast]);
 
-  const goBackToList = () => {
-    wsRef.current?.close();
+  const goBackToList = useCallback(() => {
+    closeWebSocket();
     setView('list');
     setMessages([]);
     setSessionId(null);
     setSearchParams({});
     loadConversations();
-  };
+  }, [closeWebSocket, loadConversations, setSearchParams]);
 
   const sendMessage = (text?: string) => {
     const messageText = text || inputValue.trim();
