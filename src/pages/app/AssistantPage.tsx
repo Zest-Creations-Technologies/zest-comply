@@ -1010,9 +1010,9 @@ export default function AssistantPage() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      wsRef.current?.close();
+      closeWebSocket();
     };
-  }, []);
+  }, [closeWebSocket]);
 
   const PhaseIcon = phaseConfig[currentPhase]?.icon || MessageSquare;
   const phaseLabel = phaseConfig[currentPhase]?.label || currentPhase;
