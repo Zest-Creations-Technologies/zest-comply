@@ -232,6 +232,7 @@ export default function AssistantPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectAttemptsRef = useRef(0);
+  const intentionalCloseRef = useRef(false);
   const maxReconnectAttempts = 3;
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -700,6 +701,13 @@ export default function AssistantPage() {
       console.log('WebSocket closed:', event.code, event.reason);
       setIsConnected(false);
       
+      // Skip reconnection if this was an intentional close
+      if (intentionalCloseRef.current) {
+        console.log('WebSocket closed intentionally, skipping reconnection');
+        intentionalCloseRef.current = false;
+        return;
+      }
+      
       if (event.code === 1008) {
         // Authentication error
         toast({
@@ -733,6 +741,16 @@ export default function AssistantPage() {
     wsRef.current = ws;
   }, [toast, sessionId, currentPhase]);
 
+  // Helper to properly close WebSocket without triggering reconnection
+  const closeWebSocket = useCallback(() => {
+    if (wsRef.current) {
+      intentionalCloseRef.current = true;
+      wsRef.current.close(1000, 'User initiated close');
+      wsRef.current = null;
+    }
+    reconnectAttemptsRef.current = 0;
+  }, []);
+
   const startNewConversation = useCallback(() => {
     setView('chat');
     setIsLoading(true);
@@ -752,7 +770,8 @@ export default function AssistantPage() {
     setDocumentSelectionRequest(null);
     setIsSubmittingSelection(false);
     
-    wsRef.current?.close();
+    // Close existing connection without triggering reconnection
+    closeWebSocket();
     
     if (API_CONFIG.useMocks) {
       const initialMessage: ChatMessage = {
@@ -769,7 +788,7 @@ export default function AssistantPage() {
     } else {
       connectWebSocket();
     }
-  }, [connectWebSocket, setSearchParams]);
+  }, [closeWebSocket, connectWebSocket, setSearchParams]);
 
   const openConversation = useCallback(async (conversationId: string) => {
     setView('chat');
@@ -779,7 +798,8 @@ export default function AssistantPage() {
     setPhaseStartTime(null);
     setConversationLogo(null);
     
-    wsRef.current?.close();
+    // Close existing connection without triggering reconnection
+    closeWebSocket();
     
     try {
       // Fetch conversation history
@@ -815,16 +835,16 @@ export default function AssistantPage() {
       setView('list');
       setIsLoading(false);
     }
-  }, [connectWebSocket, toast]);
+  }, [closeWebSocket, connectWebSocket, toast]);
 
-  const goBackToList = () => {
-    wsRef.current?.close();
+  const goBackToList = useCallback(() => {
+    closeWebSocket();
     setView('list');
     setMessages([]);
     setSessionId(null);
     setSearchParams({});
     loadConversations();
-  };
+  }, [closeWebSocket, loadConversations, setSearchParams]);
 
   const sendMessage = (text?: string) => {
     const messageText = text || inputValue.trim();
@@ -990,9 +1010,9 @@ export default function AssistantPage() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      wsRef.current?.close();
+      closeWebSocket();
     };
-  }, []);
+  }, [closeWebSocket]);
 
   const PhaseIcon = phaseConfig[currentPhase]?.icon || MessageSquare;
   const phaseLabel = phaseConfig[currentPhase]?.label || currentPhase;
