@@ -3,7 +3,7 @@
 import { apiClient } from './client';
 import { API_CONFIG } from './config';
 import { mockUser, delay } from './mocks';
-import type { User, AuthTokens, LoginRequest, SignupRequest, SignupResponse } from './types';
+import type { User, AuthTokens, LoginRequest, SignupRequest, SignupResponse, UpdateProfileRequest, ChangePasswordRequest, ChangePasswordResponse } from './types';
 
 export const authApi = {
   async login(credentials: LoginRequest): Promise<AuthTokens> {
