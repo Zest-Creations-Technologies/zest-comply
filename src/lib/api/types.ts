@@ -385,3 +385,24 @@ export interface LetterheadLogoResponse {
   logo_cloud_path: string;
   logo_width_inches: number;
 }
+
+// Profile update request/response
+export interface UpdateProfileRequest {
+  first_name?: string;
+  last_name?: string;
+}
+
+// Change password request/response
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
+export interface ChangePasswordResponse {
+  success: boolean;
+  message: string;
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
+}
