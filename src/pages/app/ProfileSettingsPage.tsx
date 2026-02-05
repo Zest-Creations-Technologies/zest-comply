@@ -211,8 +211,8 @@ export default function ProfileSettingsPage() {
               <div className="flex items-center gap-2">
                 {user?.email_verified ? (
                   <>
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <Badge variant="secondary" className="bg-green-500/10 text-green-600 border-green-500/20">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    <Badge variant="secondary">
                       Verified
                     </Badge>
                     {user?.email_verified_at && (
@@ -223,8 +223,8 @@ export default function ProfileSettingsPage() {
                   </>
                 ) : (
                   <>
-                    <XCircle className="h-4 w-4 text-yellow-500" />
-                    <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
+                    <XCircle className="h-4 w-4 text-muted-foreground" />
+                    <Badge variant="outline">
                       Unverified
                     </Badge>
                   </>
