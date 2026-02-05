@@ -75,4 +75,29 @@ export const authApi = {
   isAuthenticated(): boolean {
     return apiClient.hasTokens();
   },
+
+  async updateProfile(data: UpdateProfileRequest): Promise<User> {
+    if (API_CONFIG.useMocks) {
+      await delay();
+      return { ...mockUser, ...data, full_name: [data.first_name, data.last_name].filter(Boolean).join(' ') || mockUser.full_name };
+    }
+    return apiClient.patch<User>('/auth/me', data);
+  },
+
+  async changePassword(data: ChangePasswordRequest): Promise<ChangePasswordResponse> {
+    if (API_CONFIG.useMocks) {
+      await delay();
+      return {
+        success: true,
+        message: 'Password changed successfully. Other devices will need to login again.',
+        access_token: 'mock-new-token-' + Date.now(),
+        refresh_token: 'mock-new-refresh-' + Date.now(),
+        token_type: 'bearer',
+        expires_in: 900,
+      };
+    }
+    const response = await apiClient.post<ChangePasswordResponse>('/auth/change-password', data);
+    apiClient.saveTokens(response.access_token, response.refresh_token);
+    return response;
+  },
 };
