@@ -1,166 +1,221 @@
 
+# Profile Settings Page Implementation
 
-# Fix WebSocket Connection Leak on New Session
+This plan adds full profile editing functionality including name updates and password changes, integrating with your new server endpoints.
 
-## Problem Summary
+## Overview
 
-When clicking "New Session" on the assistant page, the WebSocket connection from the current chat session leaks into the new session. This happens because:
-
-1. There is no mechanism to distinguish between an intentional close (user clicked "New Session") vs. an unexpected disconnect
-2. The `onclose` handler automatically triggers reconnection for non-1000 close codes
-3. When `startNewConversation` is called, it closes the old WebSocket, but if it closes with code 1005 (common browser behavior), the reconnection logic kicks in using stale session data from the closure
-4. This creates a race condition where both old and new WebSocket connections can be active simultaneously
-
-## Solution
-
-Add an `intentionalClose` ref that prevents reconnection when the user explicitly switches sessions or starts a new conversation.
+Transform the current read-only Profile Settings page into a fully functional settings page with:
+- Editable first name and last name fields
+- Password change form with validation
+- Email verification status display
 
 ## Implementation Steps
 
-### Step 1: Add Intentional Close Ref
+### Step 1: Add API Types
 
-Add a new ref to track whether a WebSocket close was intentional:
+Add new TypeScript interfaces in `src/lib/api/types.ts`:
 
 ```typescript
-// Near other refs (around line 233)
-const intentionalCloseRef = useRef(false);
+// Profile update request/response
+export interface UpdateProfileRequest {
+  first_name?: string;
+  last_name?: string;
+}
+
+// Change password request/response
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
+export interface ChangePasswordResponse {
+  success: boolean;
+  message: string;
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
+}
 ```
 
-### Step 2: Update onclose Handler
+### Step 2: Add API Methods
 
-Modify the WebSocket `onclose` handler to check if the close was intentional before attempting reconnection:
-
-```typescript
-// In ws.onclose handler (around line 699-722)
-ws.onclose = (event) => {
-  console.log('WebSocket closed:', event.code, event.reason);
-  setIsConnected(false);
-  
-  // Skip reconnection if this was an intentional close
-  if (intentionalCloseRef.current) {
-    console.log('WebSocket closed intentionally, skipping reconnection');
-    intentionalCloseRef.current = false; // Reset for future connections
-    return;
-  }
-  
-  if (event.code === 1008) {
-    // Authentication error - existing logic
-    ...
-  } else if (event.code !== 1000 && reconnectAttemptsRef.current < maxReconnectAttempts) {
-    // Reconnection logic - only if not intentional
-    ...
-  }
-};
-```
-
-### Step 3: Create Cleanup Helper Function
-
-Create a dedicated function to properly close the WebSocket:
+Extend `src/lib/api/auth.ts` with two new methods:
 
 ```typescript
-// Add after connectWebSocket (around line 735)
-const closeWebSocket = useCallback(() => {
-  if (wsRef.current) {
-    intentionalCloseRef.current = true;
-    wsRef.current.close(1000, 'User initiated close');
-    wsRef.current = null;
-  }
-  reconnectAttemptsRef.current = 0;
-}, []);
-```
-
-### Step 4: Update Session Switching Functions
-
-Update all places that close the WebSocket to use the new cleanup helper:
-
-**startNewConversation:**
-```typescript
-const startNewConversation = useCallback(() => {
-  setView('chat');
-  setIsLoading(true);
-  setMessages([]);
-  setSessionId(null);
-  // ... other resets
-  
-  // Use cleanup helper instead of direct close
-  closeWebSocket();
-  
+// Update user profile (first/last name)
+async updateProfile(data: UpdateProfileRequest): Promise<User> {
   if (API_CONFIG.useMocks) {
-    // mock logic
-  } else {
-    connectWebSocket();
+    await delay();
+    return { ...mockUser, ...data };
   }
-}, [closeWebSocket, connectWebSocket, setSearchParams]);
-```
+  return apiClient.patch<User>('/auth/me', data);
+}
 
-**openConversation:**
-```typescript
-const openConversation = useCallback(async (conversationId: string) => {
-  setView('chat');
-  setIsLoading(true);
-  // ... other setup
-  
-  // Use cleanup helper instead of direct close
-  closeWebSocket();
-  
-  try {
-    // ... fetch and connect logic
-  } catch (error) {
-    // ... error handling
+// Change password (returns new tokens)
+async changePassword(data: ChangePasswordRequest): Promise<ChangePasswordResponse> {
+  if (API_CONFIG.useMocks) {
+    await delay();
+    return {
+      success: true,
+      message: 'Password changed successfully.',
+      access_token: 'mock-new-token-' + Date.now(),
+      refresh_token: 'mock-new-refresh-' + Date.now(),
+      token_type: 'bearer',
+      expires_in: 900,
+    };
   }
-}, [closeWebSocket, connectWebSocket, toast]);
+  const response = await apiClient.post<ChangePasswordResponse>('/auth/change-password', data);
+  // Save new tokens after password change
+  apiClient.saveTokens(response.access_token, response.refresh_token);
+  return response;
+}
 ```
 
-**goBackToList:**
+### Step 3: Redesign Profile Settings Page
+
+Rebuild `src/pages/app/ProfileSettingsPage.tsx` with three main sections:
+
+**Account Information Card (Read-only)**
+- Avatar placeholder with user icon
+- Email (non-editable)
+- Email verification status with badge (Verified/Unverified)
+- Member since date
+- Current plan badge
+
+**Edit Profile Card**
+- First name input field (1-100 characters)
+- Last name input field (1-100 characters)
+- Save button with loading state
+- Zod validation for field lengths
+- Success toast on save, error handling
+
+**Change Password Card**
+- Current password field (with show/hide toggle)
+- New password field (with show/hide toggle)
+- Confirm new password field (with show/hide toggle)
+- Password strength indicator (reuse from SignupPage)
+- Password requirements checklist
+- Change Password button
+- Validation: min 8 chars, uppercase, lowercase, digit, special char
+- Passwords must match validation
+- Current vs new password must be different
+
+### Step 4: Form Validation
+
+Use Zod schemas consistent with server requirements:
+
 ```typescript
-const goBackToList = () => {
-  closeWebSocket();
-  setView('list');
-  setMessages([]);
-  setSessionId(null);
-  setSearchParams({});
-  loadConversations();
-};
+const profileSchema = z.object({
+  first_name: z.string().max(100, 'First name must be less than 100 characters').optional(),
+  last_name: z.string().max(100, 'Last name must be less than 100 characters').optional(),
+});
+
+const passwordSchema = z.object({
+  current_password: z.string().min(1, 'Current password is required'),
+  new_password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Must contain uppercase letter')
+    .regex(/[a-z]/, 'Must contain lowercase letter')
+    .regex(/[0-9]/, 'Must contain a number')
+    .regex(/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/, 'Must contain special character'),
+  confirm_password: z.string(),
+}).refine((data) => data.new_password === data.confirm_password, {
+  message: "Passwords don't match",
+  path: ['confirm_password'],
+}).refine((data) => data.current_password !== data.new_password, {
+  message: "New password must be different from current password",
+  path: ['new_password'],
+});
 ```
 
-### Step 5: Update Unmount Cleanup
+### Step 5: Token Handling After Password Change
 
-Update the unmount effect to use the cleanup helper:
+After successful password change:
+1. New tokens are returned from the API
+2. `apiClient.saveTokens()` updates localStorage
+3. User stays logged in on current device
+4. Show success toast with message about other devices needing to re-login
+5. Clear the password form fields
 
-```typescript
-// Cleanup on unmount (around line 990-995)
-useEffect(() => {
-  return () => {
-    closeWebSocket();
-  };
-}, [closeWebSocket]);
+### Step 6: Integration with AuthContext
+
+After profile update:
+1. Call `refreshUser()` from AuthContext to update user state
+2. This ensures the sidebar and header show updated name immediately
+
+## Files to Create/Modify
+
+| File | Action | Description |
+|------|--------|-------------|
+| `src/lib/api/types.ts` | Modify | Add `UpdateProfileRequest`, `ChangePasswordRequest`, `ChangePasswordResponse` |
+| `src/lib/api/auth.ts` | Modify | Add `updateProfile()` and `changePassword()` methods |
+| `src/pages/app/ProfileSettingsPage.tsx` | Rewrite | Full profile editing with name and password forms |
+
+## UI Layout
+
+```text
++------------------------------------------+
+|  Profile                                 |
+|  View and manage your account information|
++------------------------------------------+
+
++------------------------------------------+
+|  Account Information                     |
+|  Your personal details and account status|
++------------------------------------------+
+|  [Avatar]  John Doe                      |
+|            john@example.com              |
+|                                          |
+|  Email         john@example.com          |
+|  Status        [Verified Badge]          |
+|  Member Since  January 15, 2025          |
+|  Current Plan  [Basic Badge]             |
++------------------------------------------+
+
++------------------------------------------+
+|  Edit Profile                            |
+|  Update your name                        |
++------------------------------------------+
+|  First Name    [John____________]        |
+|  Last Name     [Doe_____________]        |
+|                          [Save Changes]  |
++------------------------------------------+
+
++------------------------------------------+
+|  Change Password                         |
+|  Update your account password            |
++------------------------------------------+
+|  Current Password  [••••••••] [eye]      |
+|  New Password      [••••••••] [eye]      |
+|  Confirm Password  [••••••••] [eye]      |
+|                                          |
+|  [Password strength bar]                 |
+|  [x] 8 characters  [x] Uppercase         |
+|  [x] Lowercase     [x] Number            |
+|  [x] Special char                        |
+|                                          |
+|                     [Change Password]    |
++------------------------------------------+
 ```
 
-## Files to Modify
+## Error Handling
 
-| File | Changes |
-|------|---------|
-| `src/pages/app/AssistantPage.tsx` | Add `intentionalCloseRef`, create `closeWebSocket` helper, update all WebSocket close operations, modify `onclose` handler |
+| Scenario | User Experience |
+|----------|-----------------|
+| Invalid current password | Toast: "Current password is incorrect" |
+| Weak new password | Inline validation with requirements checklist |
+| Same password | Inline error: "New password must be different" |
+| Network error | Toast with retry suggestion |
+| Rate limit (429) | Toast: "Too many attempts. Please wait 15 minutes." |
+| Session expired (401) | Auto-redirect to login |
 
-## Technical Details
+## Technical Notes
 
-### Race Condition Prevention
-
-The `intentionalCloseRef` acts as a synchronization mechanism:
-- It's set to `true` immediately before calling `close()`
-- The `onclose` handler checks this flag and skips reconnection if set
-- The flag is reset to `false` after being checked to allow future reconnections
-
-### Close Code Usage
-
-Using `close(1000, 'User initiated close')` sends a "normal closure" code, which:
-- Signals to the server that this is a clean shutdown
-- Provides additional protection (the handler already skips code 1000)
-- Follows WebSocket best practices
-
-### Reconnect Counter Reset
-
-Resetting `reconnectAttemptsRef.current = 0` in `closeWebSocket` ensures:
-- Fresh reconnection attempts for the new session if needed
-- No carry-over of failed attempts from previous sessions
-
+- Password form clears all fields after successful change
+- Profile form keeps values and shows success state
+- Both forms have independent loading states
+- Uses existing `useToast` hook for notifications
+- Reuses password strength UI pattern from SignupPage
+- Email verification badge shows green checkmark if verified, warning icon if not
