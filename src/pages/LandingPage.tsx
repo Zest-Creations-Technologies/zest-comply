@@ -25,7 +25,7 @@ export default function LandingPage() {
         <HeroSection />
         <WhySection />
         <HowItWorksSection />
-        <PricingSection />
+        <PartnershipSection />
       </main>
       <LandingFooter />
     </div>
