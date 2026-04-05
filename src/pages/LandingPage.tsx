@@ -2,7 +2,7 @@ import { LandingHeader } from '@/components/landing/LandingHeader';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { WhySection } from '@/components/landing/WhySection';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
-import { PricingSection } from '@/components/landing/PricingSection';
+import { PartnershipSection } from '@/components/landing/PartnershipSection';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { useEffect, useState } from 'react';
 
