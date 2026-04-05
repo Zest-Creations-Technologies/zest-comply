@@ -247,7 +247,7 @@ export default function AssistantPage() {
 
   // Timer for long-running phases
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
     if (phaseStartTime && (currentPhase === 'document_generation' || currentPhase === 'structure_generation')) {
       interval = setInterval(() => {
         setElapsedTime(Math.floor((Date.now() - phaseStartTime) / 1000));
