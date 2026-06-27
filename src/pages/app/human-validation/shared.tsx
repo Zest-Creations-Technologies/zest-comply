@@ -10,12 +10,12 @@ import type {
 
 export const statusLabels: Record<HumanValidationStatus, string> = {
   draft: "Draft",
-  submitted: "Submitted",
+  submitted: "In Review",
   in_review: "In Review",
   changes_requested: "Changes Requested",
   approved: "Approved",
   rejected: "Rejected",
-  signed_off: "Signed Off",
+  signed_off: "Published",
 };
 
 const statusVariant: Record<HumanValidationStatus, "default" | "secondary" | "destructive" | "outline"> = {

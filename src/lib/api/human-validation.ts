@@ -73,6 +73,12 @@ export const humanValidationApi = {
     );
   },
 
+  getComments(profileId: string): Promise<ValidationComment[]> {
+    return apiClient.get<ValidationComment[]>(
+      `/human-validation/profiles/${profileId}/comments`,
+    );
+  },
+
   getAuditTrail(profileId: string): Promise<ValidationAuditEvent[]> {
     return apiClient.get<ValidationAuditEvent[]>(
       `/human-validation/profiles/${profileId}/audit`,
