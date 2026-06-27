@@ -27,6 +27,11 @@ import BillingPage from "./pages/app/BillingPage";
 import StorageSettingsPage from "./pages/app/StorageSettingsPage";
 import ProfileSettingsPage from "./pages/app/ProfileSettingsPage";
 import DocumentSettingsPage from "./pages/app/DocumentSettingsPage";
+import HumanValidationDashboardPage from "./pages/app/human-validation/HumanValidationDashboardPage";
+import CompanyProfilePage from "./pages/app/human-validation/CompanyProfilePage";
+import ReviewQueuePage from "./pages/app/human-validation/ReviewQueuePage";
+import ApprovalDetailsPage from "./pages/app/human-validation/ApprovalDetailsPage";
+import AuditTrailPage from "./pages/app/human-validation/AuditTrailPage";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +71,11 @@ const App = () => {
                 <Route index element={<ActionCenterPage />} />
                 <Route path="assistant" element={<AssistantPage />} />
                 <Route path="packages" element={<PackagesPage />} />
+                <Route path="human-validation" element={<HumanValidationDashboardPage />} />
+                <Route path="human-validation/company-profile" element={<CompanyProfilePage />} />
+                <Route path="human-validation/review-queue" element={<ReviewQueuePage />} />
+                <Route path="human-validation/approvals/:profileId" element={<ApprovalDetailsPage />} />
+                <Route path="human-validation/audit/:profileId" element={<AuditTrailPage />} />
                 <Route path="billing" element={<BillingPage />} />
                 <Route path="settings/storage" element={<StorageSettingsPage />} />
                 <Route path="settings/profile" element={<ProfileSettingsPage />} />

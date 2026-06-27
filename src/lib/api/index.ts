@@ -11,3 +11,4 @@ export { storageApi } from './storage';
 export { passwordResetApi } from './password-reset';
 export { packagesApi } from './packages';
 export { settingsApi } from './settings';
+export { humanValidationApi } from './human-validation';

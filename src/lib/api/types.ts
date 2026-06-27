@@ -406,3 +406,154 @@ export interface ChangePasswordResponse {
   token_type: string;
   expires_in: number;
 }
+
+// ============================================
+// Human Validation & Governance Types
+// ============================================
+
+export type HumanValidationStatus =
+  | "draft"
+  | "submitted"
+  | "in_review"
+  | "changes_requested"
+  | "approved"
+  | "rejected"
+  | "signed_off";
+
+export type HumanValidationRole = "reviewer" | "approver" | "executive_signer";
+
+export type HumanValidationDecisionAction = "approve" | "reject" | "request_changes";
+
+export type HumanValidationAuditEventType =
+  | "profile_created"
+  | "profile_updated"
+  | "reviewer_assigned"
+  | "approver_assigned"
+  | "executive_signer_assigned"
+  | "submitted_for_review"
+  | "comment_added"
+  | "changes_requested"
+  | "approved"
+  | "rejected"
+  | "executive_signoff_updated";
+
+export interface CompanyValidationProfileBase {
+  package_id?: string | null;
+  legal_name?: string | null;
+  business_unit?: string | null;
+  system_owner_name?: string | null;
+  system_owner_email?: string | null;
+  compliance_owner_name?: string | null;
+  compliance_owner_email?: string | null;
+  scope_summary?: string | null;
+  in_scope_locations: unknown[];
+  in_scope_systems: unknown[];
+  data_types: unknown[];
+  third_parties: unknown[];
+  assumptions: unknown[];
+  exclusions: unknown[];
+  metadata_json: Record<string, unknown>;
+}
+
+export interface CompanyValidationProfileCreate extends CompanyValidationProfileBase {
+  conversation_session_id: string;
+}
+
+export interface CompanyValidationProfileUpdate {
+  legal_name?: string | null;
+  business_unit?: string | null;
+  system_owner_name?: string | null;
+  system_owner_email?: string | null;
+  compliance_owner_name?: string | null;
+  compliance_owner_email?: string | null;
+  scope_summary?: string | null;
+  in_scope_locations?: unknown[] | null;
+  in_scope_systems?: unknown[] | null;
+  data_types?: unknown[] | null;
+  third_parties?: unknown[] | null;
+  assumptions?: unknown[] | null;
+  exclusions?: unknown[] | null;
+  metadata_json?: Record<string, unknown> | null;
+}
+
+export interface CompanyValidationProfile extends CompanyValidationProfileBase {
+  id: string;
+  user_id: string;
+  conversation_session_id: string;
+  framework_version_id?: string | null;
+  status: HumanValidationStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HumanValidationQueueResponse {
+  profiles: CompanyValidationProfile[];
+  count: number;
+}
+
+export interface ValidationAssignmentCreate {
+  user_id: string;
+  role: HumanValidationRole;
+  metadata_json?: Record<string, unknown>;
+}
+
+export interface ValidationAssignment {
+  id: string;
+  profile_id: string;
+  user_id: string;
+  assigned_by_user_id?: string | null;
+  role: HumanValidationRole;
+  is_active: boolean;
+  metadata_json: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ValidationCommentCreate {
+  comment: string;
+  document_trace_id?: string | null;
+  document_control_trace_id?: string | null;
+  control_id?: string | null;
+  document_requirement_id?: string | null;
+  section_reference?: string | null;
+  evidence_references?: unknown[];
+  metadata_json?: Record<string, unknown>;
+}
+
+export interface ValidationComment {
+  id: string;
+  profile_id: string;
+  created_by_user_id?: string | null;
+  document_trace_id?: string | null;
+  document_control_trace_id?: string | null;
+  control_id?: string | null;
+  document_requirement_id?: string | null;
+  section_reference?: string | null;
+  comment: string;
+  is_resolved: boolean;
+  resolved_by_user_id?: string | null;
+  resolved_at?: string | null;
+  evidence_references: unknown[];
+  metadata_json: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ValidationDecisionRequest {
+  action: HumanValidationDecisionAction;
+  message?: string | null;
+  metadata_json?: Record<string, unknown>;
+}
+
+export interface ValidationAuditEvent {
+  id: string;
+  profile_id: string;
+  actor_user_id?: string | null;
+  event_type: HumanValidationAuditEventType;
+  from_status?: HumanValidationStatus | null;
+  to_status?: HumanValidationStatus | null;
+  message?: string | null;
+  metadata_json: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}

@@ -19,6 +19,9 @@ import {
   User,
   Package,
   FileEdit,
+  ClipboardCheck,
+  Building2,
+  ListChecks,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +32,12 @@ const mainNavItems = [
   { title: 'Action Center', url: '/app', icon: Home },
   { title: 'AI Assistant', url: '/app/assistant', icon: MessageSquare },
   { title: 'Packages', url: '/app/packages', icon: Package },
+];
+
+const humanValidationNavItems = [
+  { title: 'Dashboard', url: '/app/human-validation', icon: ClipboardCheck },
+  { title: 'Company Profile', url: '/app/human-validation/company-profile', icon: Building2 },
+  { title: 'Review Queue', url: '/app/human-validation/review-queue', icon: ListChecks },
 ];
 
 const settingsNavItems = [
@@ -61,6 +70,24 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Human Validation</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {humanValidationNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <Link to={item.url}>
