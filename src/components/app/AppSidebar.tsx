@@ -22,6 +22,13 @@ import {
   ClipboardCheck,
   Building2,
   ListChecks,
+  Archive,
+  FileCheck2,
+  ScrollText,
+  ClipboardList,
+  ShieldCheck,
+  CalendarCheck,
+  Library,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +45,16 @@ const humanValidationNavItems = [
   { title: 'Dashboard', url: '/app/human-validation', icon: ClipboardCheck },
   { title: 'Company Profile', url: '/app/human-validation/company-profile', icon: Building2 },
   { title: 'Review Queue', url: '/app/human-validation/review-queue', icon: ListChecks },
+];
+
+const complianceRepositoryNavItems = [
+  { title: 'Approved Documents', url: '/app/compliance-repository/approved-documents', icon: FileCheck2 },
+  { title: 'Policies', url: '/app/compliance-repository/policies', icon: ScrollText },
+  { title: 'Procedures', url: '/app/compliance-repository/procedures', icon: ClipboardList },
+  { title: 'Standards', url: '/app/compliance-repository/standards', icon: ShieldCheck },
+  { title: 'Plans', url: '/app/compliance-repository/plans', icon: CalendarCheck },
+  { title: 'Templates', url: '/app/compliance-repository/templates', icon: FileEdit },
+  { title: 'Evidence Library', url: '/app/compliance-repository/evidence-library', icon: Library },
 ];
 
 const settingsNavItems = [
@@ -70,6 +87,32 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Compliance Repository</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={location.pathname === '/app/compliance-repository'}>
+                  <Link to="/app/compliance-repository">
+                    <Archive className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {complianceRepositoryNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <Link to={item.url}>

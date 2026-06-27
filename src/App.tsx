@@ -32,6 +32,10 @@ import CompanyProfilePage from "./pages/app/human-validation/CompanyProfilePage"
 import ReviewQueuePage from "./pages/app/human-validation/ReviewQueuePage";
 import ApprovalDetailsPage from "./pages/app/human-validation/ApprovalDetailsPage";
 import AuditTrailPage from "./pages/app/human-validation/AuditTrailPage";
+import ComplianceRepositoryDashboardPage from "./pages/app/compliance-repository/ComplianceRepositoryDashboardPage";
+import ApprovedDocumentsPage from "./pages/app/compliance-repository/ApprovedDocumentsPage";
+import RepositoryCategoryPage from "./pages/app/compliance-repository/RepositoryCategoryPage";
+import DocumentDetailsPage from "./pages/app/compliance-repository/DocumentDetailsPage";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +80,10 @@ const App = () => {
                 <Route path="human-validation/review-queue" element={<ReviewQueuePage />} />
                 <Route path="human-validation/approvals/:profileId" element={<ApprovalDetailsPage />} />
                 <Route path="human-validation/audit/:profileId" element={<AuditTrailPage />} />
+                <Route path="compliance-repository" element={<ComplianceRepositoryDashboardPage />} />
+                <Route path="compliance-repository/approved-documents" element={<ApprovedDocumentsPage />} />
+                <Route path="compliance-repository/documents/:documentId" element={<DocumentDetailsPage />} />
+                <Route path="compliance-repository/:category" element={<RepositoryCategoryPage />} />
                 <Route path="billing" element={<BillingPage />} />
                 <Route path="settings/storage" element={<StorageSettingsPage />} />
                 <Route path="settings/profile" element={<ProfileSettingsPage />} />
