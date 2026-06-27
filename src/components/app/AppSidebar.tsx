@@ -84,7 +84,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Human Validation</SidebarGroupLabel>
+          <SidebarGroupLabel>Governance & Approvals</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {humanValidationNavItems.map((item) => (
