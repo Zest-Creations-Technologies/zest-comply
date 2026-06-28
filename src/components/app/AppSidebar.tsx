@@ -37,7 +37,8 @@ export function AppSidebar() {
     }
     if (url === '/app/governance') {
       return location.pathname.startsWith('/app/governance')
-        || location.pathname.startsWith('/app/human-validation');
+        || location.pathname.startsWith('/app/human-validation')
+        || location.pathname.startsWith('/app/risk');
     }
     if (url === '/app/security') return location.pathname.startsWith('/app/security');
     if (url === '/app/platform') {

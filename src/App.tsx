@@ -61,6 +61,12 @@ import SecurityAssetsPage from "./pages/app/security/SecurityAssetsPage";
 import SecurityAlertsPage from "./pages/app/security/SecurityAlertsPage";
 import SecurityVulnerabilitiesPage from "./pages/app/security/SecurityVulnerabilitiesPage";
 import SecurityAttackSurfacePage from "./pages/app/security/SecurityAttackSurfacePage";
+import RiskManagementPage from "./pages/app/risk/RiskManagementPage";
+import RiskRegisterPage from "./pages/app/risk/RiskRegisterPage";
+import RiskAssessmentsPage from "./pages/app/risk/RiskAssessmentsPage";
+import RiskTreatmentPlansPage from "./pages/app/risk/RiskTreatmentPlansPage";
+import RiskExceptionsPage from "./pages/app/risk/RiskExceptionsPage";
+import RiskPoamPage from "./pages/app/risk/RiskPoamPage";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +116,12 @@ const App = () => {
                 <Route path="security/vulnerabilities" element={<SecurityVulnerabilitiesPage />} />
                 <Route path="security/attack-surface" element={<SecurityAttackSurfacePage />} />
                 <Route path="security/workspace" element={<SecurityWorkspacePage />} />
+                <Route path="risk" element={<RiskManagementPage />} />
+                <Route path="risk/register" element={<RiskRegisterPage />} />
+                <Route path="risk/assessments" element={<RiskAssessmentsPage />} />
+                <Route path="risk/treatment-plans" element={<RiskTreatmentPlansPage />} />
+                <Route path="risk/exceptions" element={<RiskExceptionsPage />} />
+                <Route path="risk/poam" element={<RiskPoamPage />} />
                 <Route path="platform" element={<PlatformWorkspacePage />} />
                 <Route path="assistant" element={<AssistantPage />} />
                 <Route path="packages" element={<PackagesPage />} />
