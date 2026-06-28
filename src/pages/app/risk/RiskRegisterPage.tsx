@@ -8,7 +8,7 @@ export default function RiskRegisterPage() {
         <h1 className="text-3xl font-bold text-foreground">Risk Register</h1>
         <p className="text-muted-foreground">Central view for enterprise risks and ownership.</p>
       </div>
-      <RiskEmptyState icon={ShieldAlert} title="No risks have been created yet." description="Risks will appear here after assessments, governance reviews, monitoring alerts, or ZestRecon findings identify risk items." />
+      <RiskEmptyState icon={ShieldAlert} title="No risks have been created yet." description="Risks will appear here after assessments, governance reviews, monitoring alerts, manual entries, integrations, or optional ZestRecon findings identify risk items." />
       <RiskRelationshipSection />
     </div>
   );

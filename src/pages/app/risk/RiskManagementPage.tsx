@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 const workflowSteps = [
   {
     title: "Identify",
-    description: "Risks from assessments, ZestRecon, compliance monitoring, audits, and governance reviews.",
+    description: "Risks can come from assessments, governance reviews, compliance monitoring, audits, manual entries, integrations, and optional ZestRecon findings.",
   },
   {
     title: "Assess",
@@ -38,7 +38,7 @@ export default function RiskManagementPage() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-foreground">Risk Management</h1>
           <p className="max-w-3xl text-muted-foreground">
-            Manage enterprise risks identified through assessments, governance reviews, compliance monitoring, and ZestRecon security findings.
+            Manage enterprise risks identified through assessments, governance reviews, compliance monitoring, audits, manual entries, integrations, and optional ZestRecon findings.
           </p>
         </div>
         <Button asChild>
@@ -48,7 +48,7 @@ export default function RiskManagementPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <RiskActionCard title="Risk Register" description="Review enterprise risks once they are created." href="/app/risk/register" icon={ShieldAlert} />
-        <RiskActionCard title="New Risk Assessment" description="Start risk identification from assessments, monitoring, or imported findings." href="/app/risk/assessments" icon={ClipboardList} />
+        <RiskActionCard title="New Risk Assessment" description="Start risk identification from assessments, monitoring, manual entries, integrations, or optional imported findings." href="/app/risk/assessments" icon={ClipboardList} />
         <RiskActionCard title="Treatment Plans" description="Track mitigation, transfer, acceptance, and remediation plans." href="/app/risk/treatment-plans" icon={ListChecks} />
         <RiskActionCard title="Exceptions" description="Manage approved exceptions and compensating control context." href="/app/risk/exceptions" icon={Scale} />
         <RiskActionCard title="POA&M" description="Track plans of action and milestones for unresolved risk items." href="/app/risk/poam" icon={FileWarning} />

@@ -11,7 +11,7 @@ export default function SecurityAlertsPage() {
           <p className="text-muted-foreground">ZestRecon alerts will support compliance monitoring and remediation workflows.</p>
         </div>
       </div>
-      <SecurityEmptyState icon={AlertTriangle} title="No security alerts yet" description="No security alerts yet. ZestRecon alerts will appear here after connection." />
+      <SecurityEmptyState icon={AlertTriangle} title="No security alerts yet" description="Optional ZestRecon alerts will appear here after connection." />
     </div>
   );
 }

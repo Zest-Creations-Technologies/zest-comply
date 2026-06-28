@@ -11,7 +11,7 @@ export default function SecurityAssetsPage() {
           <p className="text-muted-foreground">Synchronized assets will help connect security exposure to compliance requirements.</p>
         </div>
       </div>
-      <SecurityEmptyState icon={Network} title="No assets imported yet" description="No assets imported yet. Connect ZestRecon to synchronize monitored assets." />
+      <SecurityEmptyState icon={Network} title="No assets imported yet" description="Connect ZestRecon when you are ready to synchronize monitored assets." />
     </div>
   );
 }

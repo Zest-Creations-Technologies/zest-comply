@@ -11,7 +11,7 @@ export default function SecurityVulnerabilitiesPage() {
           <p className="text-muted-foreground">Vulnerability scan results can later drive evidence requests, remediation tasks, risks, and reports.</p>
         </div>
       </div>
-      <SecurityEmptyState icon={Bug} title="No vulnerabilities imported yet" description="No vulnerabilities imported yet. Connect ZestRecon to sync scan results." />
+      <SecurityEmptyState icon={Bug} title="No vulnerabilities imported yet" description="Connect ZestRecon when you are ready to sync scan results." />
     </div>
   );
 }

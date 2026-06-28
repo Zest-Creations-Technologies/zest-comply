@@ -11,7 +11,7 @@ export default function SecurityAttackSurfacePage() {
           <p className="text-muted-foreground">External exposure monitoring will help connect domains, services, and applications to compliance impact.</p>
         </div>
       </div>
-      <SecurityEmptyState icon={Activity} title="No attack surface data yet" description="No attack surface data yet. Connect ZestRecon to monitor exposed services, domains, and applications." />
+      <SecurityEmptyState icon={Activity} title="No attack surface data yet" description="Connect ZestRecon when you are ready to monitor exposed services, domains, and applications." />
     </div>
   );
 }

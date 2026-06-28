@@ -52,7 +52,7 @@ export function ComplianceImpactSection() {
     <Card className="bg-card">
       <CardHeader>
         <CardTitle>Compliance Impact</CardTitle>
-        <CardDescription>ZestRecon security signals will later map into compliance workflows.</CardDescription>
+        <CardDescription>Optional ZestRecon security signals will later map into compliance workflows.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3 text-sm md:grid-cols-2">
         {[

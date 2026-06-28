@@ -11,7 +11,7 @@ export default function SecurityFindingsPage() {
           <p className="text-muted-foreground">Security findings imported from ZestRecon will be available for compliance triage.</p>
         </div>
       </div>
-      <SecurityEmptyState icon={ShieldCheck} title="No ZestRecon findings yet" description="No ZestRecon findings yet. Connect ZestRecon to begin importing security findings." />
+      <SecurityEmptyState icon={ShieldCheck} title="No ZestRecon findings yet" description="Connect ZestRecon when you are ready to enrich ZestComply with imported security findings." />
     </div>
   );
 }

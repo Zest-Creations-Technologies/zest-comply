@@ -12,7 +12,7 @@ export default function SecurityOperationsPage() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-foreground">Security Operations</h1>
           <p className="max-w-3xl text-muted-foreground">
-            Connect ZestRecon to continuously ingest security findings, vulnerabilities, assets, alerts, attack surface data, and compliance signals into ZestComply.
+            ZestComply works independently. Connect ZestRecon to enrich Security Operations with security findings, vulnerabilities, assets, alerts, attack surface data, and compliance signals.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -35,7 +35,7 @@ export default function SecurityOperationsPage() {
         <Card className="bg-card">
           <CardHeader>
             <CardTitle>Security Data Ingestion</CardTitle>
-            <CardDescription>Findings, assets, alerts, vulnerabilities, and attack surface data can flow from ZestRecon into compliance workflows.</CardDescription>
+            <CardDescription>Optional ZestRecon data can enrich compliance workflows with findings, assets, alerts, vulnerabilities, and attack surface context.</CardDescription>
           </CardHeader>
         </Card>
         <Card className="bg-card">
@@ -49,7 +49,7 @@ export default function SecurityOperationsPage() {
       <SecurityEmptyState
         icon={ShieldCheck}
         title="No ZestRecon data connected"
-        description="Connect ZestRecon to begin importing security findings, assets, vulnerabilities, alerts, and attack surface data."
+        description="ZestComply risk workflows work with or without ZestRecon. Connect ZestRecon to begin importing security findings, assets, vulnerabilities, alerts, and attack surface data."
       />
       <ComplianceImpactSection />
     </div>

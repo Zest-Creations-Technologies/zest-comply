@@ -9,7 +9,7 @@ export default function ZestReconOverviewPage() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-foreground">ZestRecon Integration</h1>
           <p className="max-w-3xl text-muted-foreground">
-            ZestRecon powers security findings, vulnerabilities, assets, alerts, attack surface data, and compliance signal ingestion for Security Operations.
+            ZestComply works independently. Connect ZestRecon to enrich Security Operations with security findings, vulnerabilities, assets, alerts, attack surface data, and compliance signals.
           </p>
         </div>
       </div>
