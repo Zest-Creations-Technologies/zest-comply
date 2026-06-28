@@ -53,6 +53,14 @@ import ComplianceWorkspacePage from "./pages/app/workspaces/ComplianceWorkspaceP
 import GovernanceWorkspacePage from "./pages/app/workspaces/GovernanceWorkspacePage";
 import SecurityWorkspacePage from "./pages/app/workspaces/SecurityWorkspacePage";
 import PlatformWorkspacePage from "./pages/app/workspaces/PlatformWorkspacePage";
+import SecurityOperationsPage from "./pages/app/security/SecurityOperationsPage";
+import ZestReconOverviewPage from "./pages/app/security/ZestReconOverviewPage";
+import ConnectZestReconPage from "./pages/app/security/ConnectZestReconPage";
+import SecurityFindingsPage from "./pages/app/security/SecurityFindingsPage";
+import SecurityAssetsPage from "./pages/app/security/SecurityAssetsPage";
+import SecurityAlertsPage from "./pages/app/security/SecurityAlertsPage";
+import SecurityVulnerabilitiesPage from "./pages/app/security/SecurityVulnerabilitiesPage";
+import SecurityAttackSurfacePage from "./pages/app/security/SecurityAttackSurfacePage";
 
 const queryClient = new QueryClient();
 
@@ -93,7 +101,15 @@ const App = () => {
                 <Route path="operations" element={<OperationsWorkspacePage />} />
                 <Route path="compliance" element={<ComplianceWorkspacePage />} />
                 <Route path="governance" element={<GovernanceWorkspacePage />} />
-                <Route path="security" element={<SecurityWorkspacePage />} />
+                <Route path="security" element={<SecurityOperationsPage />} />
+                <Route path="security/zestrecon" element={<ZestReconOverviewPage />} />
+                <Route path="security/connect" element={<ConnectZestReconPage />} />
+                <Route path="security/findings" element={<SecurityFindingsPage />} />
+                <Route path="security/assets" element={<SecurityAssetsPage />} />
+                <Route path="security/alerts" element={<SecurityAlertsPage />} />
+                <Route path="security/vulnerabilities" element={<SecurityVulnerabilitiesPage />} />
+                <Route path="security/attack-surface" element={<SecurityAttackSurfacePage />} />
+                <Route path="security/workspace" element={<SecurityWorkspacePage />} />
                 <Route path="platform" element={<PlatformWorkspacePage />} />
                 <Route path="assistant" element={<AssistantPage />} />
                 <Route path="packages" element={<PackagesPage />} />

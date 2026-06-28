@@ -7,9 +7,9 @@ export default function SecurityWorkspacePage() {
     <WorkspacePage
       title="Security Operations"
       description="Powered by ZestRecon for findings, assets, vulnerabilities, alerts, and attack surface monitoring."
-      primaryAction={{ title: "Connect ZestRecon", href: "/app/platform", icon: Radar }}
+      primaryAction={{ title: "Connect ZestRecon", href: "/app/security/connect", icon: Radar }}
       items={[
-        { title: "Powered by ZestRecon", description: "Connect ZestRecon to activate findings, assets, vulnerabilities, and attack surface monitoring.", href: "/app/platform", icon: Radar, status: "Connect" },
+        { title: "Powered by ZestRecon", description: "Connect ZestRecon to activate findings, assets, vulnerabilities, and attack surface monitoring.", href: "/app/security/zestrecon", icon: Radar, status: "Connect" },
         { title: "Security Operations", description: "Coordinate security signals with compliance obligations after connecting data sources.", href: "/app/security", icon: Shield },
       ]}
     >
