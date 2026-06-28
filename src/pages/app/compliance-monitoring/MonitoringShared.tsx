@@ -44,6 +44,17 @@ export function MetricCard({ label, value, description }: { label: string; value
   );
 }
 
+export function MonitoringEmptyState({ title, description }: { title: string; description: string }) {
+  return (
+    <Card className="bg-card">
+      <CardContent className="py-10">
+        <p className="font-medium text-foreground">{title}</p>
+        <p className="mt-1 max-w-xl text-sm text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function SimpleProgressList({ title, description, rows }: { title: string; description: string; rows: { label: string; value: number }[] }) {
   return (
     <Card className="bg-card">

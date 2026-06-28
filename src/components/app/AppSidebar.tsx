@@ -4,90 +4,24 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { 
-  Home, 
-  MessageSquare, 
-  CreditCard, 
-  Cloud, 
-  User,
-  Package,
-  FileEdit,
-  ClipboardCheck,
-  Building2,
-  ListChecks,
-  Archive,
-  FileCheck2,
-  ScrollText,
-  ClipboardList,
-  ShieldCheck,
-  CalendarCheck,
-  Library,
-  FileSearch,
-  FileUp,
-  Inbox,
-  ClipboardCheck as ReviewCheck,
-  Activity,
-  Bell,
-  BarChart3,
-  CheckSquare,
-  CalendarDays,
-} from 'lucide-react';
+import { Building2, Gauge, Landmark, Settings, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { Logo } from '@/components/Logo';
 import { ApiHealthIndicator } from '@/components/app/ApiHealthIndicator';
 
-const mainNavItems = [
-  { title: 'Action Center', url: '/app', icon: Home },
-  { title: 'AI Assistant', url: '/app/assistant', icon: MessageSquare },
-  { title: 'Packages', url: '/app/packages', icon: Package },
-];
-
-const humanValidationNavItems = [
-  { title: 'Dashboard', url: '/app/human-validation', icon: ClipboardCheck },
-  { title: 'Company Profile', url: '/app/human-validation/company-profile', icon: Building2 },
-  { title: 'Review Queue', url: '/app/human-validation/review-queue', icon: ListChecks },
-];
-
-const complianceRepositoryNavItems = [
-  { title: 'Approved Documents', url: '/app/compliance-repository/approved-documents', icon: FileCheck2 },
-  { title: 'Policies', url: '/app/compliance-repository/policies', icon: ScrollText },
-  { title: 'Procedures', url: '/app/compliance-repository/procedures', icon: ClipboardList },
-  { title: 'Standards', url: '/app/compliance-repository/standards', icon: ShieldCheck },
-  { title: 'Plans', url: '/app/compliance-repository/plans', icon: CalendarCheck },
-  { title: 'Templates', url: '/app/compliance-repository/templates', icon: FileEdit },
-  { title: 'Evidence Library', url: '/app/compliance-repository/evidence-library', icon: Library },
-];
-
-const evidenceNavItems = [
-  { title: 'Dashboard', url: '/app/evidence', icon: FileSearch },
-  { title: 'Evidence Library', url: '/app/evidence/library', icon: Library },
-  { title: 'Upload Evidence', url: '/app/evidence/upload', icon: FileUp },
-  { title: 'Evidence Requests', url: '/app/evidence/requests', icon: Inbox },
-  { title: 'Review Queue', url: '/app/evidence/review', icon: ReviewCheck },
-  { title: 'Evidence Archive', url: '/app/evidence/archive', icon: Archive },
-];
-
-const complianceMonitoringNavItems = [
-  { title: 'Dashboard', url: '/app/compliance-monitoring', icon: Activity },
-  { title: 'Alerts', url: '/app/compliance-monitoring/alerts', icon: Bell },
-  { title: 'Framework Health', url: '/app/compliance-monitoring/frameworks', icon: BarChart3 },
-  { title: 'Compliance Tasks', url: '/app/compliance-monitoring/tasks', icon: CheckSquare },
-  { title: 'Compliance Calendar', url: '/app/compliance-monitoring/calendar', icon: CalendarDays },
-];
-
-const settingsNavItems = [
-  { title: 'Billing', url: '/app/billing', icon: CreditCard },
-  { title: 'Cloud Storage', url: '/app/settings/storage', icon: Cloud },
-  { title: 'Document Branding', url: '/app/settings/documents', icon: FileEdit },
-  { title: 'Profile', url: '/app/settings/profile', icon: User },
+const workspaceNavItems = [
+  { title: 'Operations Center', url: '/app/operations', icon: Gauge },
+  { title: 'Compliance', url: '/app/compliance', icon: Building2 },
+  { title: 'Governance', url: '/app/governance', icon: Landmark },
+  { title: 'Security Operations', url: '/app/security', icon: Shield },
+  { title: 'Platform', url: '/app/platform', icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -95,8 +29,22 @@ export function AppSidebar() {
   const { user } = useAuth();
 
   const isActive = (url: string) => {
-    if (url === '/app') {
-      return location.pathname === '/app';
+    if (url === '/app/operations') return location.pathname === '/app' || location.pathname.startsWith('/app/operations');
+    if (url === '/app/compliance') {
+      return location.pathname.startsWith('/app/compliance')
+        || location.pathname.startsWith('/app/packages')
+        || location.pathname.startsWith('/app/evidence');
+    }
+    if (url === '/app/governance') {
+      return location.pathname.startsWith('/app/governance')
+        || location.pathname.startsWith('/app/human-validation');
+    }
+    if (url === '/app/security') return location.pathname.startsWith('/app/security');
+    if (url === '/app/platform') {
+      return location.pathname.startsWith('/app/platform')
+        || location.pathname.startsWith('/app/assistant')
+        || location.pathname.startsWith('/app/settings')
+        || location.pathname.startsWith('/app/billing');
     }
     return location.pathname.startsWith(url);
   };
@@ -109,108 +57,9 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Compliance Monitoring</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {complianceMonitoringNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={item.url === '/app/compliance-monitoring' ? location.pathname === item.url : isActive(item.url)}>
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Evidence Management</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {evidenceNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={item.url === '/app/evidence' ? location.pathname === item.url : isActive(item.url)}>
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Compliance Repository</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={location.pathname === '/app/compliance-repository'}>
-                  <Link to="/app/compliance-repository">
-                    <Archive className="h-4 w-4" />
-                    <span>Dashboard</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              {complianceRepositoryNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Governance & Approvals</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {humanValidationNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Settings</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {settingsNavItems.map((item) => (
+              {workspaceNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <Link to={item.url}>

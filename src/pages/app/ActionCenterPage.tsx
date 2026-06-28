@@ -2,61 +2,60 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, History, CreditCard, Cloud, ArrowRight, Sparkles } from "lucide-react";
+import { Archive, ArrowRight, Bell, CheckSquare, FileCheck2, Gauge, MessageSquare, ShieldCheck } from "lucide-react";
 
 export default function ActionCenterPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const quickActions = [
+  const workspaceActions = [
     {
-      title: "Start New Assessment",
-      description: "Begin a new AI-guided compliance documentation process",
+      title: "Assessments",
+      description: "Start or continue AI-guided compliance work.",
       icon: MessageSquare,
       action: () => navigate("/app/assistant"),
-      primary: true,
     },
     {
-      title: "Continue Last Assessment",
-      description: "Resume your most recent compliance session",
-      icon: History,
-      action: () => navigate("/app/conversations"),
+      title: "Approvals",
+      description: "Open governance review and approval workflows.",
+      icon: ShieldCheck,
+      action: () => navigate("/app/human-validation/review-queue"),
     },
     {
-      title: "Manage Billing",
-      description: "View subscription, invoices, and payment methods",
-      icon: CreditCard,
-      action: () => navigate("/app/billing"),
+      title: "Evidence",
+      description: "Manage evidence records and review queues.",
+      icon: FileCheck2,
+      action: () => navigate("/app/evidence"),
     },
     {
-      title: "Link Cloud Storage",
-      description: "Connect Google Drive, Dropbox, or OneDrive",
-      icon: Cloud,
-      action: () => navigate("/app/settings/storage"),
+      title: "Monitoring",
+      description: "Review compliance alerts, tasks, and deadlines.",
+      icon: Bell,
+      action: () => navigate("/app/compliance-monitoring"),
     },
   ];
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8">
-      {/* Welcome section */}
+    <div className="p-6 max-w-6xl mx-auto space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-foreground">
-          Welcome back, {user?.full_name || user?.first_name || "there"}!
+          Operations Center
         </h1>
-        <p className="text-muted-foreground">What would you like to work on today?</p>
+        <p className="text-muted-foreground">
+          Welcome back, {user?.full_name || user?.first_name || "there"}. Start from the work that needs attention now.
+        </p>
       </div>
 
-      {/* Featured action */}
       <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20">
         <CardContent className="flex items-center justify-between p-6">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center">
-              <Sparkles className="h-7 w-7 text-primary" />
+              <Gauge className="h-7 w-7 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-foreground">Start Your AI-Powered Assessment</h2>
+              <h2 className="text-xl font-semibold text-foreground">Run the Compliance Workflow</h2>
               <p className="text-muted-foreground">
-                Our AI assistant will guide you through creating comprehensive compliance documentation
+                Assess, approve, evidence, monitor, and report from one operating model.
               </p>
             </div>
           </div>
@@ -67,19 +66,18 @@ export default function ActionCenterPage() {
         </CardContent>
       </Card>
 
-      {/* Quick actions grid */}
       <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4">Quick Actions</h2>
+        <h2 className="text-xl font-semibold text-foreground mb-4">Workspaces</h2>
         <div className="grid md:grid-cols-2 gap-4">
-          {quickActions.map((action) => (
+          {workspaceActions.map((action) => (
             <Card
               key={action.title}
               className="cursor-pointer hover:border-primary/50 transition-colors bg-card"
               onClick={action.action}
             >
               <CardHeader className="flex flex-row items-center gap-4 pb-2">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <action.icon className="h-6 w-6 text-primary" />
+                <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+                  <action.icon className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <div className="flex-1">
                   <CardTitle className="text-lg">{action.title}</CardTitle>
@@ -93,25 +91,27 @@ export default function ActionCenterPage() {
         </div>
       </div>
 
-      {/* Stats or recent activity could go here */}
       <div className="grid md:grid-cols-3 gap-4">
         <Card className="bg-card">
           <CardHeader className="pb-2">
-            <CardDescription>Active Assessments</CardDescription>
-            <CardTitle className="text-3xl">--</CardTitle>
+            <CardDescription>Repository</CardDescription>
+            <CardTitle className="flex items-center gap-2 text-xl"><Archive className="h-5 w-5 text-muted-foreground" />Approved documents</CardTitle>
           </CardHeader>
+          <CardContent><Button variant="outline" size="sm" onClick={() => navigate("/app/compliance-repository")}>Open Repository</Button></CardContent>
         </Card>
         <Card className="bg-card">
           <CardHeader className="pb-2">
-            <CardDescription>Documents Generated</CardDescription>
-            <CardTitle className="text-3xl">--</CardTitle>
+            <CardDescription>Tasks</CardDescription>
+            <CardTitle className="flex items-center gap-2 text-xl"><CheckSquare className="h-5 w-5 text-muted-foreground" />Compliance work</CardTitle>
           </CardHeader>
+          <CardContent><Button variant="outline" size="sm" onClick={() => navigate("/app/compliance-monitoring/tasks")}>Open Tasks</Button></CardContent>
         </Card>
         <Card className="bg-card">
           <CardHeader className="pb-2">
-            <CardDescription>Frameworks Covered</CardDescription>
-            <CardTitle className="text-3xl">--</CardTitle>
+            <CardDescription>Security</CardDescription>
+            <CardTitle className="flex items-center gap-2 text-xl"><ShieldCheck className="h-5 w-5 text-muted-foreground" />Connect ZestRecon</CardTitle>
           </CardHeader>
+          <CardContent><Button variant="outline" size="sm" onClick={() => navigate("/app/security")}>Open Security</Button></CardContent>
         </Card>
       </div>
     </div>
