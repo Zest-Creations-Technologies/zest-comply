@@ -29,6 +29,10 @@ import {
   ShieldCheck,
   CalendarCheck,
   Library,
+  FileSearch,
+  FileUp,
+  Inbox,
+  ClipboardCheck as ReviewCheck,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -55,6 +59,15 @@ const complianceRepositoryNavItems = [
   { title: 'Plans', url: '/app/compliance-repository/plans', icon: CalendarCheck },
   { title: 'Templates', url: '/app/compliance-repository/templates', icon: FileEdit },
   { title: 'Evidence Library', url: '/app/compliance-repository/evidence-library', icon: Library },
+];
+
+const evidenceNavItems = [
+  { title: 'Dashboard', url: '/app/evidence', icon: FileSearch },
+  { title: 'Evidence Library', url: '/app/evidence/library', icon: Library },
+  { title: 'Upload Evidence', url: '/app/evidence/upload', icon: FileUp },
+  { title: 'Evidence Requests', url: '/app/evidence/requests', icon: Inbox },
+  { title: 'Review Queue', url: '/app/evidence/review', icon: ReviewCheck },
+  { title: 'Evidence Archive', url: '/app/evidence/archive', icon: Archive },
 ];
 
 const settingsNavItems = [
@@ -89,6 +102,24 @@ export function AppSidebar() {
               {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Evidence Management</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {evidenceNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={item.url === '/app/evidence' ? location.pathname === item.url : isActive(item.url)}>
                     <Link to={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>

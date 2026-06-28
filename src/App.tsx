@@ -36,6 +36,13 @@ import ComplianceRepositoryDashboardPage from "./pages/app/compliance-repository
 import ApprovedDocumentsPage from "./pages/app/compliance-repository/ApprovedDocumentsPage";
 import RepositoryCategoryPage from "./pages/app/compliance-repository/RepositoryCategoryPage";
 import DocumentDetailsPage from "./pages/app/compliance-repository/DocumentDetailsPage";
+import EvidenceDashboardPage from "./pages/app/evidence/EvidenceDashboardPage";
+import EvidenceLibraryPage from "./pages/app/evidence/EvidenceLibraryPage";
+import EvidenceUploadPage from "./pages/app/evidence/EvidenceUploadPage";
+import EvidenceRequestsPage from "./pages/app/evidence/EvidenceRequestsPage";
+import EvidenceReviewQueuePage from "./pages/app/evidence/EvidenceReviewQueuePage";
+import EvidenceArchivePage from "./pages/app/evidence/EvidenceArchivePage";
+import EvidenceDetailsPage from "./pages/app/evidence/EvidenceDetailsPage";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +91,13 @@ const App = () => {
                 <Route path="compliance-repository/approved-documents" element={<ApprovedDocumentsPage />} />
                 <Route path="compliance-repository/documents/:documentId" element={<DocumentDetailsPage />} />
                 <Route path="compliance-repository/:category" element={<RepositoryCategoryPage />} />
+                <Route path="evidence" element={<EvidenceDashboardPage />} />
+                <Route path="evidence/library" element={<EvidenceLibraryPage />} />
+                <Route path="evidence/upload" element={<EvidenceUploadPage />} />
+                <Route path="evidence/requests" element={<EvidenceRequestsPage />} />
+                <Route path="evidence/review" element={<EvidenceReviewQueuePage />} />
+                <Route path="evidence/archive" element={<EvidenceArchivePage />} />
+                <Route path="evidence/:evidenceId" element={<EvidenceDetailsPage />} />
                 <Route path="billing" element={<BillingPage />} />
                 <Route path="settings/storage" element={<StorageSettingsPage />} />
                 <Route path="settings/profile" element={<ProfileSettingsPage />} />
