@@ -74,6 +74,14 @@ import RiskReportsPage from "./pages/app/reports/RiskReportsPage";
 import EvidenceReportsPage from "./pages/app/reports/EvidenceReportsPage";
 import AuditReadinessPage from "./pages/app/reports/AuditReadinessPage";
 import ExportCenterPage from "./pages/app/reports/ExportCenterPage";
+import AdministrationPage from "./pages/app/admin/AdministrationPage";
+import OrganizationProfilePage from "./pages/app/admin/OrganizationProfilePage";
+import DocumentBrandingAdminPage from "./pages/app/admin/DocumentBrandingAdminPage";
+import UsersAdminPage from "./pages/app/admin/UsersAdminPage";
+import RolesPermissionsPage from "./pages/app/admin/RolesPermissionsPage";
+import NotificationsAdminPage from "./pages/app/admin/NotificationsAdminPage";
+import AuditLogsAdminPage from "./pages/app/admin/AuditLogsAdminPage";
+import ApiKeysPage from "./pages/app/admin/ApiKeysPage";
 
 const queryClient = new QueryClient();
 
@@ -137,6 +145,14 @@ const App = () => {
                 <Route path="reports/audit" element={<AuditReadinessPage />} />
                 <Route path="reports/export" element={<ExportCenterPage />} />
                 <Route path="platform" element={<PlatformWorkspacePage />} />
+                <Route path="admin" element={<AdministrationPage />} />
+                <Route path="admin/organization" element={<OrganizationProfilePage />} />
+                <Route path="admin/branding" element={<DocumentBrandingAdminPage />} />
+                <Route path="admin/users" element={<UsersAdminPage />} />
+                <Route path="admin/roles" element={<RolesPermissionsPage />} />
+                <Route path="admin/notifications" element={<NotificationsAdminPage />} />
+                <Route path="admin/audit-logs" element={<AuditLogsAdminPage />} />
+                <Route path="admin/api-keys" element={<ApiKeysPage />} />
                 <Route path="assistant" element={<AssistantPage />} />
                 <Route path="packages" element={<PackagesPage />} />
                 <Route path="human-validation" element={<HumanValidationDashboardPage />} />
