@@ -43,6 +43,11 @@ import EvidenceRequestsPage from "./pages/app/evidence/EvidenceRequestsPage";
 import EvidenceReviewQueuePage from "./pages/app/evidence/EvidenceReviewQueuePage";
 import EvidenceArchivePage from "./pages/app/evidence/EvidenceArchivePage";
 import EvidenceDetailsPage from "./pages/app/evidence/EvidenceDetailsPage";
+import ComplianceMonitoringDashboardPage from "./pages/app/compliance-monitoring/ComplianceMonitoringDashboardPage";
+import MonitoringAlertsPage from "./pages/app/compliance-monitoring/MonitoringAlertsPage";
+import FrameworkHealthPage from "./pages/app/compliance-monitoring/FrameworkHealthPage";
+import ComplianceTasksPage from "./pages/app/compliance-monitoring/ComplianceTasksPage";
+import ComplianceCalendarPage from "./pages/app/compliance-monitoring/ComplianceCalendarPage";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +103,12 @@ const App = () => {
                 <Route path="evidence/review" element={<EvidenceReviewQueuePage />} />
                 <Route path="evidence/archive" element={<EvidenceArchivePage />} />
                 <Route path="evidence/:evidenceId" element={<EvidenceDetailsPage />} />
+                <Route path="compliance-monitoring" element={<ComplianceMonitoringDashboardPage />} />
+                <Route path="compliance-monitoring/dashboard" element={<ComplianceMonitoringDashboardPage />} />
+                <Route path="compliance-monitoring/alerts" element={<MonitoringAlertsPage />} />
+                <Route path="compliance-monitoring/frameworks" element={<FrameworkHealthPage />} />
+                <Route path="compliance-monitoring/tasks" element={<ComplianceTasksPage />} />
+                <Route path="compliance-monitoring/calendar" element={<ComplianceCalendarPage />} />
                 <Route path="billing" element={<BillingPage />} />
                 <Route path="settings/storage" element={<StorageSettingsPage />} />
                 <Route path="settings/profile" element={<ProfileSettingsPage />} />
