@@ -67,6 +67,13 @@ import RiskAssessmentsPage from "./pages/app/risk/RiskAssessmentsPage";
 import RiskTreatmentPlansPage from "./pages/app/risk/RiskTreatmentPlansPage";
 import RiskExceptionsPage from "./pages/app/risk/RiskExceptionsPage";
 import RiskPoamPage from "./pages/app/risk/RiskPoamPage";
+import ReportsLandingPage from "./pages/app/reports/ReportsLandingPage";
+import ExecutiveSummaryPage from "./pages/app/reports/ExecutiveSummaryPage";
+import ComplianceReportsPage from "./pages/app/reports/ComplianceReportsPage";
+import RiskReportsPage from "./pages/app/reports/RiskReportsPage";
+import EvidenceReportsPage from "./pages/app/reports/EvidenceReportsPage";
+import AuditReadinessPage from "./pages/app/reports/AuditReadinessPage";
+import ExportCenterPage from "./pages/app/reports/ExportCenterPage";
 
 const queryClient = new QueryClient();
 
@@ -122,6 +129,13 @@ const App = () => {
                 <Route path="risk/treatment-plans" element={<RiskTreatmentPlansPage />} />
                 <Route path="risk/exceptions" element={<RiskExceptionsPage />} />
                 <Route path="risk/poam" element={<RiskPoamPage />} />
+                <Route path="reports" element={<ReportsLandingPage />} />
+                <Route path="reports/executive" element={<ExecutiveSummaryPage />} />
+                <Route path="reports/compliance" element={<ComplianceReportsPage />} />
+                <Route path="reports/risk" element={<RiskReportsPage />} />
+                <Route path="reports/evidence" element={<EvidenceReportsPage />} />
+                <Route path="reports/audit" element={<AuditReadinessPage />} />
+                <Route path="reports/export" element={<ExportCenterPage />} />
                 <Route path="platform" element={<PlatformWorkspacePage />} />
                 <Route path="assistant" element={<AssistantPage />} />
                 <Route path="packages" element={<PackagesPage />} />
