@@ -45,6 +45,7 @@ export function AppSidebar() {
     if (url === '/app/platform') {
       return location.pathname.startsWith('/app/platform')
         || location.pathname.startsWith('/app/admin')
+        || location.pathname.startsWith('/app/integrations')
         || location.pathname.startsWith('/app/assistant')
         || location.pathname.startsWith('/app/settings')
         || location.pathname.startsWith('/app/billing');

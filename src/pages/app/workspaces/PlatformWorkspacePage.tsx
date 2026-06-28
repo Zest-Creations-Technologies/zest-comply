@@ -12,7 +12,7 @@ export default function PlatformWorkspacePage() {
         { title: "Organization Profile", description: "Maintain company identity and frameworks in scope.", href: "/app/admin/organization", icon: Building2 },
         { title: "Users", description: "Invite and manage team members when user administration is available.", href: "/app/admin/users", icon: Users },
         { title: "API Keys", description: "Prepare secure access for integrations and automation.", href: "/app/admin/api-keys", icon: KeyRound },
-        { title: "Integrations", description: "Configure integrations for storage, monitoring, evidence, and security data.", href: "/app/settings/storage", icon: Plug },
+        { title: "Integrations", description: "Connect IBM enterprise services for compliance, governance, reporting, and monitoring workflows.", href: "/app/integrations", icon: Plug },
         { title: "Profile", description: "Manage your user profile and account details.", href: "/app/settings/profile", icon: User },
         { title: "Billing", description: "View subscription, plan, invoices, and payment settings.", href: "/app/billing", icon: CreditCard },
         { title: "Document Branding", description: "Configure report and document branding defaults.", href: "/app/admin/branding", icon: FileEdit },

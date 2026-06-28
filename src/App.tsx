@@ -82,6 +82,9 @@ import RolesPermissionsPage from "./pages/app/admin/RolesPermissionsPage";
 import NotificationsAdminPage from "./pages/app/admin/NotificationsAdminPage";
 import AuditLogsAdminPage from "./pages/app/admin/AuditLogsAdminPage";
 import ApiKeysPage from "./pages/app/admin/ApiKeysPage";
+import IntegrationCenterPage from "./pages/app/integrations/IntegrationCenterPage";
+import IbmIntegrationsPage from "./pages/app/integrations/IbmIntegrationsPage";
+import { IbmIntegrationDetailPage } from "./pages/app/integrations/IbmIntegrationsShared";
 
 const queryClient = new QueryClient();
 
@@ -153,6 +156,9 @@ const App = () => {
                 <Route path="admin/notifications" element={<NotificationsAdminPage />} />
                 <Route path="admin/audit-logs" element={<AuditLogsAdminPage />} />
                 <Route path="admin/api-keys" element={<ApiKeysPage />} />
+                <Route path="integrations" element={<IntegrationCenterPage />} />
+                <Route path="integrations/ibm" element={<IbmIntegrationsPage />} />
+                <Route path="integrations/ibm/:integrationSlug" element={<IbmIntegrationDetailPage />} />
                 <Route path="assistant" element={<AssistantPage />} />
                 <Route path="packages" element={<PackagesPage />} />
                 <Route path="human-validation" element={<HumanValidationDashboardPage />} />
