@@ -1,0 +1,22 @@
+{
+  "name": "ZestComply",
+  "short_name": "ZestComply",
+  "description": "AI-powered compliance operations platform for governance, evidence, monitoring, risk, and executive reporting.",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#0f7cff",
+  "background_color": "#080c12",
+  "display": "standalone"
+}
