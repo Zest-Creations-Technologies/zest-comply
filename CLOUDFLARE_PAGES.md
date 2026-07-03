@@ -13,8 +13,13 @@ Production build settings:
 - Workers build configuration: none
 
 Do not use `npx wrangler deploy` for this project. Cloudflare Pages should build
-the Vite app and publish the generated `dist` directory.
+the Vite app with `bun run build` and publish the generated `dist` directory.
 
 This repository intentionally does not include a `wrangler.toml` file or a
 Wrangler deployment workflow. Production deployments should be handled by the
 Cloudflare Pages Git integration.
+
+If a Cloudflare deployment attempts to run `npx wrangler deploy`, it is using a
+Workers deployment target or a Workers deploy command. Remove that deploy command
+from the Cloudflare project settings and deploy this repository from a Cloudflare
+Pages project instead.
