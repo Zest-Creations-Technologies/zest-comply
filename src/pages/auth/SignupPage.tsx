@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { Loader2, Eye, EyeOff, Check, X } from 'lucide-react';
 import { z } from 'zod';
-import { Logo } from '@/components/Logo';
+import { AuthShell, AuthWordmark, authCardClass, authInputClass, authPrimaryButtonClass, authLinkClass, authLabelClass, authErrorClass } from './AuthShell';
 
 const signupSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -71,26 +71,21 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
-      <div className="absolute top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 left-20 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-
-      <Card className="w-full max-w-md relative z-10 bg-card/80 backdrop-blur-sm border-border">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Logo size="lg" textClassName="text-foreground" />
+    <AuthShell>
+      <Card className={`w-full ${authCardClass}`}>
+        <CardHeader className="px-7 pb-5 pt-8 text-center sm:px-9 sm:pt-9">
+          <div className="mb-6 flex justify-center">
+            <AuthWordmark />
           </div>
-          <CardTitle className="text-2xl text-foreground">Create your account</CardTitle>
-          <CardDescription>Start your 14-day free trial today</CardDescription>
+          <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Create your account</CardTitle>
+          <CardDescription className="text-slate-400">Start building an all-framework compliance operating system</CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <CardContent className="space-y-5 px-7 sm:px-9">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name (Optional)</Label>
+                <Label htmlFor="firstName" className={authLabelClass}>First Name (Optional)</Label>
                 <Input
                   id="firstName"
                   type="text"
@@ -99,10 +94,11 @@ export default function SignupPage() {
                   onChange={(e) => setFirstName(e.target.value)}
                   disabled={isLoading}
                   maxLength={100}
+                  className={authInputClass}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name (Optional)</Label>
+                <Label htmlFor="lastName" className={authLabelClass}>Last Name (Optional)</Label>
                 <Input
                   id="lastName"
                   type="text"
@@ -111,12 +107,13 @@ export default function SignupPage() {
                   onChange={(e) => setLastName(e.target.value)}
                   disabled={isLoading}
                   maxLength={100}
+                  className={authInputClass}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className={authLabelClass}>Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -124,15 +121,15 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                className={errors.email ? 'border-destructive' : ''}
+                className={errors.email ? `${authInputClass} border-red-400` : authInputClass}
               />
               {errors.email && (
-                <p className="text-sm text-destructive">{errors.email}</p>
+                <p className={authErrorClass}>{errors.email}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className={authLabelClass}>Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -142,33 +139,33 @@ export default function SignupPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   maxLength={128}
-                  className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
+                  className={errors.password ? `${authInputClass} border-red-400 pr-10` : `${authInputClass} pr-10`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password}</p>
+                <p className={authErrorClass}>{errors.password}</p>
               )}
 
               {/* Password strength */}
               {password && (
                 <div className="space-y-2 pt-2">
-                  <Progress value={strengthPercent} className="h-1.5" />
-                  <div className="grid grid-cols-2 gap-1">
+                  <Progress value={strengthPercent} className="h-1.5 bg-white/10" />
+                  <div className="grid gap-1 sm:grid-cols-2">
                     {passwordRequirements.map((req, i) => (
                       <div key={i} className="flex items-center gap-1 text-xs">
                         {req.test(password) ? (
-                          <Check className="h-3 w-3 text-primary" />
+                          <Check className="h-3 w-3 text-[#98d8c5]" />
                         ) : (
-                          <X className="h-3 w-3 text-muted-foreground" />
+                          <X className="h-3 w-3 text-slate-500" />
                         )}
-                        <span className={req.test(password) ? 'text-foreground' : 'text-muted-foreground'}>
+                        <span className={req.test(password) ? 'text-slate-100' : 'text-slate-500'}>
                           {req.label}
                         </span>
                       </div>
@@ -179,28 +176,28 @@ export default function SignupPage() {
             </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+          <CardFooter className="flex flex-col gap-4 px-7 pb-8 sm:px-9">
+            <Button type="submit" className={`w-full ${authPrimaryButtonClass}`} disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Account
             </Button>
 
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-center text-xs text-slate-500">
               By creating an account, you agree to our{' '}
-              <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link>
+              <Link to="/terms" className={authLinkClass}>Terms of Service</Link>
               {' '}and{' '}
-              <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
+              <Link to="/privacy" className={authLinkClass}>Privacy Policy</Link>.
             </p>
 
-            <p className="text-sm text-muted-foreground text-center">
+            <p className="text-center text-sm text-slate-400">
               Already have an account?{' '}
-              <Link to="/auth/login" className="text-primary hover:underline">
+              <Link to="/auth/login" className={authLinkClass}>
                 Sign in
               </Link>
             </p>
           </CardFooter>
         </form>
       </Card>
-    </div>
+    </AuthShell>
   );
 }

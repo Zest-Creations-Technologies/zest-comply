@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Eye, EyeOff, ArrowLeft, CheckCircle, RefreshCw } from 'lucide-react';
 import { z } from 'zod';
-import { Logo } from '@/components/Logo';
+import { AuthShell, AuthWordmark, authCardClass, authInputClass, authPrimaryButtonClass, authLinkClass, authMutedLinkClass, authLabelClass, authErrorClass, authIconBubbleClass } from './AuthShell';
 import { passwordResetApi } from '@/lib/api/password-reset';
 import { useToast } from '@/hooks/use-toast';
 
@@ -131,45 +131,40 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
-      <div className="absolute top-20 left-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-
-      <Card className="w-full max-w-md relative z-10 bg-card/80 backdrop-blur-sm border-border">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Logo size="lg" textClassName="text-foreground" />
+    <AuthShell>
+      <Card className={`w-full ${authCardClass}`}>
+        <CardHeader className="px-7 pb-5 pt-8 text-center sm:px-9 sm:pt-9">
+          <div className="mb-6 flex justify-center">
+            <AuthWordmark />
           </div>
           {step === 'email' && (
             <>
-              <CardTitle className="text-2xl text-foreground">Forgot password?</CardTitle>
-              <CardDescription>Enter your email and we'll send you a reset code</CardDescription>
+              <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Forgot password?</CardTitle>
+              <CardDescription className="text-slate-400">Enter your email and we'll send you a reset code</CardDescription>
             </>
           )}
           {step === 'verify' && (
             <>
-              <CardTitle className="text-2xl text-foreground">Reset your password</CardTitle>
-              <CardDescription>Enter the code we sent to {email}</CardDescription>
+              <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Reset your password</CardTitle>
+              <CardDescription className="text-slate-400">Enter the code we sent to {email}</CardDescription>
             </>
           )}
           {step === 'success' && (
             <>
               <div className="flex justify-center mb-2">
-                <CheckCircle className="h-12 w-12 text-primary" />
+                <CheckCircle className="h-12 w-12 text-[#98d8c5]" />
               </div>
-              <CardTitle className="text-2xl text-foreground">Password reset!</CardTitle>
-              <CardDescription>You can now sign in with your new password</CardDescription>
+              <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Password reset!</CardTitle>
+              <CardDescription className="text-slate-400">You can now sign in with your new password</CardDescription>
             </>
           )}
         </CardHeader>
 
         {step === 'email' && (
           <form onSubmit={handleEmailSubmit}>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5 px-7 sm:px-9">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className={authLabelClass}>Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -177,23 +172,23 @@ export default function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
-                  className={errors.email ? 'border-destructive' : ''}
+                  className={errors.email ? `${authInputClass} border-red-400` : authInputClass}
                 />
                 {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
+                  <p className={authErrorClass}>{errors.email}</p>
                 )}
               </div>
             </CardContent>
 
-            <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full" disabled={isLoading}>
+            <CardFooter className="flex flex-col gap-4 px-7 pb-8 sm:px-9">
+              <Button type="submit" className={`w-full ${authPrimaryButtonClass}`} disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Send Reset Code
               </Button>
 
               <Link
                 to="/auth/login"
-                className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+                className={`inline-flex items-center gap-1 text-sm ${authMutedLinkClass}`}
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to login
@@ -204,9 +199,9 @@ export default function ForgotPasswordPage() {
 
         {step === 'verify' && (
           <form onSubmit={handleVerifySubmit}>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5 px-7 sm:px-9">
               <div className="space-y-2">
-                <Label htmlFor="otp">Reset Code</Label>
+                <Label htmlFor="otp" className={authLabelClass}>Reset Code</Label>
                 <Input
                   id="otp"
                   type="text"
@@ -214,15 +209,15 @@ export default function ForgotPasswordPage() {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   disabled={isLoading}
-                  className={errors.otp ? 'border-destructive' : ''}
+                  className={errors.otp ? `${authInputClass} border-red-400` : authInputClass}
                 />
                 {errors.otp && (
-                  <p className="text-sm text-destructive">{errors.otp}</p>
+                  <p className={authErrorClass}>{errors.otp}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
+                <Label htmlFor="password" className={authLabelClass}>New Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -231,23 +226,23 @@ export default function ForgotPasswordPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
-                    className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
+                    className={errors.password ? `${authInputClass} border-red-400 pr-10` : `${authInputClass} pr-10`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password}</p>
+                  <p className={authErrorClass}>{errors.password}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className={authLabelClass}>Confirm Password</Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
@@ -256,33 +251,33 @@ export default function ForgotPasswordPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     disabled={isLoading}
-                    className={errors.confirmPassword ? 'border-destructive pr-10' : 'pr-10'}
+                    className={errors.confirmPassword ? `${authInputClass} border-red-400 pr-10` : `${authInputClass} pr-10`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                  <p className={authErrorClass}>{errors.confirmPassword}</p>
                 )}
               </div>
             </CardContent>
 
-            <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full" disabled={isLoading}>
+            <CardFooter className="flex flex-col gap-4 px-7 pb-8 sm:px-9">
+              <Button type="submit" className={`w-full ${authPrimaryButtonClass}`} disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Reset Password
               </Button>
 
-              <div className="flex items-center justify-between w-full">
+              <div className="flex w-full items-center justify-between">
                 <button
                   type="button"
                   onClick={() => setStep('email')}
-                  className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+                  className={`inline-flex items-center gap-1 text-sm ${authMutedLinkClass}`}
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Use different email
@@ -292,7 +287,7 @@ export default function ForgotPasswordPage() {
                   type="button"
                   onClick={handleResendOtp}
                   disabled={resendCooldown > 0 || isResending}
-                  className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`inline-flex items-center gap-1 text-sm disabled:cursor-not-allowed disabled:opacity-50 ${authMutedLinkClass}`}
                 >
                   {isResending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -307,13 +302,13 @@ export default function ForgotPasswordPage() {
         )}
 
         {step === 'success' && (
-          <CardFooter className="flex flex-col gap-4">
-            <Button className="w-full" onClick={() => navigate('/auth/login')}>
+          <CardFooter className="flex flex-col gap-4 px-7 pb-8 sm:px-9">
+            <Button className={`w-full ${authPrimaryButtonClass}`} onClick={() => navigate('/auth/login')}>
               Go to Login
             </Button>
           </CardFooter>
         )}
       </Card>
-    </div>
+    </AuthShell>
   );
 }

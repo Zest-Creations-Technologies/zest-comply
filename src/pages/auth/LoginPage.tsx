@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { z } from 'zod';
-import { Logo } from '@/components/Logo';
+import { AuthShell, AuthWordmark, authCardClass, authInputClass, authPrimaryButtonClass, authLinkClass, authMutedLinkClass, authLabelClass, authErrorClass } from './AuthShell';
 import { useToast } from '@/hooks/use-toast';
 
 // Clear any stale mock tokens on login page load
@@ -100,34 +100,29 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
-      <div className="absolute top-20 left-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-
-      <Card className="w-full max-w-md relative z-10 bg-card/80 backdrop-blur-sm border-border">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Logo size="lg" textClassName="text-foreground" />
+    <AuthShell>
+      <Card className={`w-full ${authCardClass}`}>
+        <CardHeader className="px-7 pb-5 pt-8 text-center sm:px-9 sm:pt-9">
+          <div className="mb-6 flex justify-center">
+            <AuthWordmark />
           </div>
           
           {/* Show verified message */}
           {showVerifiedMessage && (
-            <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg flex items-center gap-2 text-sm">
-              <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
-              <span className="text-foreground">Email verified successfully! You can now sign in.</span>
+            <div className="mb-4 flex items-center gap-2 rounded-xl border border-[#98d8c5]/25 bg-[#98d8c5]/10 p-3 text-sm">
+              <CheckCircle className="h-5 w-5 flex-shrink-0 text-[#98d8c5]" />
+              <span className="text-slate-100">Email verified successfully! You can now sign in.</span>
             </div>
           )}
           
-          <CardTitle className="text-2xl text-foreground">Welcome back</CardTitle>
-          <CardDescription>Sign in to your account to continue</CardDescription>
+          <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Welcome back</CardTitle>
+          <CardDescription className="text-slate-400">Sign in to continue managing compliance operations</CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5 px-7 sm:px-9">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className={authLabelClass}>Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -135,15 +130,15 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                className={errors.email ? 'border-destructive' : ''}
+                className={errors.email ? `${authInputClass} border-red-400` : authInputClass}
               />
               {errors.email && (
-                <p className="text-sm text-destructive">{errors.email}</p>
+                <p className={authErrorClass}>{errors.email}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className={authLabelClass}>Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -152,18 +147,18 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
-                  className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
+                  className={errors.password ? `${authInputClass} border-red-400 pr-10` : `${authInputClass} pr-10`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password}</p>
+                <p className={authErrorClass}>{errors.password}</p>
               )}
             </div>
 
@@ -174,39 +169,39 @@ export default function LoginPage() {
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(checked === true)}
                 />
-                <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
+                <Label htmlFor="remember" className="cursor-pointer text-sm font-normal text-slate-300">
                   Remember me
                 </Label>
               </div>
-              <Link to="/auth/forgot-password" className="text-sm text-primary hover:underline">
+              <Link to="/auth/forgot-password" className={`text-sm ${authLinkClass}`}>
                 Forgot password?
               </Link>
             </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+          <CardFooter className="flex flex-col gap-4 px-7 pb-8 sm:px-9">
+            <Button type="submit" className={`w-full ${authPrimaryButtonClass}`} disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign In
             </Button>
 
-            <p className="text-sm text-muted-foreground text-center">
+            <p className="text-center text-sm text-slate-400">
               Don't have an account?{' '}
-              <Link to="/auth/signup" className="text-primary hover:underline">
+              <Link to="/auth/signup" className={authLinkClass}>
                 Sign up
               </Link>
             </p>
 
-            <p className="text-xs text-muted-foreground text-center">
-              <Link to="/privacy" className="text-primary hover:underline">Privacy</Link>
+            <p className="text-center text-xs text-slate-500">
+              <Link to="/privacy" className={authLinkClass}>Privacy</Link>
               {' '}•{' '}
-              <Link to="/terms" className="text-primary hover:underline">Terms</Link>
+              <Link to="/terms" className={authLinkClass}>Terms</Link>
               {' '}•{' '}
-              <Link to="/security" className="text-primary hover:underline">Security</Link>
+              <Link to="/security" className={authLinkClass}>Security</Link>
             </p>
           </CardFooter>
         </form>
       </Card>
-    </div>
+    </AuthShell>
   );
 }

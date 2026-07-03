@@ -6,7 +6,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { Loader2, Mail, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { emailVerificationApi } from '@/lib/api';
-import { Logo } from '@/components/Logo';
+import { AuthShell, AuthWordmark, authCardClass, authPrimaryButtonClass, authLinkClass, authMutedLinkClass, authIconBubbleClass, authErrorClass } from './AuthShell';
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN_SECONDS = 60;
@@ -45,34 +45,32 @@ export default function VerifyEmailPage() {
   // Show a form to enter email if not provided
   if (!email) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
-        
-        <Card className="w-full max-w-md relative z-10 bg-card/80 backdrop-blur-sm border-border">
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <Logo size="lg" textClassName="text-foreground" />
+      <AuthShell>
+        <Card className={`w-full ${authCardClass}`}>
+          <CardHeader className="px-7 pb-5 pt-8 text-center sm:px-9 sm:pt-9">
+            <div className="mb-6 flex justify-center">
+              <AuthWordmark />
             </div>
-            <CardTitle className="text-2xl text-foreground">Verify Your Email</CardTitle>
+            <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Verify Your Email</CardTitle>
             <CardDescription>
               Please sign up first to receive a verification code.
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-center">
+          <CardContent className="px-7 text-center sm:px-9">
             <Button asChild className="w-full">
               <Link to="/auth/signup">Go to Sign Up</Link>
             </Button>
           </CardContent>
           <CardFooter className="justify-center">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-500">
               Already have an account?{' '}
-              <Link to="/auth/login" className="text-primary hover:underline">
+              <Link to="/auth/login" className={authLinkClass}>
                 Sign in
               </Link>
             </p>
           </CardFooter>
         </Card>
-      </div>
+      </AuthShell>
     );
   }
 
@@ -199,65 +197,58 @@ export default function VerifyEmailPage() {
   // Success state
   if (isVerified) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
-        
-        <Card className="w-full max-w-md relative z-10 bg-card/80 backdrop-blur-sm border-border">
+      <AuthShell>
+        <Card className={`w-full ${authCardClass}`}>
           <CardContent className="pt-8 pb-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-              <CheckCircle className="h-8 w-8 text-primary" />
+            <div className={authIconBubbleClass}>
+              <CheckCircle className="h-8 w-8 text-[#98d8c5]" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Email Verified!</h2>
-            <p className="text-muted-foreground mb-4">
+            <h2 className="mb-2 text-3xl font-semibold tracking-[-0.035em] text-white">Email Verified!</h2>
+            <p className="mb-4 text-slate-400">
               Your email has been successfully verified.
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-500">
               Redirecting to login...
             </p>
           </CardContent>
         </Card>
-      </div>
+      </AuthShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
-      <div className="absolute top-20 left-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-
-      <Card className="w-full max-w-md relative z-10 bg-card/80 backdrop-blur-sm border-border">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Logo size="lg" textClassName="text-foreground" />
+    <AuthShell>
+      <Card className={`w-full ${authCardClass}`}>
+        <CardHeader className="px-7 pb-5 pt-8 text-center sm:px-9 sm:pt-9">
+          <div className="mb-6 flex justify-center">
+            <AuthWordmark />
           </div>
           
-          <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-            <Mail className="h-7 w-7 text-primary" />
+          <div className={`${authIconBubbleClass} mb-4`}>
+            <Mail className="h-7 w-7 text-[#f0d990]" />
           </div>
           
-          <CardTitle className="text-2xl text-foreground">Verify Your Email</CardTitle>
-          <CardDescription className="space-y-1">
+          <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Verify Your Email</CardTitle>
+          <CardDescription className="space-y-1 text-slate-400">
             {fromLogin ? (
               <>
                 <p>Your email hasn't been verified yet.</p>
-                <p className="font-medium text-foreground">{email}</p>
-                <p className="text-xs mt-2">Check your inbox or click "Resend code" below.</p>
+                <p className="font-medium text-slate-100">{email}</p>
+                <p className="mt-2 text-xs">Check your inbox or click "Resend code" below.</p>
               </>
             ) : (
               <>
                 <p>We sent a verification code to:</p>
-                <p className="font-medium text-foreground">{email}</p>
+                <p className="font-medium text-slate-100">{email}</p>
               </>
             )}
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 px-7 sm:px-9">
           {/* OTP Input */}
           <div className="flex flex-col items-center gap-4">
-            <p className="text-sm text-muted-foreground">Enter 6-digit code:</p>
+            <p className="text-sm text-slate-500">Enter 6-digit code:</p>
             
             <InputOTP
               maxLength={OTP_LENGTH}
@@ -266,7 +257,7 @@ export default function VerifyEmailPage() {
               disabled={isVerifying}
               className={error ? 'animate-shake' : ''}
             >
-              <InputOTPGroup>
+              <InputOTPGroup className="gap-2">
                 {Array.from({ length: OTP_LENGTH }).map((_, i) => (
                   <InputOTPSlot key={i} index={i} />
                 ))}
@@ -275,7 +266,7 @@ export default function VerifyEmailPage() {
 
             {/* Error message */}
             {error && (
-              <div className="flex items-center gap-2 text-destructive text-sm">
+              <div className={`flex items-center gap-2 ${authErrorClass}`}>
                 <AlertCircle className="h-4 w-4" />
                 <span>{error}</span>
               </div>
@@ -286,7 +277,7 @@ export default function VerifyEmailPage() {
           <Button
             onClick={handleVerify}
             disabled={otp.length !== OTP_LENGTH || isVerifying}
-            className="w-full"
+            className={`w-full ${authPrimaryButtonClass}`}
           >
             {isVerifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Verify Email
@@ -295,30 +286,30 @@ export default function VerifyEmailPage() {
           {/* Expiry timer */}
           {timeRemaining && timeRemaining !== 'Expired' && (
             <p className="text-center text-sm text-muted-foreground">
-              Code expires in: <span className="font-mono font-medium text-foreground">{timeRemaining}</span>
+              Code expires in: <span className="font-mono font-medium text-slate-100">{timeRemaining}</span>
             </p>
           )}
 
           {timeRemaining === 'Expired' && (
-            <p className="text-center text-sm text-destructive">
+            <p className="text-center text-sm text-red-300">
               Code expired. Please request a new one.
             </p>
           )}
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-4">
+        <CardFooter className="flex flex-col gap-4 px-7 pb-8 sm:px-9">
           {/* Resend link */}
           <div className="text-center text-sm">
-            <span className="text-muted-foreground">Didn't receive the code? </span>
+            <span className="text-slate-400">Didn't receive the code? </span>
             {resendCooldown > 0 ? (
-              <span className="text-muted-foreground">
+              <span className="text-slate-400">
                 Resend in <span className="font-mono">{resendCooldown}s</span>
               </span>
             ) : (
               <button
                 onClick={handleResend}
                 disabled={isResending}
-                className="text-primary hover:underline disabled:opacity-50"
+                className={`${authLinkClass} disabled:opacity-50`}
               >
                 {isResending ? 'Sending...' : 'Resend code'}
               </button>
@@ -328,13 +319,13 @@ export default function VerifyEmailPage() {
           {/* Back to login/signup */}
           <Link
             to={fromLogin ? "/auth/login" : "/auth/signup"}
-            className="flex items-center justify-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+            className={`flex items-center justify-center gap-1 text-sm ${authMutedLinkClass}`}
           >
             <ArrowLeft className="h-4 w-4" />
             {fromLogin ? "Back to login" : "Back to signup"}
           </Link>
         </CardFooter>
       </Card>
-    </div>
+    </AuthShell>
   );
 }
