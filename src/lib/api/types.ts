@@ -557,3 +557,35 @@ export interface ValidationAuditEvent {
   created_at: string;
   updated_at: string;
 }
+
+// ============================================
+// Platform Administration Types
+// ============================================
+
+export interface AdminOrganizationSettings {
+  id?: string | null;
+  user_id: string;
+  company_name?: string | null;
+  address?: string | null;
+  website?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  industry?: string | null;
+  frameworks_in_scope: string[];
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface AdminBrandingSettings {
+  id?: string | null;
+  user_id: string;
+  logo_url?: string | null;
+  primary_color?: string | null;
+  secondary_color?: string | null;
+  report_footer?: string | null;
+  document_header?: string | null;
+  default_approver_title?: string | null;
+  default_reviewer_title?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}

@@ -12,3 +12,13 @@ export { passwordResetApi } from './password-reset';
 export { packagesApi } from './packages';
 export { settingsApi } from './settings';
 export { humanValidationApi } from './human-validation';
+export { adminSettingsApi } from './admin-settings';
+export { getComplianceIntelligenceProvider } from './integrations';
+export type {
+  ComplianceIntelligenceProvider,
+  TelemetrySource,
+  TelemetrySourceType,
+  EvidenceCandidate,
+  GovernanceMetadata,
+  ProviderHealth,
+} from './integrations';
