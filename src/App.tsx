@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { BrandBadge } from "@/components/BrandBadge";
 
 // Public pages
 import LandingPage from "./pages/LandingPage";
@@ -98,6 +99,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <BrandBadge />
           <BrowserRouter>
             <Routes>
               {/* Public routes */}
