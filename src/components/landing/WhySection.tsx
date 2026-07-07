@@ -1,114 +1,104 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Clock, 
-  AlertTriangle, 
-  DollarSign, 
-  Brain,
-  Zap,
-  FileCheck,
-  ArrowRight,
-  RefreshCw
-} from 'lucide-react';
-import { useScrollReveal, getStaggerDelay } from '@/hooks/useScrollReveal';
+import { Card, CardContent } from "@/components/ui/card";
+import { BadgeCheck, FileText, GitBranch, MonitorCheck, Scale, ShieldCheck } from "lucide-react";
 
-const problems = [
+
+const frameworkExamples = [
+  "CMMC",
+  "NIST",
+  "ISO 27001",
+  "SOC 2",
+  "HIPAA",
+  "PCI DSS",
+  "FedRAMP",
+  "GDPR",
+  "CJIS",
+  "SOX",
+  "GLBA",
+  "HITRUST",
+  "State privacy",
+  "Custom internal frameworks",
+];
+
+const capabilities = [
   {
-    icon: Clock,
-    problem: 'Weeks of manual work',
-    solution: 'Hours with AI assistance',
+    icon: ShieldCheck,
+    title: "Framework intelligence",
+    description: "Maintain a data-driven registry for industry, government, enterprise, privacy, and custom internal frameworks without hardcoded framework limits.",
   },
   {
-    icon: AlertTriangle,
-    problem: 'Risk of compliance gaps',
-    solution: 'Comprehensive coverage guaranteed',
+    icon: FileText,
+    title: "Policy generation",
+    description: "Generate policies, procedures, plans, evidence matrices, manifests, and supporting package artifacts from approved context.",
   },
   {
-    icon: DollarSign,
-    problem: 'Expensive consultants',
-    solution: 'Fraction of the cost',
+    icon: BadgeCheck,
+    title: "Human validation",
+    description: "Route profile inputs, generated documents, review comments, decisions, and sign-off records through accountable workflows.",
   },
   {
-    icon: Brain,
-    problem: 'Complex framework requirements',
-    solution: 'Guided step-by-step process',
+    icon: GitBranch,
+    title: "Traceability",
+    description: "Connect documents and sections back to controls, document requirements, evidence references, and audit trail events.",
   },
   {
-    icon: RefreshCw,
-    problem: 'One-time audits, outdated docs',
-    solution: 'Continuous Compliance Monitoring',
+    icon: MonitorCheck,
+    title: "Continuous monitoring",
+    description: "Track reviews, due dates, missing evidence, approval status, risk inputs, and readiness signals over time.",
+  },
+  {
+    icon: Scale,
+    title: "Executive reporting",
+    description: "Prepare decision-ready reporting from compliance posture, evidence coverage, risk work, approvals, and audit readiness.",
   },
 ];
 
 export function WhySection() {
-  const [headerRef, headerVisible] = useScrollReveal<HTMLDivElement>();
-  const [cardsRef, cardsVisible] = useScrollReveal<HTMLDivElement>();
-  const [benefitsRef, benefitsVisible] = useScrollReveal<HTMLDivElement>();
-
   return (
-    <section id="why" className="py-20 bg-card">
-      <div className="container mx-auto px-4">
-        <div 
-          ref={headerRef}
-          className={`text-center mb-16 transition-all duration-700 ease-out ${
-            headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Why Choose ZestComply?
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Traditional compliance documentation is painful. We fix that.
+    <section id="platform" className="relative overflow-hidden bg-[#f8faf8] py-28">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#d8b45d]/50 to-transparent" />
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:items-end">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#7a622b]">Platform intelligence</p>
+            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-5xl">
+              One operating layer for the compliance work auditors actually inspect.
+            </h2>
+          </div>
+          <p className="text-lg leading-8 text-slate-600">
+            ZestComply is designed around the real evidence chain for any framework: requirements, generated artifacts, human review, approvals, monitoring, and executive accountability. Named frameworks are examples, not limits.
           </p>
         </div>
 
-        <div ref={cardsRef} className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
-          {problems.map((item, index) => (
-            <Card 
-              key={index} 
-              className={`bg-background border-border transition-all duration-500 ease-out hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1 ${
-                cardsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-              style={{ transitionDelay: cardsVisible ? getStaggerDelay(index, 100) : '0ms' }}
-            >
-              <CardContent className="p-6">
-                <item.icon className="h-10 w-10 text-primary mb-4 transition-transform duration-300 group-hover:scale-110" />
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-destructive">
-                    <span className="text-sm line-through">{item.problem}</span>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  <div className="flex items-center gap-2 text-primary">
-                    <span className="font-medium">{item.solution}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="mt-10 rounded-3xl border border-slate-200/80 bg-white/80 p-5 shadow-xl shadow-slate-200/60 backdrop-blur">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#7a622b]">Framework-agnostic by design</p>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                Manage industry, government, enterprise, privacy, and custom internal frameworks through a shared compliance operations model.
+              </p>
+            </div>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Examples only</p>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {frameworkExamples.map((framework) => (
+              <span key={framework} className="rounded-full border border-slate-200 bg-[#f8faf8] px-3 py-1.5 text-xs font-medium text-slate-700">
+                {framework}
+              </span>
+            ))}
+          </div>
         </div>
 
-        {/* Additional benefits */}
-        <div 
-          ref={benefitsRef}
-          className="mt-16 grid md:grid-cols-3 gap-8 text-center"
-        >
-          {[
-            { icon: Zap, title: '10x Faster', desc: 'Generate comprehensive documentation in hours, not weeks' },
-            { icon: FileCheck, title: 'Audit-Ready', desc: 'Documentation that meets auditor expectations every time' },
-            { icon: Brain, title: 'AI-Guided', desc: 'Intelligent assistant that understands compliance requirements' }
-          ].map((benefit, index) => (
-            <div 
-              key={benefit.title}
-              className={`flex flex-col items-center transition-all duration-700 ease-out ${
-                benefitsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-              style={{ transitionDelay: benefitsVisible ? getStaggerDelay(index, 150) : '0ms' }}
-            >
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 transition-all duration-300 hover:bg-primary/20 hover:scale-105">
-                <benefit.icon className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">{benefit.title}</h3>
-              <p className="text-muted-foreground">{benefit.desc}</p>
-            </div>
+        <div id="operations" className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {capabilities.map((item) => (
+            <Card key={item.title} className="group overflow-hidden border-slate-200/80 bg-white shadow-sm shadow-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/90">
+              <CardContent className="p-6">
+                <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#d8b45d]/25 bg-gradient-to-br from-[#fff7df] to-[#eef8f3] text-[#36544d] shadow-inner">
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <h3 className="text-xl font-semibold tracking-[-0.02em] text-slate-950">{item.title}</h3>
+                <p className="mt-4 text-sm leading-6 text-slate-600">{item.description}</p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

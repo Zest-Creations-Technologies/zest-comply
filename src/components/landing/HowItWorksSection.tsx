@@ -1,134 +1,62 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { 
-  MessageSquare, 
-  Shield, 
-  FolderTree, 
-  FileText, 
-  Download,
-  CheckCircle2
-} from 'lucide-react';
-import { useScrollReveal, getStaggerDelay } from '@/hooks/useScrollReveal';
+import { ArrowRight, FileSearch, FileText, FolderCheck, MonitorCheck, UsersRound } from "lucide-react";
 
-const steps = [
+const workflow = [
   {
-    number: 1,
-    icon: MessageSquare,
-    title: 'Answer Questions',
-    description: 'Our AI assistant asks about your organization, processes, and security practices through a natural conversation.',
+    icon: FileSearch,
+    title: "Resolve",
+    description: "Select any framework or custom control set, then resolve controls, document requirements, and mappings from registry data.",
   },
   {
-    number: 2,
-    icon: Shield,
-    title: 'Pick Your Frameworks',
-    description: 'Select the compliance frameworks you need: SOC 2, GDPR, ISO 27001, HIPAA, and more.',
-  },
-  {
-    number: 3,
-    icon: FolderTree,
-    title: 'Approve Structure',
-    description: 'Review and approve the recommended document structure tailored to your requirements.',
-  },
-  {
-    number: 4,
     icon: FileText,
-    title: 'Generate Documents',
-    description: 'Watch as comprehensive, customized compliance documents are generated based on your inputs.',
+    title: "Generate",
+    description: "Create policies, procedures, plans, evidence matrices, manifests, and package artifacts with deterministic structure.",
   },
   {
-    number: 5,
-    icon: Download,
-    title: 'Export & Use',
-    description: 'Download your audit-ready documents or sync directly to your cloud storage.',
+    icon: UsersRound,
+    title: "Validate",
+    description: "Assign reviewers and approvers, capture comments, record decisions, and preserve audit trail events.",
+  },
+  {
+    icon: FolderCheck,
+    title: "Evidence",
+    description: "Organize evidence requests, ownership, status, due dates, expiration dates, and control traceability.",
+  },
+  {
+    icon: MonitorCheck,
+    title: "Monitor",
+    description: "Track approvals, missing evidence, review cycles, risk work, and executive reporting readiness.",
   },
 ];
 
 export function HowItWorksSection() {
-  const [headerRef, headerVisible] = useScrollReveal<HTMLDivElement>();
-  const [stepsRef, stepsVisible] = useScrollReveal<HTMLDivElement>();
-  const [frameworksRef, frameworksVisible] = useScrollReveal<HTMLDivElement>();
-
   return (
-    <section id="how-it-works" className="py-20 bg-background">
-      <div className="container mx-auto px-4">
-        <div 
-          ref={headerRef}
-          className={`text-center mb-16 transition-all duration-700 ease-out ${
-            headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            How It Works
+    <section id="workflow" className="relative overflow-hidden bg-[#081313] py-28 text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(216,180,93,0.18),transparent_28%),radial-gradient(circle_at_90%_30%,rgba(91,197,170,0.14),transparent_32%)]" />
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <div className="max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d8b45d]">Governed workflow</p>
+          <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
+            From requirement to evidence to executive decision.
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Five simple steps to compliance documentation excellence
+          <p className="mt-5 text-lg leading-8 text-slate-300">
+            Each phase is designed to produce a defensible record across regulated, industry, enterprise, and custom compliance programs.
           </p>
         </div>
 
-        <div ref={stepsRef} className="relative">
-          {/* Connection line */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-border -translate-y-1/2" />
-
-          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {steps.map((step, index) => (
-              <Card 
-                key={step.number} 
-                className={`relative bg-card border-border transition-all duration-500 ease-out hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1 ${
-                  stepsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{ transitionDelay: stepsVisible ? getStaggerDelay(index, 100) : '0ms' }}
-              >
-                <CardContent className="p-6 text-center">
-                  {/* Step number badge */}
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shadow-md shadow-primary/30">
-                    {step.number}
-                  </div>
-
-                  <div className="mt-4 mb-4">
-                    <div className="w-14 h-14 mx-auto rounded-xl bg-primary/10 flex items-center justify-center transition-all duration-300 hover:bg-primary/20 hover:scale-105">
-                      <step.icon className="h-7 w-7 text-primary" />
-                    </div>
-                  </div>
-
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {step.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Supported frameworks */}
-        <div 
-          ref={frameworksRef}
-          className={`mt-20 text-center transition-all duration-700 ease-out ${
-            frameworksVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <h3 className="text-xl font-semibold text-foreground mb-4">
-            Works With Any Compliance Framework
-          </h3>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Our AI understands and generates documentation for any compliance framework — popular standards 
-            or industry-specific requirements. If it exists, we can help you document it.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            {['SOC 2', 'ISO 27001', 'GDPR', 'HIPAA', 'PCI DSS', 'NIST', 'CCPA', 'and more...'].map((framework, index) => (
-              <div
-                key={framework}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border transition-all duration-300 hover:border-primary/50 hover:shadow-md ${
-                  framework === 'and more...' ? 'border-dashed text-muted-foreground' : ''
-                } ${frameworksVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-                style={{ transitionDelay: frameworksVisible ? getStaggerDelay(index, 50) : '0ms' }}
-              >
-                {framework !== 'and more...' && <CheckCircle2 className="h-4 w-4 text-primary" />}
-                <span className={framework === 'and more...' ? 'text-muted-foreground italic' : 'text-foreground'}>{framework}</span>
+        <div className="mt-14 grid gap-4 lg:grid-cols-5">
+          {workflow.map((step, index) => (
+            <div key={step.title} className="relative rounded-2xl border border-white/10 bg-white/[0.045] p-5 shadow-2xl shadow-black/10 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.07]">
+              <div className="mb-7 flex items-center justify-between">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#d8b45d]/25 bg-[#d8b45d]/10">
+                  <step.icon className="h-5 w-5 text-[#f0d990]" />
+                </div>
+                {index < workflow.length - 1 && <ArrowRight className="hidden h-5 w-5 text-slate-500 lg:block" />}
               </div>
-            ))}
-          </div>
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-[#98d8c5]">0{index + 1}</p>
+              <h3 className="mt-3 text-xl font-semibold tracking-[-0.02em] text-white">{step.title}</h3>
+              <p className="mt-4 text-sm leading-6 text-slate-300">{step.description}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
