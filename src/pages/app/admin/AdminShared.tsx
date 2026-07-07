@@ -1,14 +1,28 @@
 import { Link } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
-import { ArrowRight, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { toneFor } from "@/lib/tone-palette";
 
-export function AdminPageHeader({ title, description }: { title: string; description: string }) {
+export function AdminPageHeader({
+  eyebrow,
+  title,
+  description,
+  caption,
+}: {
+  eyebrow?: string;
+  title: string;
+  description: string;
+  caption?: string;
+}) {
   return (
     <div className="space-y-2">
-      <h1 className="text-3xl font-bold text-foreground">{title}</h1>
-      <p className="max-w-3xl text-muted-foreground">{description}</p>
+      {eyebrow && (
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7a622b]">{eyebrow}</p>
+      )}
+      <h1 className="text-3xl font-bold tracking-tight text-slate-950">{title}</h1>
+      <p className="max-w-3xl text-slate-600">{description}</p>
+      {caption && <p className="max-w-3xl text-sm italic text-slate-500">{caption}</p>}
     </div>
   );
 }
@@ -25,22 +39,22 @@ export function AdminEmptyState({
   action?: { label: string; href: string };
 }) {
   return (
-    <Card className="bg-card">
-      <CardContent className="flex flex-col items-start gap-4 py-10">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-          <Icon className="h-5 w-5 text-muted-foreground" />
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-8 shadow-sm shadow-slate-200/60">
+      <div className="flex flex-col items-start gap-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500">
+          <Icon className="h-5 w-5" />
         </div>
         <div>
-          <p className="font-medium text-foreground">{title}</p>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>
+          <p className="font-medium text-slate-900">{title}</p>
+          <p className="mt-1 max-w-2xl text-sm text-slate-500">{description}</p>
         </div>
         {action && (
           <Button asChild>
             <Link to={action.href}>{action.label}</Link>
           </Button>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -49,50 +63,46 @@ export function AdminActionCard({
   description,
   href,
   icon: Icon,
+  tone,
 }: {
   title: string;
   description: string;
   href: string;
   icon: LucideIcon;
+  tone?: ReturnType<typeof toneFor>;
 }) {
+  const resolvedTone = tone ?? toneFor(0);
   return (
-    <Card className="bg-card transition-colors hover:border-primary/50">
-      <CardHeader className="flex flex-row items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-          <Icon className="h-5 w-5 text-muted-foreground" />
-        </div>
-        <div className="space-y-1">
-          <CardTitle className="text-lg">{title}</CardTitle>
-          <CardDescription>{description}</CardDescription>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Button asChild variant="outline" size="sm">
-          <Link to={href}>
-            Open
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
+    <Link
+      to={href}
+      className={`group flex flex-col gap-3 rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/60 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${resolvedTone.ring}`}
+    >
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-transform duration-300 group-hover:scale-105 ${resolvedTone.box} ${resolvedTone.icon}`}>
+        <Icon className="h-5 w-5" />
+      </span>
+      <div className="space-y-1">
+        <p className="font-semibold text-slate-900">{title}</p>
+        <p className="text-sm text-slate-500">{description}</p>
+      </div>
+    </Link>
   );
 }
 
 export function AdminFieldGrid({ fields }: { fields: string[] }) {
   return (
-    <Card className="bg-card">
-      <CardHeader>
-        <CardTitle>Profile Fields</CardTitle>
-        <CardDescription>These settings will use organization data when administration APIs are connected.</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-3 md:grid-cols-2">
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/60">
+      <div className="mb-4 space-y-1">
+        <p className="font-semibold text-slate-900">Profile Fields</p>
+        <p className="text-sm text-slate-500">These settings will use organization data when administration APIs are connected.</p>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
         {fields.map((field) => (
-          <div key={field} className="rounded-md border border-border p-3">
-            <p className="text-sm font-medium text-foreground">{field}</p>
-            <p className="mt-1 text-sm text-muted-foreground">Not configured</p>
+          <div key={field} className="rounded-lg border border-slate-200 p-3">
+            <p className="text-sm font-medium text-slate-900">{field}</p>
+            <p className="mt-1 text-sm text-slate-500">Not configured</p>
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

@@ -17,7 +17,7 @@ import { Logo } from '@/components/Logo';
 import { ApiHealthIndicator } from '@/components/app/ApiHealthIndicator';
 
 const workspaceNavItems = [
-  { title: 'Operations Center', url: '/app/operations', icon: Gauge },
+  { title: 'Operations Center', url: '/app', icon: Gauge },
   { title: 'Compliance', url: '/app/compliance', icon: Building2 },
   { title: 'Governance', url: '/app/governance', icon: Landmark },
   { title: 'Security Operations', url: '/app/security', icon: Shield },
@@ -29,7 +29,7 @@ export function AppSidebar() {
   const { user } = useAuth();
 
   const isActive = (url: string) => {
-    if (url === '/app/operations') return location.pathname === '/app' || location.pathname.startsWith('/app/operations');
+    if (url === '/app') return location.pathname === '/app';
     if (url === '/app/compliance') {
       return location.pathname.startsWith('/app/compliance')
         || location.pathname.startsWith('/app/packages')

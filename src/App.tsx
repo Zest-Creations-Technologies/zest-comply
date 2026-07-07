@@ -48,10 +48,8 @@ import MonitoringAlertsPage from "./pages/app/compliance-monitoring/MonitoringAl
 import FrameworkHealthPage from "./pages/app/compliance-monitoring/FrameworkHealthPage";
 import ComplianceTasksPage from "./pages/app/compliance-monitoring/ComplianceTasksPage";
 import ComplianceCalendarPage from "./pages/app/compliance-monitoring/ComplianceCalendarPage";
-import OperationsWorkspacePage from "./pages/app/workspaces/OperationsWorkspacePage";
 import ComplianceWorkspacePage from "./pages/app/workspaces/ComplianceWorkspacePage";
 import GovernanceWorkspacePage from "./pages/app/workspaces/GovernanceWorkspacePage";
-import SecurityWorkspacePage from "./pages/app/workspaces/SecurityWorkspacePage";
 import PlatformWorkspacePage from "./pages/app/workspaces/PlatformWorkspacePage";
 import SecurityOperationsPage from "./pages/app/security/SecurityOperationsPage";
 import ZestReconOverviewPage from "./pages/app/security/ZestReconOverviewPage";
@@ -122,7 +120,6 @@ const App = () => {
                 }
               >
                 <Route index element={<ActionCenterPage />} />
-                <Route path="operations" element={<OperationsWorkspacePage />} />
                 <Route path="compliance" element={<ComplianceWorkspacePage />} />
                 <Route path="governance" element={<GovernanceWorkspacePage />} />
                 <Route path="security" element={<SecurityOperationsPage />} />
@@ -133,7 +130,6 @@ const App = () => {
                 <Route path="security/alerts" element={<SecurityAlertsPage />} />
                 <Route path="security/vulnerabilities" element={<SecurityVulnerabilitiesPage />} />
                 <Route path="security/attack-surface" element={<SecurityAttackSurfacePage />} />
-                <Route path="security/workspace" element={<SecurityWorkspacePage />} />
                 <Route path="risk" element={<RiskManagementPage />} />
                 <Route path="risk/register" element={<RiskRegisterPage />} />
                 <Route path="risk/assessments" element={<RiskAssessmentsPage />} />
