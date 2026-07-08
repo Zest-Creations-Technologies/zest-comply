@@ -86,10 +86,16 @@ export function NotificationBell() {
               <Skeleton className="h-10 w-full" />
             </div>
           )}
-          {!eventsQuery.isLoading && events.length === 0 && (
+          {eventsQuery.isError && (
+            <p className="p-4 text-sm text-destructive">
+              Couldn't load notifications. Try again shortly.
+            </p>
+          )}
+          {!eventsQuery.isLoading && !eventsQuery.isError && events.length === 0 && (
             <p className="p-4 text-sm text-muted-foreground">No recent activity.</p>
           )}
           {!eventsQuery.isLoading &&
+            !eventsQuery.isError &&
             events.map((event) => (
               <div
                 key={event.id}
