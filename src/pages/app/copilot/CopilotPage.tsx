@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AlertTriangle, Bot, Loader2, Plus, Send, User as UserIcon } from "lucide-react";
+import { AlertTriangle, Bot, Loader2, Plus, Send, Sparkles, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,13 @@ import {
   useCreateCopilotConversation,
   useSendCopilotMessage,
 } from "./useCopilot";
+
+const SUGGESTED_PROMPTS = [
+  "What's my SOC 2 readiness score?",
+  "What evidence is expiring soon?",
+  "Where do my frameworks overlap?",
+  "What's blocking my next audit?",
+];
 
 export default function CopilotPage() {
   const { conversations, isLoading: conversationsLoading } = useCopilotConversations();
@@ -38,8 +45,8 @@ export default function CopilotPage() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, sendMessage.isPending]);
 
-  const handleSend = () => {
-    const text = draft.trim();
+  const handleSend = (overrideText?: string) => {
+    const text = (overrideText ?? draft).trim();
     if (!text || sendMessage.isPending) return;
     setDraft("");
     sendMessage.mutate(text);
@@ -48,11 +55,16 @@ export default function CopilotPage() {
   return (
     <div className="mx-auto flex h-[calc(100vh-2rem)] max-w-5xl flex-col gap-4 p-6">
       <div className="flex items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold text-foreground">Compliance Copilot</h1>
-          <p className="text-muted-foreground">
-            Ask about your readiness scores, evidence gaps, or framework overlap. Answers are grounded in your real data only.
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#d8b45d]/30 bg-gradient-to-br from-[#fff7df] to-[#f3e6bd] text-[#7a622b] shadow-[0_2px_8px_rgba(122,98,43,0.15)]">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold text-foreground">Compliance Copilot</h1>
+            <p className="text-muted-foreground">
+              Ask about your readiness scores, evidence gaps, or framework overlap. Answers are grounded in your real data only.
+            </p>
+          </div>
         </div>
         <Button
           variant="outline"
@@ -74,9 +86,27 @@ export default function CopilotPage() {
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-2 py-16 text-center text-muted-foreground">
-              <Bot className="h-8 w-8" />
-              <p>Ask a question like "What's my SOC 2 readiness score?" or "What evidence is expiring soon?"</p>
+            <div className="flex h-full flex-col items-center justify-center gap-6 px-6 py-16 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-[#d8b45d]/30 bg-gradient-to-br from-[#fff7df] to-[#f3e6bd] text-[#7a622b] shadow-[0_8px_24px_rgba(122,98,43,0.15)]">
+                <Sparkles className="h-7 w-7" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-lg font-semibold text-foreground">Ask me anything about your compliance posture</p>
+                <p className="text-sm text-muted-foreground">Answers are grounded in your real data - not generic advice.</p>
+              </div>
+              <div className="grid w-full max-w-lg gap-2 sm:grid-cols-2">
+                {SUGGESTED_PROMPTS.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => handleSend(prompt)}
+                    disabled={!activeConversationId || sendMessage.isPending}
+                    className="rounded-xl border border-border bg-background px-4 py-3 text-left text-sm text-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#d8b45d]/50 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -88,7 +118,9 @@ export default function CopilotPage() {
                   <div
                     className={cn(
                       "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-                      message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "border border-[#d8b45d]/30 bg-gradient-to-br from-[#fff7df] to-[#f3e6bd] text-[#7a622b]"
                     )}
                   >
                     {message.role === "user" ? <UserIcon className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
@@ -118,7 +150,7 @@ export default function CopilotPage() {
               ))}
               {sendMessage.isPending && (
                 <div className="flex gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#d8b45d]/30 bg-gradient-to-br from-[#fff7df] to-[#f3e6bd] text-[#7a622b]">
                     <Bot className="h-4 w-4" />
                   </div>
                   <div className="flex items-center rounded-lg bg-muted px-4 py-2">
@@ -142,10 +174,14 @@ export default function CopilotPage() {
             }}
             placeholder="Ask about your compliance readiness..."
             rows={1}
-            className="resize-none"
+            className="resize-none focus-visible:ring-[#d8b45d]/50"
             disabled={!activeConversationId || sendMessage.isPending}
           />
-          <Button onClick={handleSend} disabled={!draft.trim() || !activeConversationId || sendMessage.isPending}>
+          <Button
+            onClick={() => handleSend()}
+            disabled={!draft.trim() || !activeConversationId || sendMessage.isPending}
+            className="bg-[#d8b45d] text-slate-950 hover:bg-[#c9a34e]"
+          >
             <Send className="h-4 w-4" />
           </Button>
         </div>
