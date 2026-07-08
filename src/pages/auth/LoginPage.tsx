@@ -186,9 +186,9 @@ export default function LoginPage() {
             </Button>
 
             <p className="text-center text-sm text-slate-400">
-              Don't have an account?{' '}
-              <Link to="/auth/signup" className={authLinkClass}>
-                Sign up
+              Don't have access yet?{' '}
+              <Link to="/auth/request-access" className={authLinkClass}>
+                Request access
               </Link>
             </p>
 

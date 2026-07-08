@@ -38,7 +38,7 @@ export function LandingHeader() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const dashboardTarget = isAuthenticated ? "/app" : "/auth/signup";
+  const dashboardTarget = isAuthenticated ? "/app" : "/auth/request-access";
 
   return (
     <header

@@ -53,12 +53,12 @@ export default function VerifyEmailPage() {
             </div>
             <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Verify Your Email</CardTitle>
             <CardDescription>
-              Please sign up first to receive a verification code.
+              Please sign in first to receive a verification code.
             </CardDescription>
           </CardHeader>
           <CardContent className="px-7 text-center sm:px-9">
             <Button asChild className="w-full">
-              <Link to="/auth/signup">Go to Sign Up</Link>
+              <Link to="/auth/login">Go to Sign In</Link>
             </Button>
           </CardContent>
           <CardFooter className="justify-center">
@@ -316,13 +316,13 @@ export default function VerifyEmailPage() {
             )}
           </div>
 
-          {/* Back to login/signup */}
+          {/* Back to login */}
           <Link
-            to={fromLogin ? "/auth/login" : "/auth/signup"}
+            to="/auth/login"
             className={`flex items-center justify-center gap-1 text-sm ${authMutedLinkClass}`}
           >
             <ArrowLeft className="h-4 w-4" />
-            {fromLogin ? "Back to login" : "Back to signup"}
+            Back to login
           </Link>
         </CardFooter>
       </Card>

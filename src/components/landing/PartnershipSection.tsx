@@ -19,7 +19,7 @@ export function PartnershipSection() {
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               <Button asChild size="lg" className="h-12 bg-[#d8b45d] px-6 text-slate-950 hover:bg-[#f0d990]">
-                <Link to="/auth/signup">Request Access</Link>
+                <Link to="/auth/request-access">Request Access</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="h-12 border-white/20 bg-white/[0.04] px-6 text-white hover:bg-white/[0.09]">
                 <Link to="/auth/login">Sign In</Link>

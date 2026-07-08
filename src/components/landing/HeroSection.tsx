@@ -35,7 +35,7 @@ export function HeroSection() {
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg" className="h-12 bg-[#d8b45d] px-6 text-slate-950 shadow-xl shadow-amber-950/25 hover:bg-[#f0d990]">
-              <Link to="/auth/signup">
+              <Link to="/auth/request-access">
                 Request Access
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
