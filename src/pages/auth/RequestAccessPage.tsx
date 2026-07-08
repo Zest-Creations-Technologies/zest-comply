@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Loader2 } from 'lucide-react';
 import { z } from 'zod';
@@ -170,18 +171,16 @@ export default function RequestAccessPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="companySize" className={authLabelClass}>Company Size (Optional)</Label>
-                <select
-                  id="companySize"
-                  value={companySize}
-                  onChange={(e) => setCompanySize(e.target.value)}
-                  disabled={isLoading}
-                  className={`${authInputClass} w-full px-3`}
-                >
-                  <option value="">Select a range</option>
-                  {companySizeOptions.map((option) => (
-                    <option key={option} value={option}>{option} employees</option>
-                  ))}
-                </select>
+                <Select value={companySize} onValueChange={setCompanySize} disabled={isLoading}>
+                  <SelectTrigger id="companySize" className={authInputClass}>
+                    <SelectValue placeholder="Select a range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {companySizeOptions.map((option) => (
+                      <SelectItem key={option} value={option}>{option} employees</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
