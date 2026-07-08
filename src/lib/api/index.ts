@@ -18,6 +18,8 @@ export { readinessScoreApi } from './readiness-score';
 export { crossFrameworkApi } from './cross-framework';
 export { copilotApi } from './copilot';
 export { aiGovernanceApi } from './ai-governance';
+export { telemetryApi } from './telemetry';
+export type { TelemetryEvent, TelemetryEventType, TelemetryEventFilters } from './telemetry';
 export { getComplianceIntelligenceProvider } from './integrations';
 export type {
   ComplianceIntelligenceProvider,
