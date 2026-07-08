@@ -1,7 +1,7 @@
 // Auth API client
 
 import { apiClient } from './client';
-import { API_CONFIG } from './config';
+import { API_CONFIG, getApiUrl } from './config';
 import { mockUser, delay } from './mocks';
 import type { User, AuthTokens, LoginRequest, SignupRequest, SignupResponse, UpdateProfileRequest, ChangePasswordRequest, ChangePasswordResponse } from './types';
 
@@ -101,5 +101,32 @@ export const authApi = {
     const response = await apiClient.post<ChangePasswordResponse>('/auth/change-password', data);
     apiClient.saveTokens(response.access_token, response.refresh_token);
     return response;
+  },
+
+  // Auth headers can't be set on a plain <a href> download, so fetch as a
+  // blob with the token attached and trigger the download client-side.
+  async exportMyData(): Promise<void> {
+    const token = localStorage.getItem('access_token');
+    const response = await fetch(getApiUrl('/users/me/export'), {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to export data');
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition') ?? '';
+    const match = disposition.match(/filename="?([^"]+)"?/);
+    const filename = match?.[1] ?? 'zestcomply-export.json';
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   },
 };

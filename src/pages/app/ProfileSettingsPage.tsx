@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Calendar, Shield, Eye, EyeOff, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { User, Mail, Calendar, Shield, Eye, EyeOff, CheckCircle2, XCircle, Loader2, Download } from 'lucide-react';
 import { z } from 'zod';
 
 const profileSchema = z.object({
@@ -59,6 +59,7 @@ export default function ProfileSettingsPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
+  const [exportLoading, setExportLoading] = useState(false);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -109,6 +110,22 @@ export default function ProfileSettingsPage() {
       });
     } finally {
       setProfileLoading(false);
+    }
+  };
+
+  const handleExportData = async () => {
+    setExportLoading(true);
+    try {
+      await authApi.exportMyData();
+      toast({ title: 'Export ready', description: 'Your data export has started downloading.' });
+    } catch (error: any) {
+      toast({
+        title: 'Export failed',
+        description: error?.message || 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -252,6 +269,20 @@ export default function ProfileSettingsPage() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Data & Privacy */}
+      <Card className="bg-card">
+        <CardHeader>
+          <CardTitle>Data &amp; Privacy</CardTitle>
+          <CardDescription>Export everything tied to your account - profile, evidence, compliance packages, governance records, and your audit history.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button variant="outline" onClick={handleExportData} disabled={exportLoading}>
+            {exportLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            Export my data
+          </Button>
         </CardContent>
       </Card>
 
