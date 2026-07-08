@@ -51,6 +51,12 @@ export const telemetryApi = {
     return apiClient.get<TelemetryEventListResponse>(`/telemetry/events${buildQuery(filters)}`);
   },
 
+  // Any authenticated user can call this (unlike listEvents, which is
+  // staff-only) - it's force-scoped server-side to the caller's own events.
+  async listMyEvents(limit = 20): Promise<TelemetryEventListResponse> {
+    return apiClient.get<TelemetryEventListResponse>(`/telemetry/events/mine?limit=${limit}`);
+  },
+
   // Auth headers can't be set on a plain <a href> download, so fetch the CSV
   // as a blob with the token attached and trigger the download client-side.
   async downloadEventsCsv(filters: Omit<TelemetryEventFilters, 'limit' | 'offset'> = {}): Promise<void> {
