@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Download, Loader2, ScrollText } from "lucide-react";
 import { telemetryApi } from "@/lib/api";
 import type { TelemetryEventType } from "@/lib/api";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -111,7 +112,17 @@ export default function AuditLogsAdminPage() {
         </Card>
       )}
 
-      {!eventsQuery.isLoading && events.length === 0 && (
+      {eventsQuery.isError && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            {eventsQuery.error instanceof Error
+              ? eventsQuery.error.message
+              : "Failed to load audit logs. This page requires staff or admin access."}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {!eventsQuery.isLoading && !eventsQuery.isError && events.length === 0 && (
         <AdminEmptyState
           icon={ScrollText}
           title="No activity recorded yet"
@@ -119,7 +130,7 @@ export default function AuditLogsAdminPage() {
         />
       )}
 
-      {!eventsQuery.isLoading && events.length > 0 && (
+      {!eventsQuery.isLoading && !eventsQuery.isError && events.length > 0 && (
         <Card className="bg-card">
           <CardContent className="p-0">
             <Table>
