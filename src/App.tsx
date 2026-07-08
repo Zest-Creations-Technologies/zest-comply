@@ -86,11 +86,6 @@ import ApiKeysPage from "./pages/app/admin/ApiKeysPage";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Enable dark mode by default
-  if (!document.documentElement.classList.contains('dark')) {
-    document.documentElement.classList.add('dark');
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
