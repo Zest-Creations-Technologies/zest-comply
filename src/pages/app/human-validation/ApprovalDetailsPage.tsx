@@ -24,6 +24,7 @@ export default function ApprovalDetailsPage() {
   const [decisionMessage, setDecisionMessage] = useState("");
   const [comment, setComment] = useState("");
   const [sectionReference, setSectionReference] = useState("");
+  const [attestationText, setAttestationText] = useState("");
 
   const queryKey = useMemo(() => ["human-validation", "profile", profileId], [profileId]);
 
@@ -35,6 +36,11 @@ export default function ApprovalDetailsPage() {
   const commentsQuery = useQuery({
     queryKey: ["human-validation", "comments", profileId],
     queryFn: () => humanValidationApi.getComments(profileId!),
+    enabled: !!profileId,
+  });
+  const signoffsQuery = useQuery({
+    queryKey: ["human-validation", "signoffs", profileId],
+    queryFn: () => humanValidationApi.getSignoffs(profileId!),
     enabled: !!profileId,
   });
 
@@ -98,10 +104,25 @@ export default function ApprovalDetailsPage() {
     onError: (error) => toast({ title: "Comment failed", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" }),
   });
 
+  const signoffMutation = useMutation({
+    mutationFn: () => humanValidationApi.signOff(profileId!, {
+      attestation_text: attestationText || null,
+    }),
+    onSuccess: () => {
+      setAttestationText("");
+      toast({ title: "Executive sign-off recorded", description: "This profile is now signed off." });
+      refreshProfile();
+      queryClient.invalidateQueries({ queryKey: ["human-validation", "signoffs", profileId] });
+    },
+    onError: (error) => toast({ title: "Sign-off failed", description: error instanceof Error ? error.message : "Only an assigned executive signer can sign off an approved profile.", variant: "destructive" }),
+  });
+
   const profile = profileQuery.data;
   const comments = commentsQuery.data ?? [];
+  const signoffs = signoffsQuery.data ?? [];
   const canSubmit = profile?.status === "draft" || profile?.status === "changes_requested";
   const canDecide = profile?.status === "submitted" || profile?.status === "in_review" || profile?.status === "changes_requested";
+  const canSignOff = profile?.status === "approved";
   const assignmentLabel = assignmentRole === "approver" ? "Assign Approver" : assignmentRole === "reviewer" ? "Assign Reviewer" : "Assign Executive Signer";
 
   return (
@@ -252,6 +273,55 @@ export default function ApprovalDetailsPage() {
               </CardContent>
             </Card>
           </div>
+
+          <Card className="bg-card">
+            <CardHeader>
+              <CardTitle>Executive Sign-off</CardTitle>
+              <CardDescription>
+                A final attestation step after approval. Requires the profile to be Approved and
+                the caller to be assigned as Executive Signer.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-2">
+                <Label htmlFor="attestation-text">Attestation (Optional)</Label>
+                <Textarea
+                  id="attestation-text"
+                  value={attestationText}
+                  onChange={(e) => setAttestationText(e.target.value)}
+                  rows={3}
+                  placeholder="I attest that this compliance package has been reviewed and is approved for publication."
+                />
+              </div>
+              <Button onClick={() => signoffMutation.mutate()} disabled={!canSignOff || signoffMutation.isPending}>
+                {signoffMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Sign Off
+              </Button>
+              {!canSignOff && (
+                <p className="text-xs text-muted-foreground">
+                  Sign-off is available once a profile has been Approved.
+                </p>
+              )}
+              {signoffs.length > 0 && (
+                <>
+                  <Separator />
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">Sign-off history</p>
+                    {signoffs.map((item) => (
+                      <div key={item.id} className="rounded-md border border-border p-3 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-foreground">{item.signer_name || "Unknown signer"}</span>
+                          <span className="text-xs text-muted-foreground">{item.signed_at ? formatDateTime(item.signed_at) : "Pending"}</span>
+                        </div>
+                        {item.signer_title && <p className="text-xs text-muted-foreground">{item.signer_title}</p>}
+                        {item.attestation_text && <p className="mt-1 whitespace-pre-wrap text-foreground">{item.attestation_text}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
 
           <Card className="bg-card">
             <CardHeader>

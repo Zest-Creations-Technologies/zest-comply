@@ -5,6 +5,8 @@ import type {
   CompanyValidationProfile,
   CompanyValidationProfileCreate,
   CompanyValidationProfileUpdate,
+  ExecutiveSignoff,
+  ExecutiveSignoffRequest,
   HumanValidationQueueResponse,
   ValidationAssignment,
   ValidationAssignmentCreate,
@@ -82,6 +84,22 @@ export const humanValidationApi = {
   getAuditTrail(profileId: string): Promise<ValidationAuditEvent[]> {
     return apiClient.get<ValidationAuditEvent[]>(
       `/human-validation/profiles/${profileId}/audit`,
+    );
+  },
+
+  signOff(
+    profileId: string,
+    payload: ExecutiveSignoffRequest,
+  ): Promise<ExecutiveSignoff> {
+    return apiClient.post<ExecutiveSignoff>(
+      `/human-validation/profiles/${profileId}/signoff`,
+      payload,
+    );
+  },
+
+  getSignoffs(profileId: string): Promise<ExecutiveSignoff[]> {
+    return apiClient.get<ExecutiveSignoff[]>(
+      `/human-validation/profiles/${profileId}/signoffs`,
     );
   },
 };

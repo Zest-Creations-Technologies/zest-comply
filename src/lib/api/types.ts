@@ -507,6 +507,26 @@ export interface ValidationAuditEvent {
   updated_at: string;
 }
 
+export interface ExecutiveSignoffRequest {
+  signer_name?: string | null;
+  signer_title?: string | null;
+  signer_email?: string | null;
+  attestation_text?: string | null;
+}
+
+export interface ExecutiveSignoff {
+  id: string;
+  profile_id: string;
+  signer_user_id?: string | null;
+  signer_name?: string | null;
+  signer_title?: string | null;
+  signer_email?: string | null;
+  status: string;
+  attestation_text?: string | null;
+  signed_at?: string | null;
+  created_at: string;
+}
+
 // ============================================
 // Platform Administration Types
 // ============================================
