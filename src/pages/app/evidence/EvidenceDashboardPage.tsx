@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
-import { Archive, Clock, FileCheck2, FileUp, ShieldAlert } from "lucide-react";
+import { Archive, Clock, FileCheck2, FileUp, Loader2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEvidenceStore } from "./evidence-store";
+import { useEvidenceData } from "./useEvidenceData";
 import { EvidenceEmptyState, EvidenceTable, evidenceByStatus } from "./EvidenceShared";
 
 export default function EvidenceDashboardPage() {
-  const { records } = useEvidenceStore();
+  const { records, isLoading, isError, error } = useEvidenceData();
   const approved = evidenceByStatus(records, "approved");
   const pending = evidenceByStatus(records, "pending_review");
   const expired = evidenceByStatus(records, "expired");
@@ -25,20 +26,32 @@ export default function EvidenceDashboardPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card className="bg-card"><CardHeader className="pb-3"><CardDescription>Approved Evidence</CardDescription><CardTitle className="flex items-center gap-2 text-3xl"><FileCheck2 className="h-6 w-6 text-primary" />{approved.length}</CardTitle></CardHeader></Card>
-        <Card className="bg-card"><CardHeader className="pb-3"><CardDescription>Pending Review</CardDescription><CardTitle className="flex items-center gap-2 text-3xl"><Clock className="h-6 w-6 text-primary" />{pending.length}</CardTitle></CardHeader></Card>
-        <Card className="bg-card"><CardHeader className="pb-3"><CardDescription>Expired</CardDescription><CardTitle className="flex items-center gap-2 text-3xl"><ShieldAlert className="h-6 w-6 text-primary" />{expired.length}</CardTitle></CardHeader></Card>
-        <Card className="bg-card"><CardHeader className="pb-3"><CardDescription>Archived</CardDescription><CardTitle className="flex items-center gap-2 text-3xl"><Archive className="h-6 w-6 text-primary" />{archived.length}</CardTitle></CardHeader></Card>
-      </div>
+      {isError && (
+        <Alert variant="destructive">
+          <AlertDescription>{error instanceof Error ? error.message : "Failed to load evidence."}</AlertDescription>
+        </Alert>
+      )}
 
-      {records.length === 0 ? (
-        <EvidenceEmptyState
-          title="No evidence records yet"
-          description="Upload evidence to begin tracking proof against frameworks, controls, packages, audits, and governance reviews."
-        />
+      {isLoading ? (
+        <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
       ) : (
-        <EvidenceTable records={recent} />
+        <>
+          <div className="grid gap-4 md:grid-cols-4">
+            <Card className="bg-card"><CardHeader className="pb-3"><CardDescription>Approved Evidence</CardDescription><CardTitle className="flex items-center gap-2 text-3xl"><FileCheck2 className="h-6 w-6 text-primary" />{approved.length}</CardTitle></CardHeader></Card>
+            <Card className="bg-card"><CardHeader className="pb-3"><CardDescription>Pending Review</CardDescription><CardTitle className="flex items-center gap-2 text-3xl"><Clock className="h-6 w-6 text-primary" />{pending.length}</CardTitle></CardHeader></Card>
+            <Card className="bg-card"><CardHeader className="pb-3"><CardDescription>Expired</CardDescription><CardTitle className="flex items-center gap-2 text-3xl"><ShieldAlert className="h-6 w-6 text-primary" />{expired.length}</CardTitle></CardHeader></Card>
+            <Card className="bg-card"><CardHeader className="pb-3"><CardDescription>Archived</CardDescription><CardTitle className="flex items-center gap-2 text-3xl"><Archive className="h-6 w-6 text-primary" />{archived.length}</CardTitle></CardHeader></Card>
+          </div>
+
+          {records.length === 0 ? (
+            <EvidenceEmptyState
+              title="No evidence records yet"
+              description="Upload evidence to begin tracking proof against frameworks, controls, packages, audits, and governance reviews."
+            />
+          ) : (
+            <EvidenceTable records={recent} />
+          )}
+        </>
       )}
     </div>
   );

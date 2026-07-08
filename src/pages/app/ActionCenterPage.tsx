@@ -6,7 +6,7 @@ import { ArrowRight, Bell, FileCheck2, Gauge, MessageSquare, Radar, ShieldCheck 
 import { toneFor } from "@/lib/tone-palette";
 import { ActivityBarChart, ActivityFeed, BreakdownBarChart, DonutBreakdown, GaugeMeter, MiniCalendar, StatRing, TrendBadge } from "@/components/app/dashboard-charts";
 import { useActivityTrend, useComplianceKpis, useCompletionTrend, useDailyActivityTrend, usePhaseBreakdown, usePlanUsageStats, useRecentActivity, useValidationQueueStats } from "@/hooks/useDashboardStats";
-import { calendarEvents } from "@/pages/app/compliance-monitoring/monitoring-data";
+import { useMonitoringData } from "@/pages/app/compliance-monitoring/useMonitoringData";
 
 export default function ActionCenterPage() {
   const { user } = useAuth();
@@ -20,6 +20,7 @@ export default function ActionCenterPage() {
   const phaseBreakdown = usePhaseBreakdown();
   const activityTrend = useActivityTrend();
   const completionTrend = useCompletionTrend();
+  const { calendarEvents } = useMonitoringData();
 
   const usageTotal = (planUsage.data?.documentsGenerated ?? 0) + (planUsage.data?.packagesGenerated ?? 0);
 

@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { AdminBrandingSettings, AdminOrganizationSettings } from "./types";
+import type { AdminBrandingSettings, AdminNotificationSettings, AdminOrganizationSettings } from "./types";
 
 export const adminSettingsApi = {
   getOrganization(): Promise<AdminOrganizationSettings> {
@@ -16,5 +16,13 @@ export const adminSettingsApi = {
 
   updateBranding(payload: AdminBrandingSettings): Promise<AdminBrandingSettings> {
     return apiClient.put<AdminBrandingSettings>("/admin/branding", payload);
+  },
+
+  getNotifications(): Promise<AdminNotificationSettings> {
+    return apiClient.get<AdminNotificationSettings>("/admin/notifications");
+  },
+
+  updateNotifications(payload: AdminNotificationSettings): Promise<AdminNotificationSettings> {
+    return apiClient.put<AdminNotificationSettings>("/admin/notifications", payload);
   },
 };

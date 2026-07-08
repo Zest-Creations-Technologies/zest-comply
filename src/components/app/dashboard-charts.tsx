@@ -7,7 +7,7 @@
 // activity.
 
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, RadialBar, RadialBarChart, PolarAngleAxis, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, RadialBar, RadialBarChart, PolarAngleAxis, XAxis, YAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 
@@ -339,6 +339,35 @@ export function MonthlyTrendChart({
           <Bar dataKey="started" name="Started" fill={GOLD} radius={[4, 4, 0, 0]} barSize={16} />
           <Bar dataKey="completed" name="Completed" fill={TEAL} radius={[4, 4, 0, 0]} barSize={16} />
         </BarChart>
+      </ChartContainer>
+      {!hasData && (
+        <div className="pointer-events-none absolute inset-x-0 top-10 flex justify-center">
+          <p className="rounded-full bg-white/90 px-3 py-1 text-sm text-slate-500 shadow-sm">{emptyLabel}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function ScoreTrendChart({
+  data,
+  emptyLabel = "Not enough history yet",
+}: {
+  data: { label: string; score: number }[];
+  emptyLabel?: string;
+}) {
+  const hasData = data.length > 1;
+
+  return (
+    <div className="relative">
+      <ChartContainer config={{ score: { label: "Score", color: TEAL } }} className="h-40 w-full">
+        <LineChart data={data} margin={{ left: 8, right: 8 }}>
+          <CartesianGrid vertical={false} stroke="#e2e8f0" />
+          <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
+          <YAxis domain={[0, 100]} tickLine={false} axisLine={false} tick={{ fill: "#64748b", fontSize: 12 }} width={28} />
+          <ChartTooltip content={<ChartTooltipContent className={tooltipClassName} />} />
+          <Line type="monotone" dataKey="score" name="Score" stroke={TEAL} strokeWidth={2} dot={{ r: 3, fill: TEAL }} />
+        </LineChart>
       </ChartContainer>
       {!hasData && (
         <div className="pointer-events-none absolute inset-x-0 top-10 flex justify-center">

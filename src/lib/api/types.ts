@@ -24,6 +24,7 @@ export interface User {
   email: string;
   first_name?: string | null;
   last_name?: string | null;
+  company_name?: string | null;
   full_name: string;
   role: 'USER' | 'STAFF' | 'ADMIN';
   is_active: boolean;
@@ -40,6 +41,7 @@ export interface SignupResponse {
   email: string;
   first_name?: string | null;
   last_name?: string | null;
+  company_name?: string | null;
   full_name: string;
   role: 'USER' | 'STAFF' | 'ADMIN';
   is_active: boolean;
@@ -89,53 +91,6 @@ export interface Plan {
   updated_at: string;
 }
 
-export interface Invoice {
-  id: string;
-  created: string;
-  amount_paid: number;
-  currency: string;
-  status: string;
-  invoice_pdf?: string | null;
-}
-
-// Plan change response types
-export interface PaidPlanChangeResponse {
-  checkout_url: string;
-}
-
-export interface MigratePlanChangeResponse {
-  old_plan_name: string | null;
-  new_plan_name: string;
-  proration_amount: number;
-  effective_date: string;
-}
-
-export interface PlanChangeResponse {
-  message: string;
-  paid_plan_change: PaidPlanChangeResponse | null;
-  migrate_plan_change: MigratePlanChangeResponse | null;
-}
-
-export interface CancelSubscriptionResponse {
-  message: string;
-  current_period_end: string | null;
-  canceled_at: string | null;
-}
-
-export interface ResumeSubscriptionResponse {
-  message: string;
-  next_billing_date: string | null;
-  resumed_at: string | null;
-}
-
-export interface PreviewPlanChangeResponse {
-  current_plan_name: string;
-  new_plan_name: string;
-  prorated_amount: number;
-  next_invoice_date: string;
-  is_upgrade: boolean;
-}
-
 export interface ConversationMessage {
   id: string;
   session_id: string;
@@ -181,26 +136,6 @@ export interface ConversationSession {
 export type Conversation = ConversationSession;
 export type Message = ConversationMessage;
 
-// Storage provider enum
-export type StorageProvider = "google_drive" | "dropbox" | "onedrive";
-
-// Linked provider info from API
-export interface LinkedProviderInfo {
-  provider: StorageProvider;
-  linked_at: string;
-}
-
-// Response from GET /cloud-storage/credentials
-export interface LinkedProvidersResponse {
-  linked_providers: LinkedProviderInfo[];
-}
-
-// Response from GET /cloud-storage/link/{provider}
-export interface OAuthLinkResponse {
-  authorization_url: string;
-  provider: StorageProvider;
-}
-
 export interface AuthTokens {
   access_token: string;
   refresh_token: string;
@@ -217,8 +152,22 @@ export interface LoginRequest {
 export interface SignupRequest {
   email: string;
   password: string;
+  company_name: string;
   first_name?: string;
   last_name?: string;
+}
+
+export interface AccessRequestPayload {
+  company_name: string;
+  contact_first_name: string;
+  contact_last_name: string;
+  email: string;
+  company_size?: string;
+  message?: string;
+}
+
+export interface AccessRequestResponse {
+  message: string;
 }
 
 export interface ApiError {
@@ -233,7 +182,7 @@ export interface ApiError {
 }
 
 // Compliance Packages Types
-export type PackageStorageProvider = "GOOGLE_DRIVE" | "DROPBOX" | "ONEDRIVE";
+export type PackageStorageProvider = "R2";
 
 export interface ManifestFile {
   path: string;
@@ -588,4 +537,205 @@ export interface AdminBrandingSettings {
   default_reviewer_title?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+}
+
+export interface AdminNotificationSettings {
+  id?: string | null;
+  user_id: string;
+  email_alerts_enabled: boolean;
+  evidence_expiration_alerts: boolean;
+  alert_days_before_expiration: number;
+  readiness_score_alerts_enabled: boolean;
+  readiness_score_threshold: number;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+// ============================================
+// Evidence Types
+// ============================================
+
+export type EvidenceStatus = "draft" | "pending_review" | "approved" | "rejected" | "expired" | "archived";
+
+export interface EvidenceItem {
+  id: string;
+  user_id: string;
+  title: string;
+  description?: string | null;
+  frameworks: string[];
+  control_ids: string[];
+  package_name?: string | null;
+  evidence_type?: string | null;
+  owner?: string | null;
+  reviewer?: string | null;
+  uploaded_by?: string | null;
+  status: EvidenceStatus;
+  due_date?: string | null;
+  expiration_date?: string | null;
+  version: string;
+  notes?: string | null;
+  file_name?: string | null;
+  file_size?: number | null;
+  mime_type?: string | null;
+  metadata_json: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EvidenceListResponse {
+  records: EvidenceItem[];
+  count: number;
+}
+
+export interface EvidenceCreateInput {
+  title: string;
+  description?: string;
+  frameworks?: string[];
+  control_ids?: string[];
+  package_name?: string;
+  evidence_type?: string;
+  owner?: string;
+  reviewer?: string;
+  uploaded_by?: string;
+  due_date?: string;
+  expiration_date?: string;
+  notes?: string;
+  file?: File;
+}
+
+export interface EvidenceDownloadResponse {
+  download_url: string;
+  expires_in: number;
+}
+
+// ============================================
+// Readiness Score Types
+// ============================================
+
+export interface ReadinessScore {
+  id: string;
+  user_id: string;
+  framework: string;
+  framework_display: string;
+  overall_score: number;
+  coverage_score: number | null;
+  freshness_score: number | null;
+  validation_score: number | null;
+  breakdown_json: {
+    evidence_total?: number;
+    evidence_approved?: number;
+    evidence_expired?: number;
+    evidence_expiring_soon?: number;
+    validation?: { profile_id?: string; status?: string };
+  };
+  trigger: string;
+  created_at: string;
+}
+
+export interface ReadinessScoreListResponse {
+  scores: ReadinessScore[];
+  methodology: string;
+}
+
+export interface ReadinessScoreHistoryResponse {
+  framework: string;
+  history: ReadinessScore[];
+  methodology: string;
+}
+
+// ============================================
+// Cross-Framework Intelligence Types
+// ============================================
+
+export interface FrameworkPairOverlap {
+  framework_a: string;
+  framework_a_display: string;
+  framework_b: string;
+  framework_b_display: string;
+  shared_evidence_count: number;
+  pct_of_a: number;
+  pct_of_b: number;
+}
+
+export interface FrameworkReuseSummary {
+  framework: string;
+  framework_display: string;
+  total_evidence: number;
+  multi_framework_evidence_count: number;
+  reuse_percentage: number;
+}
+
+export interface CrossFrameworkOverlapResponse {
+  frameworks: string[];
+  pairs: FrameworkPairOverlap[];
+  reuse_summary: FrameworkReuseSummary[];
+  methodology: string;
+}
+
+export interface SharedEvidenceResponse {
+  framework_a: string;
+  framework_b: string;
+  evidence: EvidenceItem[];
+  methodology: string;
+}
+
+// ============================================
+// Compliance Copilot Types
+// ============================================
+
+export interface CopilotConversation {
+  id: string;
+  user_id: string;
+  title: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CopilotConversationListResponse {
+  conversations: CopilotConversation[];
+}
+
+export interface CopilotMessage {
+  id: string;
+  conversation_id: string;
+  role: "user" | "assistant";
+  content: string;
+  metadata_json: {
+    grounded?: boolean;
+    data_points_used?: string[];
+  };
+  created_at: string;
+}
+
+export interface CopilotMessageListResponse {
+  messages: CopilotMessage[];
+}
+
+// ============================================
+// AI Governance Types
+// ============================================
+
+export interface DocumentGovernanceRecord {
+  id: string;
+  document_name: string;
+  quality_score: number | null;
+  review_comment_count: number;
+  validation_status: string | null;
+  created_at: string;
+}
+
+export interface AIGovernanceDocumentsResponse {
+  documents: DocumentGovernanceRecord[];
+  methodology: string;
+}
+
+export interface AIGovernanceSummaryResponse {
+  total_documents: number;
+  avg_quality_score: number | null;
+  reviewed_count: number;
+  review_rate: number;
+  status_breakdown: Record<string, number>;
+  total_copilot_answers: number;
+  copilot_grounded_rate: number | null;
+  methodology: string;
 }

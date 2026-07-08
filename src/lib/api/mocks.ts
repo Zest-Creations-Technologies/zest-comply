@@ -1,12 +1,13 @@
 // Mock data for development
 
-import type { User, Plan, UserPlan, ConversationSession, Invoice, LinkedProviderInfo } from './types';
+import type { User, Plan, UserPlan, ConversationSession } from './types';
 
 export const mockUser: User = {
   id: 'user-1',
   email: 'demo@zestcomply.com',
   first_name: 'Demo',
   last_name: 'User',
+  company_name: 'Acme Cloud Solutions Inc',
   full_name: 'Demo User',
   role: 'USER',
   is_active: true,
@@ -159,40 +160,6 @@ export const mockConversationSessions: ConversationSession[] = [
     logo: null,
     created_at: '2024-10-05T11:20:00Z',
     updated_at: '2024-10-08T13:00:00Z',
-  },
-];
-
-export const mockInvoices: Invoice[] = [
-  {
-    id: 'inv-3',
-    amount_paid: 79.00,
-    currency: 'usd',
-    status: 'paid',
-    created: '2024-11-01T00:00:00Z',
-    invoice_pdf: '#',
-  },
-  {
-    id: 'inv-2',
-    amount_paid: 79.00,
-    currency: 'usd',
-    status: 'paid',
-    created: '2024-10-01T00:00:00Z',
-    invoice_pdf: '#',
-  },
-  {
-    id: 'inv-1',
-    amount_paid: 79.00,
-    currency: 'usd',
-    status: 'paid',
-    created: '2024-09-01T00:00:00Z',
-    invoice_pdf: '#',
-  },
-];
-
-export const mockCloudProviders: LinkedProviderInfo[] = [
-  {
-    provider: 'google_drive',
-    linked_at: '2024-10-15T09:00:00Z',
   },
 ];
 

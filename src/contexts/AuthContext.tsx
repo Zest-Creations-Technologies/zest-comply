@@ -8,7 +8,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-  signup: (email: string, password: string, firstName?: string, lastName?: string) => Promise<SignupResponse>;
+  signup: (email: string, password: string, companyName: string, firstName?: string, lastName?: string) => Promise<SignupResponse>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -74,9 +74,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Signup now returns user profile (no auto-login - requires email verification)
-  const signup = async (email: string, password: string, firstName?: string, lastName?: string): Promise<SignupResponse> => {
+  const signup = async (email: string, password: string, companyName: string, firstName?: string, lastName?: string): Promise<SignupResponse> => {
     try {
-      const response = await authApi.signup({ email, password, first_name: firstName, last_name: lastName });
+      const response = await authApi.signup({ email, password, company_name: companyName, first_name: firstName, last_name: lastName });
       // Don't auto-login - user needs to verify email first
       toast({ 
         title: 'Account created!', 

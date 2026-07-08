@@ -6,8 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { EvidenceRecord, EvidenceStatus } from "./evidence-store";
-import { evidenceStatusLabels } from "./evidence-store";
+import type { EvidenceItem, EvidenceStatus } from "@/lib/api";
 
 export const evidenceTypes = [
   "Access Review",
@@ -20,6 +19,15 @@ export const evidenceTypes = [
   "System Report",
   "Vendor Document",
 ];
+
+export const evidenceStatusLabels: Record<EvidenceStatus, string> = {
+  draft: "Draft",
+  pending_review: "Pending Review",
+  approved: "Approved",
+  rejected: "Rejected",
+  expired: "Expired",
+  archived: "Archived",
+};
 
 const statusVariant: Record<EvidenceStatus, "default" | "secondary" | "outline" | "destructive"> = {
   draft: "outline",
@@ -34,7 +42,7 @@ export function EvidenceStatusBadge({ status }: { status: EvidenceStatus }) {
   return <Badge variant={statusVariant[status]}>{evidenceStatusLabels[status]}</Badge>;
 }
 
-export function formatDate(value?: string) {
+export function formatDate(value?: string | null) {
   if (!value) return "Not set";
   return new Date(value).toLocaleDateString("en-US", {
     month: "short",
@@ -83,13 +91,13 @@ export function EvidenceFilters({
   onChange,
 }: {
   filters: EvidenceFiltersState;
-  records: EvidenceRecord[];
+  records: EvidenceItem[];
   onChange: (next: EvidenceFiltersState) => void;
 }) {
-  const frameworks = [...new Set(records.map((record) => record.framework).filter(Boolean))].sort();
-  const controls = [...new Set(records.map((record) => record.controlId).filter(Boolean))].sort();
-  const owners = [...new Set(records.map((record) => record.owner).filter(Boolean))].sort();
-  const types = [...new Set(records.map((record) => record.evidenceType).filter(Boolean))].sort();
+  const frameworks = [...new Set(records.flatMap((record) => record.frameworks))].sort();
+  const controls = [...new Set(records.flatMap((record) => record.control_ids))].sort();
+  const owners = [...new Set(records.map((record) => record.owner).filter(Boolean))].sort() as string[];
+  const types = [...new Set(records.map((record) => record.evidence_type).filter(Boolean))].sort() as string[];
 
   const update = (key: keyof EvidenceFiltersState, value: string) => onChange({ ...filters, [key]: value });
 
@@ -148,26 +156,26 @@ export function EvidenceFilters({
   );
 }
 
-export function filterEvidence(records: EvidenceRecord[], filters: EvidenceFiltersState) {
+export function filterEvidence(records: EvidenceItem[], filters: EvidenceFiltersState) {
   const query = filters.search.trim().toLowerCase();
   return records
     .filter((record) => {
       const matchesSearch = !query || record.title.toLowerCase().includes(query);
-      const matchesFramework = filters.framework === "all" || record.framework === filters.framework;
-      const matchesControl = filters.control === "all" || record.controlId === filters.control;
+      const matchesFramework = filters.framework === "all" || record.frameworks.includes(filters.framework);
+      const matchesControl = filters.control === "all" || record.control_ids.includes(filters.control);
       const matchesStatus = filters.status === "all" || record.status === filters.status;
       const matchesOwner = filters.owner === "all" || record.owner === filters.owner;
-      const matchesType = filters.evidenceType === "all" || record.evidenceType === filters.evidenceType;
+      const matchesType = filters.evidenceType === "all" || record.evidence_type === filters.evidenceType;
       return matchesSearch && matchesFramework && matchesControl && matchesStatus && matchesOwner && matchesType;
     })
     .sort((a, b) => {
-      if (filters.sort === "due_date") return (a.dueDate || "9999").localeCompare(b.dueDate || "9999");
-      if (filters.sort === "expiration_date") return (a.expirationDate || "9999").localeCompare(b.expirationDate || "9999");
-      return b.uploadedDate.localeCompare(a.uploadedDate);
+      if (filters.sort === "due_date") return (a.due_date || "9999").localeCompare(b.due_date || "9999");
+      if (filters.sort === "expiration_date") return (a.expiration_date || "9999").localeCompare(b.expiration_date || "9999");
+      return b.created_at.localeCompare(a.created_at);
     });
 }
 
-export function EvidenceTable({ records }: { records: EvidenceRecord[] }) {
+export function EvidenceTable({ records }: { records: EvidenceItem[] }) {
   return (
     <Card className="bg-card">
       <CardHeader>
@@ -195,15 +203,15 @@ export function EvidenceTable({ records }: { records: EvidenceRecord[] }) {
             {records.map((record) => (
               <TableRow key={record.id}>
                 <TableCell className="max-w-[260px] font-medium text-foreground"><span className="line-clamp-2">{record.title}</span></TableCell>
-                <TableCell>{record.framework}</TableCell>
-                <TableCell>{record.controlId}</TableCell>
-                <TableCell>{record.evidenceType}</TableCell>
+                <TableCell>{record.frameworks.join(", ") || "—"}</TableCell>
+                <TableCell>{record.control_ids.join(", ") || "—"}</TableCell>
+                <TableCell>{record.evidence_type}</TableCell>
                 <TableCell>{record.owner}</TableCell>
                 <TableCell>{record.reviewer}</TableCell>
                 <TableCell><EvidenceStatusBadge status={record.status} /></TableCell>
-                <TableCell>{formatDate(record.dueDate)}</TableCell>
-                <TableCell>{formatDate(record.expirationDate)}</TableCell>
-                <TableCell>{formatDate(record.uploadedDate)}</TableCell>
+                <TableCell>{formatDate(record.due_date)}</TableCell>
+                <TableCell>{formatDate(record.expiration_date)}</TableCell>
+                <TableCell>{formatDate(record.created_at)}</TableCell>
                 <TableCell className="text-right">
                   <Button asChild variant="outline" size="sm">
                     <Link to={`/app/evidence/${record.id}`}>Open</Link>
@@ -218,6 +226,6 @@ export function EvidenceTable({ records }: { records: EvidenceRecord[] }) {
   );
 }
 
-export function evidenceByStatus(records: EvidenceRecord[], status: EvidenceStatus) {
+export function evidenceByStatus(records: EvidenceItem[], status: EvidenceStatus) {
   return records.filter((record) => record.status === status);
 }

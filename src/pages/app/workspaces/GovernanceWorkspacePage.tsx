@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, ClipboardCheck, FileText, History, ListChecks, ShieldAlert } from "lucide-react";
+import { ArrowRight, BrainCircuit, ClipboardCheck, FileText, History, ListChecks, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toneFor } from "@/lib/tone-palette";
@@ -12,6 +12,7 @@ const quickLinks = [
   { title: "Audit Trail", href: "/app/human-validation/review-queue", icon: History },
   { title: "Risk Management", href: "/app/risk", icon: ShieldAlert },
   { title: "Executive Reports", href: "/app/reports", icon: FileText },
+  { title: "AI Governance", href: "/app/governance/ai-oversight", icon: BrainCircuit },
 ];
 
 export default function GovernanceWorkspacePage() {

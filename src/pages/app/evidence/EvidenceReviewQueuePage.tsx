@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { EvidenceEmptyState, EvidenceFilters, EvidenceTable, defaultEvidenceFilters, filterEvidence } from "./EvidenceShared";
-import { useEvidenceStore } from "./evidence-store";
+import { useEvidenceData } from "./useEvidenceData";
 
 export default function EvidenceReviewQueuePage() {
-  const { records } = useEvidenceStore();
+  const { records } = useEvidenceData();
   const [filters, setFilters] = useState(defaultEvidenceFilters());
   const reviewRecords = records.filter((record) => record.status === "pending_review");
   const filtered = filterEvidence(reviewRecords, filters);

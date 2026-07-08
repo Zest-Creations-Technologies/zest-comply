@@ -10,7 +10,7 @@ import {
   SidebarHeader,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { Building2, Gauge, Landmark, Settings, Shield } from 'lucide-react';
+import { Bot, Building2, Gauge, Landmark, Settings, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { Logo } from '@/components/Logo';
@@ -21,6 +21,7 @@ const workspaceNavItems = [
   { title: 'Compliance', url: '/app/compliance', icon: Building2 },
   { title: 'Governance', url: '/app/governance', icon: Landmark },
   { title: 'Security Operations', url: '/app/security', icon: Shield },
+  { title: 'Copilot', url: '/app/copilot', icon: Bot },
   { title: 'Platform', url: '/app/platform', icon: Settings },
 ];
 
@@ -45,10 +46,8 @@ export function AppSidebar() {
     if (url === '/app/platform') {
       return location.pathname.startsWith('/app/platform')
         || location.pathname.startsWith('/app/admin')
-        || location.pathname.startsWith('/app/integrations')
         || location.pathname.startsWith('/app/assistant')
-        || location.pathname.startsWith('/app/settings')
-        || location.pathname.startsWith('/app/billing');
+        || location.pathname.startsWith('/app/settings');
     }
     return location.pathname.startsWith(url);
   };

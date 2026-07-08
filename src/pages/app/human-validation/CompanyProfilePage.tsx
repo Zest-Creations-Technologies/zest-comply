@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { conversationsApi, humanValidationApi, packagesApi } from "@/lib/api";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -8,10 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
-import { PageSkeleton, StatusBadge } from "./shared";
+import { History, Loader2 } from "lucide-react";
+import { auditEventLabels, EmptyState, formatDateTime, PageSkeleton, StatusBadge } from "./shared";
 
 function splitList(value: string) {
   return value
@@ -51,6 +52,12 @@ export default function CompanyProfilePage() {
   const profileQuery = useQuery({
     queryKey: ["human-validation", "profile", profileId],
     queryFn: () => humanValidationApi.getProfile(profileId!),
+    enabled: isEditMode,
+  });
+
+  const historyQuery = useQuery({
+    queryKey: ["human-validation", "audit", profileId],
+    queryFn: () => humanValidationApi.getAuditTrail(profileId!),
     enabled: isEditMode,
   });
 
@@ -295,6 +302,55 @@ export default function CompanyProfilePage() {
             </Button>
           </div>
         </form>
+      )}
+
+      {isEditMode && profileId && !isLoading && !isError && (
+        <Card className="bg-card">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2"><History className="h-5 w-5" />History</CardTitle>
+                <CardDescription>Recent governance activity for this company profile.</CardDescription>
+              </div>
+              <Button asChild variant="outline" size="sm">
+                <Link to={`/app/human-validation/audit/${profileId}`}>View full audit trail</Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {historyQuery.isLoading && <p className="text-sm text-muted-foreground">Loading history...</p>}
+            {historyQuery.isError && (
+              <Alert variant="destructive">
+                <AlertDescription>{historyQuery.error instanceof Error ? historyQuery.error.message : "Failed to load history."}</AlertDescription>
+              </Alert>
+            )}
+            {!historyQuery.isLoading && !historyQuery.isError && (historyQuery.data ?? []).length === 0 && (
+              <EmptyState title="No history yet" description="Changes to this profile's governance status will appear here." />
+            )}
+            {!historyQuery.isLoading && (historyQuery.data ?? []).length > 0 && (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Event</TableHead>
+                    <TableHead>Actor</TableHead>
+                    <TableHead>Time</TableHead>
+                    <TableHead>Message</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(historyQuery.data ?? []).slice(0, 5).map((event) => (
+                    <TableRow key={event.id}>
+                      <TableCell className="font-medium">{auditEventLabels[event.event_type]}</TableCell>
+                      <TableCell className="text-muted-foreground break-all">{event.actor_user_id || "System"}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatDateTime(event.created_at)}</TableCell>
+                      <TableCell className="text-muted-foreground">{event.message || "—"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
       )}
     </div>
   );

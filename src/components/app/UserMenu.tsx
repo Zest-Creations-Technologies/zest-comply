@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, Settings, LogOut, Shield, FileText } from 'lucide-react';
+import { User, LogOut, Shield, FileText } from 'lucide-react';
 
 export function UserMenu() {
   const { user, logout } = useAuth();
@@ -53,10 +53,6 @@ export function UserMenu() {
         <DropdownMenuItem onClick={() => navigate('/app/settings/profile')}>
           <User className="mr-2 h-4 w-4" />
           Profile
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate('/app/billing')}>
-          <Settings className="mr-2 h-4 w-4" />
-          Billing
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => navigate('/security')}>

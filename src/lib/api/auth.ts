@@ -35,6 +35,7 @@ export const authApi = {
         email: data.email,
         first_name: data.first_name || null,
         last_name: data.last_name || null,
+        company_name: data.company_name,
         full_name: [data.first_name, data.last_name].filter(Boolean).join(' ') || data.email,
         role: 'USER',
         is_active: true,
@@ -52,7 +53,8 @@ export const authApi = {
   async logout(): Promise<void> {
     if (!API_CONFIG.useMocks) {
       try {
-        await apiClient.post('/auth/logout');
+        const refreshToken = apiClient.getStoredRefreshToken();
+        await apiClient.post('/auth/logout', refreshToken ? { refresh_token: refreshToken } : {});
       } catch {
         // Ignore errors on logout
       }

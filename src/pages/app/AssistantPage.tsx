@@ -1188,7 +1188,7 @@ export default function AssistantPage() {
                   <p className="text-sm text-foreground">{upgradeMessage}</p>
                 </div>
                 <p className="text-muted-foreground">
-                  Unlock more documents and packages with a higher plan. Get unlimited document generation with Standard or Premium.
+                  Unlock more documents and packages with a higher plan. Contact us to discuss a plan sized for your organization.
                 </p>
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -1197,12 +1197,12 @@ export default function AssistantPage() {
               <AlertDialogAction
                 onClick={() => {
                   setShowUpgradePrompt(false);
-                  navigate('/app/billing');
+                  window.location.href = 'mailto:info@zestcyber.com?subject=Upgrade%20my%20ZestComply%20plan';
                 }}
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Sparkles className="h-4 w-4 mr-2" />
-                View Plans
+                Contact Us
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

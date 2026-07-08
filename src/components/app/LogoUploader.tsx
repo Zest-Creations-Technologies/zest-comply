@@ -1,7 +1,6 @@
 // Reusable logo uploader component
 
 import { useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -135,10 +134,7 @@ export function LogoUploader({
             <Sparkles className="h-4 w-4 text-primary" />
             <AlertTitle className="text-primary">Upgrade to unlock</AlertTitle>
             <AlertDescription className="text-muted-foreground">
-              Custom letterhead and logo branding is available on Standard and Premium plans.{" "}
-              <Link to="/app/billing" className="text-primary font-medium hover:underline">
-                View plans →
-              </Link>
+              Custom letterhead and logo branding is available on higher-tier plans. Contact us to upgrade.
             </AlertDescription>
           </Alert>
         )}

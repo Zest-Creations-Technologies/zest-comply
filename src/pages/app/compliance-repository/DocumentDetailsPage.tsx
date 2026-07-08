@@ -1,7 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Download, FileClock, GitBranch } from "lucide-react";
-import { humanValidationApi } from "@/lib/api";
+import { ArrowLeft, Download, GitBranch } from "lucide-react";
+import { humanValidationApi, packagesApi } from "@/lib/api";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { useRepositoryData } from "./useRepositoryData";
-import { decodeDocumentId, formatDate, latestComment, repositoryStatusLabels } from "./repository-utils";
+import { decodeDocumentId, encodeDocumentId, formatDate, latestComment, repositoryStatusLabels } from "./repository-utils";
 import { RepositoryEmptyState, RepositoryLoading, RepositoryStatusBadge } from "./RepositoryShared";
 
 export default function DocumentDetailsPage() {
@@ -18,7 +18,12 @@ export default function DocumentDetailsPage() {
   const { toast } = useToast();
   const decoded = decodeDocumentId(documentId);
   const { documents, isLoading, isError, error } = useRepositoryData();
-  const document = documents.find((item) => item.id === documentId);
+  // React Router already URL-decodes path params, so `documentId` here no
+  // longer matches the encodeURIComponent'd `item.id` values in `documents`.
+  // Re-encode the decoded parts before comparing instead of matching raw strings.
+  const document = decoded
+    ? documents.find((item) => item.id === encodeDocumentId(decoded.packageId, decoded.index))
+    : undefined;
 
   const auditQuery = useQuery({
     queryKey: ["compliance-repository", "document-audit", document?.profileId],
@@ -31,6 +36,14 @@ export default function DocumentDetailsPage() {
     queryFn: () => humanValidationApi.getComments(document!.profileId!),
     enabled: Boolean(document?.profileId),
   });
+
+  const sessionId = document?.packageRecord?.session_id;
+  const versionsQuery = useQuery({
+    queryKey: ["compliance-repository", "package-versions", sessionId],
+    queryFn: () => packagesApi.getConversationPackages(sessionId!),
+    enabled: Boolean(sessionId),
+  });
+  const versions = [...(versionsQuery.data?.packages ?? [])].sort((a, b) => b.uploaded_at.localeCompare(a.uploaded_at));
 
   const comments = commentsQuery.data ?? [];
   const latest = latestComment(comments);
@@ -124,18 +137,29 @@ export default function DocumentDetailsPage() {
             <Card className="bg-card">
               <CardHeader>
                 <CardTitle>Version History</CardTitle>
-                <CardDescription>Current approved package version.</CardDescription>
+                <CardDescription>Every package generated from this conversation, including regenerations.</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="rounded-md border border-border p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="font-medium text-foreground">Version {document.currentVersion}</p>
-                      <p className="text-sm text-muted-foreground">{formatDate(document.lastUpdated)}</p>
+              <CardContent className="space-y-3">
+                {versionsQuery.isLoading && <p className="text-sm text-muted-foreground">Loading version history...</p>}
+                {!versionsQuery.isLoading && versions.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No package versions found for this conversation.</p>
+                )}
+                {versions.map((version, index) => (
+                  <div key={version.id} className="flex items-center justify-between gap-4 rounded-md border border-border p-3">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-foreground">
+                        Version {versions.length - index}
+                        {version.id === document.packageId && <span className="ml-2 text-xs font-normal text-primary">(current)</span>}
+                      </p>
+                      <p className="truncate text-sm text-muted-foreground">{version.package_name} · {formatDate(version.uploaded_at)}</p>
                     </div>
-                    <FileClock className="h-5 w-5 text-muted-foreground" />
+                    <Button asChild variant="ghost" size="sm">
+                      <a href={version.package_url} target="_blank" rel="noopener noreferrer">
+                        <Download className="h-4 w-4" />
+                      </a>
+                    </Button>
                   </div>
-                </div>
+                ))}
               </CardContent>
             </Card>
 

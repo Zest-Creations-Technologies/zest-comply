@@ -53,14 +53,7 @@ export interface ComplianceCalendarEvent {
   owner: string;
 }
 
-export const frameworkHealth: FrameworkHealth[] = [];
-
-export const monitoringAlerts: MonitoringAlert[] = [];
-
-export const complianceTasks: ComplianceTask[] = [];
-
-export const calendarEvents: ComplianceCalendarEvent[] = [];
-
-export function formatDate(value: string) {
+export function formatDate(value?: string | null) {
+  if (!value) return "Not set";
   return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }

@@ -13,6 +13,7 @@ import { AuthShell, AuthWordmark, authCardClass, authInputClass, authPrimaryButt
 const signupSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
+  company_name: z.string().trim().min(1, 'Company name is required').max(255),
   first_name: z.string().max(100).optional(),
   last_name: z.string().max(100).optional(),
 });
@@ -28,11 +29,12 @@ const passwordRequirements = [
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; company_name?: string }>({});
 
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -44,12 +46,13 @@ export default function SignupPage() {
     e.preventDefault();
     setErrors({});
 
-    const result = signupSchema.safeParse({ email, password, first_name: firstName || undefined, last_name: lastName || undefined });
+    const result = signupSchema.safeParse({ email, password, company_name: companyName, first_name: firstName || undefined, last_name: lastName || undefined });
     if (!result.success) {
-      const fieldErrors: { email?: string; password?: string } = {};
+      const fieldErrors: { email?: string; password?: string; company_name?: string } = {};
       result.error.errors.forEach((err) => {
         if (err.path[0] === 'email') fieldErrors.email = err.message;
         if (err.path[0] === 'password') fieldErrors.password = err.message;
+        if (err.path[0] === 'company_name') fieldErrors.company_name = err.message;
       });
       setErrors(fieldErrors);
       return;
@@ -57,7 +60,7 @@ export default function SignupPage() {
 
     setIsLoading(true);
     try {
-      const response = await signup(email, password, firstName || undefined, lastName || undefined);
+      const response = await signup(email, password, companyName.trim(), firstName || undefined, lastName || undefined);
       // Redirect to email verification page with email in state
       navigate('/auth/verify-email', { 
         replace: true,
@@ -77,12 +80,29 @@ export default function SignupPage() {
           <div className="mb-6 flex justify-center">
             <AuthWordmark />
           </div>
-          <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Create your account</CardTitle>
-          <CardDescription className="text-slate-400">Start building an all-framework compliance operating system</CardDescription>
+          <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Set up your organization</CardTitle>
+          <CardDescription className="text-slate-400">Start building an all-framework compliance operating system for your company</CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-5 px-7 sm:px-9">
+            <div className="space-y-2">
+              <Label htmlFor="companyName" className={authLabelClass}>Company / Organization Name</Label>
+              <Input
+                id="companyName"
+                type="text"
+                placeholder="Acme Inc"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                disabled={isLoading}
+                maxLength={255}
+                className={errors.company_name ? `${authInputClass} border-red-400` : authInputClass}
+              />
+              {errors.company_name && (
+                <p className={authErrorClass}>{errors.company_name}</p>
+              )}
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="firstName" className={authLabelClass}>First Name (Optional)</Label>

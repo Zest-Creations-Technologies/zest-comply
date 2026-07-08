@@ -243,6 +243,10 @@ class ApiClient {
   hasTokens(): boolean {
     return !!this.getAccessToken();
   }
+
+  getStoredRefreshToken(): string | null {
+    return this.getRefreshToken();
+  }
 }
 
 export const apiClient = new ApiClient();

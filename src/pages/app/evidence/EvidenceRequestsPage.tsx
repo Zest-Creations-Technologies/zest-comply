@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { EvidenceEmptyState, EvidenceFilters, EvidenceTable, defaultEvidenceFilters, filterEvidence } from "./EvidenceShared";
-import { useEvidenceStore } from "./evidence-store";
+import { useEvidenceData } from "./useEvidenceData";
 
 export default function EvidenceRequestsPage() {
-  const { records } = useEvidenceStore();
+  const { records } = useEvidenceData();
   const [filters, setFilters] = useState(defaultEvidenceFilters());
   const requestRecords = records.filter((record) => record.status === "draft" || record.status === "rejected" || record.status === "expired");
   const filtered = filterEvidence(requestRecords, filters);

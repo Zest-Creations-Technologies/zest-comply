@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { EvidenceEmptyState, EvidenceFilters, EvidenceTable, defaultEvidenceFilters, filterEvidence } from "./EvidenceShared";
-import { useEvidenceStore } from "./evidence-store";
+import { useEvidenceData } from "./useEvidenceData";
 
 export default function EvidenceArchivePage() {
-  const { records } = useEvidenceStore();
+  const { records } = useEvidenceData();
   const [filters, setFilters] = useState(defaultEvidenceFilters());
   const archiveRecords = records.filter((record) => record.status === "archived");
   const filtered = filterEvidence(archiveRecords, filters);

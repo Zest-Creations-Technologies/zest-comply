@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { BrandBadge } from "@/components/BrandBadge";
@@ -11,7 +11,7 @@ import { BrandBadge } from "@/components/BrandBadge";
 // Public pages
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/auth/LoginPage";
-import SignupPage from "./pages/auth/SignupPage";
+import RequestAccessPage from "./pages/auth/RequestAccessPage";
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import NotFound from "./pages/NotFound";
@@ -24,8 +24,6 @@ import AppLayout from "./pages/app/AppLayout";
 import ActionCenterPage from "./pages/app/ActionCenterPage";
 import AssistantPage from "./pages/app/AssistantPage";
 import PackagesPage from "./pages/app/PackagesPage";
-import BillingPage from "./pages/app/BillingPage";
-import StorageSettingsPage from "./pages/app/StorageSettingsPage";
 import ProfileSettingsPage from "./pages/app/ProfileSettingsPage";
 import DocumentSettingsPage from "./pages/app/DocumentSettingsPage";
 import HumanValidationDashboardPage from "./pages/app/human-validation/HumanValidationDashboardPage";
@@ -47,6 +45,9 @@ import EvidenceDetailsPage from "./pages/app/evidence/EvidenceDetailsPage";
 import ComplianceMonitoringDashboardPage from "./pages/app/compliance-monitoring/ComplianceMonitoringDashboardPage";
 import MonitoringAlertsPage from "./pages/app/compliance-monitoring/MonitoringAlertsPage";
 import FrameworkHealthPage from "./pages/app/compliance-monitoring/FrameworkHealthPage";
+import CrossFrameworkPage from "./pages/app/compliance-monitoring/CrossFrameworkPage";
+import CopilotPage from "./pages/app/copilot/CopilotPage";
+import AIGovernancePage from "./pages/app/governance/AIGovernancePage";
 import ComplianceTasksPage from "./pages/app/compliance-monitoring/ComplianceTasksPage";
 import ComplianceCalendarPage from "./pages/app/compliance-monitoring/ComplianceCalendarPage";
 import ComplianceWorkspacePage from "./pages/app/workspaces/ComplianceWorkspacePage";
@@ -81,9 +82,6 @@ import RolesPermissionsPage from "./pages/app/admin/RolesPermissionsPage";
 import NotificationsAdminPage from "./pages/app/admin/NotificationsAdminPage";
 import AuditLogsAdminPage from "./pages/app/admin/AuditLogsAdminPage";
 import ApiKeysPage from "./pages/app/admin/ApiKeysPage";
-import IntegrationCenterPage from "./pages/app/integrations/IntegrationCenterPage";
-import IbmIntegrationsPage from "./pages/app/integrations/IbmIntegrationsPage";
-import { IbmIntegrationDetailPage } from "./pages/app/integrations/IbmIntegrationsShared";
 
 const queryClient = new QueryClient();
 
@@ -105,7 +103,8 @@ const App = () => {
               {/* Public routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/auth/login" element={<LoginPage />} />
-              <Route path="/auth/signup" element={<SignupPage />} />
+              <Route path="/auth/request-access" element={<RequestAccessPage />} />
+              <Route path="/auth/signup" element={<Navigate to="/auth/request-access" replace />} />
               <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
               <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
@@ -154,9 +153,6 @@ const App = () => {
                 <Route path="admin/notifications" element={<NotificationsAdminPage />} />
                 <Route path="admin/audit-logs" element={<AuditLogsAdminPage />} />
                 <Route path="admin/api-keys" element={<ApiKeysPage />} />
-                <Route path="integrations" element={<IntegrationCenterPage />} />
-                <Route path="integrations/ibm" element={<IbmIntegrationsPage />} />
-                <Route path="integrations/ibm/:integrationSlug" element={<IbmIntegrationDetailPage />} />
                 <Route path="assistant" element={<AssistantPage />} />
                 <Route path="packages" element={<PackagesPage />} />
                 <Route path="human-validation" element={<HumanValidationDashboardPage />} />
@@ -179,10 +175,11 @@ const App = () => {
                 <Route path="compliance-monitoring/dashboard" element={<ComplianceMonitoringDashboardPage />} />
                 <Route path="compliance-monitoring/alerts" element={<MonitoringAlertsPage />} />
                 <Route path="compliance-monitoring/frameworks" element={<FrameworkHealthPage />} />
+                <Route path="compliance-monitoring/cross-framework" element={<CrossFrameworkPage />} />
+                <Route path="copilot" element={<CopilotPage />} />
+                <Route path="governance/ai-oversight" element={<AIGovernancePage />} />
                 <Route path="compliance-monitoring/tasks" element={<ComplianceTasksPage />} />
                 <Route path="compliance-monitoring/calendar" element={<ComplianceCalendarPage />} />
-                <Route path="billing" element={<BillingPage />} />
-                <Route path="settings/storage" element={<StorageSettingsPage />} />
                 <Route path="settings/profile" element={<ProfileSettingsPage />} />
                 <Route path="settings/documents" element={<DocumentSettingsPage />} />
               </Route>

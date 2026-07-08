@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Bot, Building2, Cloud, CreditCard, FileEdit, KeyRound, Plug, Settings, User, Users } from "lucide-react";
+import { ArrowRight, Building2, FileEdit, KeyRound, Settings, User, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toneFor } from "@/lib/tone-palette";
@@ -11,11 +11,8 @@ const quickLinks = [
   { title: "Organization Profile", href: "/app/admin/organization", icon: Building2 },
   { title: "Users", href: "/app/admin/users", icon: Users },
   { title: "API Keys", href: "/app/admin/api-keys", icon: KeyRound },
-  { title: "Integrations", href: "/app/integrations", icon: Plug },
   { title: "Profile", href: "/app/settings/profile", icon: User },
-  { title: "Billing", href: "/app/billing", icon: CreditCard },
   { title: "Document Branding", href: "/app/admin/branding", icon: FileEdit },
-  { title: "Cloud Storage", href: "/app/settings/storage", icon: Cloud },
 ];
 
 export default function PlatformWorkspacePage() {
@@ -29,7 +26,7 @@ export default function PlatformWorkspacePage() {
           <div className="max-w-3xl space-y-2">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7a622b]">Workspace</p>
             <h1 className="text-3xl font-bold tracking-tight text-slate-950">Platform</h1>
-            <p className="text-slate-600">Manage AI assistance, integrations, administration, profile settings, billing, branding, and storage.</p>
+            <p className="text-slate-600">Manage AI assistance, integrations, administration, profile settings, and document branding.</p>
           </div>
           <Button asChild size="lg" className="shadow-lg shadow-primary/20">
             <Link to="/app/assistant">

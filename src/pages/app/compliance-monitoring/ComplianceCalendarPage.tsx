@@ -1,10 +1,13 @@
+import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { calendarEvents, formatDate } from "./monitoring-data";
+import { formatDate } from "./monitoring-data";
+import { useMonitoringData } from "./useMonitoringData";
 import { MonitoringEmptyState } from "./MonitoringShared";
 
 export default function ComplianceCalendarPage() {
+  const { calendarEvents, isLoading } = useMonitoringData();
   const sortedEvents = [...calendarEvents].sort((a, b) => a.date.localeCompare(b.date));
 
   return (
@@ -14,7 +17,9 @@ export default function ComplianceCalendarPage() {
         <p className="text-muted-foreground">Review dates, audit dates, evidence expirations, assessments, and governance approval dates.</p>
       </div>
 
-      {calendarEvents.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+      ) : calendarEvents.length === 0 ? (
         <MonitoringEmptyState title="No data yet" description="Review dates, audit dates, evidence expirations, assessments, and governance approvals will appear after real workflow data exists." />
       ) : (
         <Card className="bg-card">
