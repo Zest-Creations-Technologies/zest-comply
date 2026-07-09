@@ -5,7 +5,7 @@ const trustCapabilities = [
   {
     icon: Fingerprint,
     title: "Single sign-on",
-    description: "Connect your identity provider — Okta, Azure AD, Google Workspace, or any standard OIDC provider. Password sign-in stays available too.",
+    description: "Connect your organization's identity provider — no proprietary lock-in. Password sign-in stays available too.",
   },
   {
     icon: UsersRound,
@@ -15,12 +15,12 @@ const trustCapabilities = [
   {
     icon: ScrollText,
     title: "Complete audit trail",
-    description: "Every action is logged and exportable to your own SIEM — Splunk or Datadog — so your security team can monitor ZestComply activity in the tools they already use.",
+    description: "Every action is logged and exportable to your organization's own security monitoring platform, so your security team can track ZestComply activity in the tools they already use.",
   },
   {
     icon: Lock,
-    title: "Encryption everywhere",
-    description: "Secrets are encrypted at rest, passwords are hashed with bcrypt, and all traffic runs over TLS. Nothing sensitive is ever stored in plaintext.",
+    title: "Encryption in transit and at rest",
+    description: "All traffic runs over TLS. Passwords are hashed with bcrypt — never stored in plaintext. Sensitive credentials, like API keys and identity-provider secrets, are encrypted at rest, and uploaded files are encrypted at rest by our storage provider.",
   },
   {
     icon: DatabaseBackup,
@@ -30,7 +30,7 @@ const trustCapabilities = [
   {
     icon: Accessibility,
     title: "Accessible by design",
-    description: "Built to WCAG 2.1 AA — keyboard navigation, screen reader support, and color contrast — so every teammate can use the platform.",
+    description: "Built for accessibility — keyboard navigation, screen reader support, and color contrast — so every teammate can use the platform.",
   },
 ];
 
