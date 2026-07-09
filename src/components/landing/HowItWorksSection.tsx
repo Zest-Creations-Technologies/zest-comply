@@ -45,16 +45,16 @@ export function HowItWorksSection() {
 
         <div className="mt-14 grid gap-4 lg:grid-cols-5">
           {workflow.map((step, index) => (
-            <div key={step.title} className="relative rounded-2xl border border-white/10 bg-white/[0.045] p-5 shadow-2xl shadow-black/10 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.07]">
+            <div key={step.title} className="relative rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/30">
               <div className="mb-7 flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#d8b45d]/25 bg-[#d8b45d]/10">
-                  <step.icon className="h-5 w-5 text-[#f0d990]" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#65c7ad]/25 bg-gradient-to-br from-[#eef8f3] to-[#fff7df] text-[#36544d] shadow-inner">
+                  <step.icon className="h-5 w-5" />
                 </div>
-                {index < workflow.length - 1 && <ArrowRight className="hidden h-5 w-5 text-slate-500 lg:block" />}
+                {index < workflow.length - 1 && <ArrowRight className="hidden h-5 w-5 text-slate-400 lg:block" />}
               </div>
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-[#98d8c5]">0{index + 1}</p>
-              <h3 className="mt-3 text-xl font-semibold tracking-[-0.02em] text-white">{step.title}</h3>
-              <p className="mt-4 text-sm leading-6 text-slate-300">{step.description}</p>
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-[#36544d]">0{index + 1}</p>
+              <h3 className="mt-3 text-xl font-semibold tracking-[-0.02em] text-slate-950">{step.title}</h3>
+              <p className="mt-4 text-sm leading-6 text-slate-600">{step.description}</p>
             </div>
           ))}
         </div>
