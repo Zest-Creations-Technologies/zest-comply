@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Radar } from "lucide-react";
 
 export function ZestReconSection() {
@@ -16,11 +15,6 @@ export function ZestReconSection() {
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600">
             ZestRecon, our security intelligence platform, surfaces findings and risk. ZestComply turns them into policies, controls, and audit-ready evidence — automatically.
           </p>
-          <Button asChild size="lg" variant="outline" className="mt-8 h-12 border-slate-300 px-6 text-slate-800 hover:bg-slate-50">
-            <a href="https://www.zestrecon.com" target="_blank" rel="noopener noreferrer">
-              Explore ZestRecon
-            </a>
-          </Button>
         </div>
       </div>
     </section>
