@@ -9,6 +9,7 @@ const navItems = [
   { href: "#platform", label: "Platform" },
   { href: "#workflow", label: "Workflow" },
   { href: "#evidence", label: "Evidence" },
+  { href: "#trust", label: "Trust" },
   { href: "#reporting", label: "Reporting" },
 ];
 

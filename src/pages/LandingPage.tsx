@@ -3,6 +3,7 @@ import { HeroSection } from '@/components/landing/HeroSection';
 import { WhySection } from '@/components/landing/WhySection';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { PartnersSection } from '@/components/landing/PartnersSection';
+import { TrustSection } from '@/components/landing/TrustSection';
 import { PartnershipSection } from '@/components/landing/PartnershipSection';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { useEffect, useState } from 'react';
@@ -27,6 +28,7 @@ export default function LandingPage() {
         <WhySection />
         <HowItWorksSection />
         <PartnersSection />
+        <TrustSection />
         <PartnershipSection />
       </main>
       <LandingFooter />
