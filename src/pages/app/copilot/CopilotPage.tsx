@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { AlertTriangle, Bot, Loader2, Plus, Send, Sparkles, User as UserIcon } from "lucide-react";
+import { AlertTriangle, Loader2, Plus, Send, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import logoIcon from "@/assets/logo-icon.png";
 import {
   useCopilotConversations,
   useCopilotMessages,
@@ -56,11 +57,11 @@ export default function CopilotPage() {
     <div className="mx-auto flex h-[calc(100vh-2rem)] max-w-5xl flex-col gap-4 p-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#d8b45d]/30 bg-gradient-to-br from-[#fff7df] to-[#f3e6bd] text-[#7a622b] shadow-[0_2px_8px_rgba(122,98,43,0.15)]">
-            <Sparkles className="h-5 w-5" />
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#d8b45d]/30 bg-gradient-to-br from-[#fff7df] to-[#f3e6bd] shadow-[0_2px_8px_rgba(122,98,43,0.15)]">
+            <img src={logoIcon} alt="" className="h-6 w-6" />
           </div>
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold text-foreground">Compliance Copilot</h1>
+            <h1 className="text-3xl font-bold text-foreground">ZestComply AI</h1>
             <p className="text-muted-foreground">
               Ask about your readiness scores, evidence gaps, or framework overlap. Answers are grounded in your real data only.
             </p>
@@ -87,8 +88,8 @@ export default function CopilotPage() {
             </div>
           ) : messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-6 px-6 py-16 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-[#d8b45d]/30 bg-gradient-to-br from-[#fff7df] to-[#f3e6bd] text-[#7a622b] shadow-[0_8px_24px_rgba(122,98,43,0.15)]">
-                <Sparkles className="h-7 w-7" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-[#d8b45d]/30 bg-gradient-to-br from-[#fff7df] to-[#f3e6bd] shadow-[0_8px_24px_rgba(122,98,43,0.15)]">
+                <img src={logoIcon} alt="" className="h-9 w-9" />
               </div>
               <div className="space-y-1">
                 <p className="text-lg font-semibold text-foreground">Ask me anything about your compliance posture</p>
@@ -123,7 +124,7 @@ export default function CopilotPage() {
                         : "border border-[#d8b45d]/30 bg-gradient-to-br from-[#fff7df] to-[#f3e6bd] text-[#7a622b]"
                     )}
                   >
-                    {message.role === "user" ? <UserIcon className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+                    {message.role === "user" ? <UserIcon className="h-4 w-4" /> : <img src={logoIcon} alt="" className="h-4 w-4" />}
                   </div>
                   <div
                     className={cn(
@@ -150,8 +151,8 @@ export default function CopilotPage() {
               ))}
               {sendMessage.isPending && (
                 <div className="flex gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#d8b45d]/30 bg-gradient-to-br from-[#fff7df] to-[#f3e6bd] text-[#7a622b]">
-                    <Bot className="h-4 w-4" />
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#d8b45d]/30 bg-gradient-to-br from-[#fff7df] to-[#f3e6bd]">
+                    <img src={logoIcon} alt="" className="h-4 w-4" />
                   </div>
                   <div className="flex items-center rounded-lg bg-muted px-4 py-2">
                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />

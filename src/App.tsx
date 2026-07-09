@@ -6,14 +6,18 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { OrgAdminRoute } from "@/components/OrgAdminRoute";
 import { BrandBadge } from "@/components/BrandBadge";
 
 // Public pages
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RequestAccessPage from "./pages/auth/RequestAccessPage";
+import AcceptInvitePage from "./pages/auth/AcceptInvitePage";
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import SsoLoginPage from "./pages/auth/SsoLoginPage";
+import SsoCompletePage from "./pages/auth/SsoCompletePage";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicyPage from "./pages/legal/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/legal/TermsOfServicePage";
@@ -80,7 +84,10 @@ import DocumentBrandingAdminPage from "./pages/app/admin/DocumentBrandingAdminPa
 import UsersAdminPage from "./pages/app/admin/UsersAdminPage";
 import RolesPermissionsPage from "./pages/app/admin/RolesPermissionsPage";
 import NotificationsAdminPage from "./pages/app/admin/NotificationsAdminPage";
+import SecurityAdminPage from "./pages/app/admin/SecurityAdminPage";
 import AuditLogsAdminPage from "./pages/app/admin/AuditLogsAdminPage";
+import SiemExportAdminPage from "./pages/app/admin/SiemExportAdminPage";
+import SsoAdminPage from "./pages/app/admin/SsoAdminPage";
 import ApiKeysPage from "./pages/app/admin/ApiKeysPage";
 
 const queryClient = new QueryClient();
@@ -99,9 +106,12 @@ const App = () => {
               <Route path="/" element={<LandingPage />} />
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/auth/request-access" element={<RequestAccessPage />} />
+              <Route path="/auth/accept-invite" element={<AcceptInvitePage />} />
               <Route path="/auth/signup" element={<Navigate to="/auth/request-access" replace />} />
               <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
               <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/auth/sso" element={<SsoLoginPage />} />
+              <Route path="/auth/sso/complete" element={<SsoCompletePage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
               <Route path="/terms" element={<TermsOfServicePage />} />
               <Route path="/security" element={<SecurityPage />} />
@@ -140,14 +150,17 @@ const App = () => {
                 <Route path="reports/audit" element={<AuditReadinessPage />} />
                 <Route path="reports/export" element={<ExportCenterPage />} />
                 <Route path="platform" element={<PlatformWorkspacePage />} />
-                <Route path="admin" element={<AdministrationPage />} />
-                <Route path="admin/organization" element={<OrganizationProfilePage />} />
-                <Route path="admin/branding" element={<DocumentBrandingAdminPage />} />
-                <Route path="admin/users" element={<UsersAdminPage />} />
-                <Route path="admin/roles" element={<RolesPermissionsPage />} />
-                <Route path="admin/notifications" element={<NotificationsAdminPage />} />
-                <Route path="admin/audit-logs" element={<AuditLogsAdminPage />} />
-                <Route path="admin/api-keys" element={<ApiKeysPage />} />
+                <Route path="admin" element={<OrgAdminRoute><AdministrationPage /></OrgAdminRoute>} />
+                <Route path="admin/organization" element={<OrgAdminRoute><OrganizationProfilePage /></OrgAdminRoute>} />
+                <Route path="admin/branding" element={<OrgAdminRoute><DocumentBrandingAdminPage /></OrgAdminRoute>} />
+                <Route path="admin/users" element={<OrgAdminRoute><UsersAdminPage /></OrgAdminRoute>} />
+                <Route path="admin/roles" element={<OrgAdminRoute><RolesPermissionsPage /></OrgAdminRoute>} />
+                <Route path="admin/notifications" element={<OrgAdminRoute><NotificationsAdminPage /></OrgAdminRoute>} />
+                <Route path="admin/security" element={<OrgAdminRoute><SecurityAdminPage /></OrgAdminRoute>} />
+                <Route path="admin/audit-logs" element={<OrgAdminRoute><AuditLogsAdminPage /></OrgAdminRoute>} />
+                <Route path="admin/siem-export" element={<OrgAdminRoute><SiemExportAdminPage /></OrgAdminRoute>} />
+                <Route path="admin/sso" element={<OrgAdminRoute><SsoAdminPage /></OrgAdminRoute>} />
+                <Route path="admin/api-keys" element={<OrgAdminRoute><ApiKeysPage /></OrgAdminRoute>} />
                 <Route path="assistant" element={<AssistantPage />} />
                 <Route path="packages" element={<PackagesPage />} />
                 <Route path="human-validation" element={<HumanValidationDashboardPage />} />

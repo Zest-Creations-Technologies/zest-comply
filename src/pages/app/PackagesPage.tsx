@@ -71,12 +71,12 @@ function PackageCard({ pkg }: { pkg: CompliancePackage }) {
         )}
 
         {/* Files list */}
-        {manifest.files.length > 0 && (
+        {(manifest.files?.length ?? 0) > 0 && (
           <div className="space-y-2">
             <p className="text-sm font-medium text-foreground">Documents</p>
             <div className="space-y-1">
               {manifest.files.slice(0, 3).map((file, idx) => (
-                <div 
+                <div
                   key={idx}
                   className="flex items-center justify-between text-sm p-2 rounded-md bg-muted/50"
                 >

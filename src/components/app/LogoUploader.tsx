@@ -141,14 +141,28 @@ export function LogoUploader({
 
         {/* Upload area */}
         <div
+          role="button"
+          tabIndex={isPlanRestricted ? -1 : 0}
+          aria-label="Upload logo"
+          aria-disabled={isPlanRestricted}
           className={`border-2 border-dashed border-border rounded-lg p-6 text-center transition-colors ${
-            isPlanRestricted 
-              ? "opacity-50 cursor-not-allowed" 
+            isPlanRestricted
+              ? "opacity-50 cursor-not-allowed"
               : "hover:border-primary/50 cursor-pointer"
           }`}
           onDrop={isPlanRestricted ? undefined : handleDrop}
           onDragOver={isPlanRestricted ? undefined : handleDragOver}
           onClick={isPlanRestricted ? undefined : () => fileInputRef.current?.click()}
+          onKeyDown={
+            isPlanRestricted
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    fileInputRef.current?.click();
+                  }
+                }
+          }
         >
           {displayedLogo ? (
             <div className="space-y-4">

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, LogOut, Shield, FileText } from 'lucide-react';
 
 export function UserMenu() {
@@ -21,21 +21,14 @@ export function UserMenu() {
     navigate('/');
   };
 
-  const initials = user?.full_name
-    ? user.full_name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-    : user?.email?.[0]?.toUpperCase() || 'U';
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
+            {user?.avatar_url && <AvatarImage src={user.avatar_url} alt={user.full_name || user.email} />}
             <AvatarFallback className="bg-primary text-primary-foreground">
-              {initials}
+              <User className="h-4 w-4" />
             </AvatarFallback>
           </Avatar>
         </Button>

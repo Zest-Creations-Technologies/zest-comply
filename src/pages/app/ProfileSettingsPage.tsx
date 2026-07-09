@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { authApi } from '@/lib/api/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Calendar, Shield, Eye, EyeOff, CheckCircle2, XCircle, Loader2, Download } from 'lucide-react';
+import { User, Mail, Calendar, Shield, Eye, EyeOff, CheckCircle2, XCircle, Loader2, Download, Camera, Trash2 } from 'lucide-react';
 import { z } from 'zod';
 
 const profileSchema = z.object({
@@ -60,6 +61,8 @@ export default function ProfileSettingsPage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
   const [exportLoading, setExportLoading] = useState(false);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -110,6 +113,51 @@ export default function ProfileSettingsPage() {
       });
     } finally {
       setProfileLoading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Maximum size is 5MB.', variant: 'destructive' });
+      return;
+    }
+    if (!['image/png', 'image/jpeg'].includes(file.type)) {
+      toast({ title: 'Unsupported format', description: 'Only PNG and JPEG are supported.', variant: 'destructive' });
+      return;
+    }
+    setAvatarLoading(true);
+    try {
+      await authApi.uploadAvatar(file);
+      await refreshUser();
+      toast({ title: 'Profile picture updated' });
+    } catch (error: any) {
+      toast({
+        title: 'Upload failed',
+        description: error?.message || 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setAvatarLoading(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = '';
+    }
+  };
+
+  const handleAvatarDelete = async () => {
+    setAvatarLoading(true);
+    try {
+      await authApi.deleteAvatar();
+      await refreshUser();
+      toast({ title: 'Profile picture removed' });
+    } catch (error: any) {
+      toast({
+        title: 'Could not remove picture',
+        description: error?.message || 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setAvatarLoading(false);
     }
   };
 
@@ -205,12 +253,54 @@ export default function ProfileSettingsPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="h-8 w-8 text-primary" />
+            <div className="relative">
+              <Avatar className="h-16 w-16">
+                {user?.avatar_url && <AvatarImage src={user.avatar_url} alt={user.full_name || user.email} />}
+                <AvatarFallback className="bg-primary/10 text-primary">
+                  <User className="h-8 w-8" />
+                </AvatarFallback>
+              </Avatar>
+              {avatarLoading && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-background/70">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                </div>
+              )}
             </div>
-            <div>
+            <div className="flex-1">
               <h3 className="text-lg font-medium text-foreground">{user?.full_name || 'User'}</h3>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                  disabled={avatarLoading}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={avatarLoading}
+                >
+                  <Camera className="mr-2 h-3.5 w-3.5" />
+                  Change photo
+                </Button>
+                {user?.avatar_url && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleAvatarDelete}
+                    disabled={avatarLoading}
+                  >
+                    <Trash2 className="mr-2 h-3.5 w-3.5" />
+                    Remove
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -347,18 +437,21 @@ export default function ProfileSettingsPage() {
                     type={showCurrentPassword ? 'text' : 'password'}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
+                    aria-invalid={!!passwordErrors.current_password}
+                    aria-describedby={passwordErrors.current_password ? "current_password-error" : undefined}
                     className={passwordErrors.current_password ? 'border-destructive' : ''}
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    aria-label={showCurrentPassword ? "Hide password" : "Show password"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {passwordErrors.current_password && (
-                  <p className="text-sm text-destructive">{passwordErrors.current_password}</p>
+                  <p id="current_password-error" className="text-sm text-destructive">{passwordErrors.current_password}</p>
                 )}
               </div>
 
@@ -371,18 +464,21 @@ export default function ProfileSettingsPage() {
                     type={showNewPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
+                    aria-invalid={!!passwordErrors.new_password}
+                    aria-describedby={passwordErrors.new_password ? "new_password-error" : undefined}
                     className={passwordErrors.new_password ? 'border-destructive' : ''}
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
+                    aria-label={showNewPassword ? "Hide password" : "Show password"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {passwordErrors.new_password && (
-                  <p className="text-sm text-destructive">{passwordErrors.new_password}</p>
+                  <p id="new_password-error" className="text-sm text-destructive">{passwordErrors.new_password}</p>
                 )}
               </div>
 
@@ -395,18 +491,21 @@ export default function ProfileSettingsPage() {
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    aria-invalid={!!passwordErrors.confirm_password}
+                    aria-describedby={passwordErrors.confirm_password ? "confirm_password-error" : undefined}
                     className={passwordErrors.confirm_password ? 'border-destructive' : ''}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {passwordErrors.confirm_password && (
-                  <p className="text-sm text-destructive">{passwordErrors.confirm_password}</p>
+                  <p id="confirm_password-error" className="text-sm text-destructive">{passwordErrors.confirm_password}</p>
                 )}
               </div>
             </div>

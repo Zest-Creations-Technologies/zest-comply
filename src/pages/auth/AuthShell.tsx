@@ -105,11 +105,11 @@ export function AuthShell({ children }: { children: ReactNode }) {
       <div className="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-[#65c7ad]/10 blur-3xl" />
       <div className="relative z-10 mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-7xl items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(27rem,32rem)] xl:grid-cols-[minmax(0,1.1fr)_minmax(30rem,34rem)]">
         <AuthVisualPanel />
-        <div className="flex w-full justify-center lg:justify-end">
+        <main className="flex w-full justify-center lg:justify-end">
           <div className="w-full max-w-[34rem] xl:max-w-[36rem]">
             {children}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

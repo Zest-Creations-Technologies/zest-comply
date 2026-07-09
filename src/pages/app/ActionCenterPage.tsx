@@ -91,25 +91,25 @@ export default function ActionCenterPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="border-slate-200/80 bg-white shadow-sm shadow-slate-200/60">
             <CardContent className="p-5">
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Compliance</p>
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-wide text-slate-600">Compliance</p>
               <StatRing label="Assessments completed" value={assessmentCompletionRate} max={100} tone="gold" suffix="%" />
             </CardContent>
           </Card>
           <Card className="border-slate-200/80 bg-white shadow-sm shadow-slate-200/60">
             <CardContent className="p-5">
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Governance</p>
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-wide text-slate-600">Governance</p>
               <StatRing label="Validation queue reviewed" value={queueReviewedRate} max={100} tone="teal" suffix="%" />
             </CardContent>
           </Card>
           <Card className="border-slate-200/80 bg-white shadow-sm shadow-slate-200/60">
             <CardContent className="p-5">
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Security Operations</p>
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-wide text-slate-600">Security Operations</p>
               <StatRing label="Open findings" value={0} max={5} tone="gold" />
             </CardContent>
           </Card>
           <Card className="border-slate-200/80 bg-white shadow-sm shadow-slate-200/60">
             <CardContent className="p-5">
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Platform</p>
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-wide text-slate-600">Platform</p>
               <p className="mb-2 text-sm text-slate-500">Usage this period</p>
               <DonutBreakdown data={usageBreakdown} emptyLabel="No usage recorded this period." compact />
             </CardContent>

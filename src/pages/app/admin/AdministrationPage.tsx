@@ -1,15 +1,18 @@
-import { Bell, Building2, FileEdit, KeyRound, ScrollText, ShieldCheck, Users } from "lucide-react";
-import { AdminActionCard, AdminEmptyState, AdminPageHeader } from "./AdminShared";
+import { Bell, Building2, FileEdit, KeyRound, Lock, ScrollText, Send, ShieldCheck, Users, Fingerprint } from "lucide-react";
+import { AdminActionCard, AdminPageHeader } from "./AdminShared";
 import { toneFor } from "@/lib/tone-palette";
 
 const adminCards = [
   { title: "Organization Profile", description: "Maintain company identity and frameworks in scope.", href: "/app/admin/organization", icon: Building2 },
   { title: "Document Branding", description: "Configure report and document branding defaults.", href: "/app/admin/branding", icon: FileEdit },
-  { title: "Users", description: "Invite and manage team members when user administration is available.", href: "/app/admin/users", icon: Users },
+  { title: "Users", description: "Invite and manage team members and their workspace roles.", href: "/app/admin/users", icon: Users },
   { title: "Roles & Permissions", description: "Define access boundaries for platform workspaces.", href: "/app/admin/roles", icon: ShieldCheck },
-  { title: "Notifications", description: "Prepare alert and deadline notification rules.", href: "/app/admin/notifications", icon: Bell },
-  { title: "Audit Logs", description: "Review administrative and platform activity when audit events are available.", href: "/app/admin/audit-logs", icon: ScrollText },
-  { title: "API Keys", description: "Manage secure automation and integration keys when enabled.", href: "/app/admin/api-keys", icon: KeyRound },
+  { title: "Security", description: "Require multi-factor authentication for every user on the workspace.", href: "/app/admin/security", icon: Lock },
+  { title: "Single Sign-On", description: "Connect your identity provider (Okta, Azure AD, Google Workspace) for SSO.", href: "/app/admin/sso", icon: Fingerprint },
+  { title: "Notifications", description: "Configure alert and deadline notification rules.", href: "/app/admin/notifications", icon: Bell },
+  { title: "Audit Logs", description: "Review administrative and platform activity across your organization.", href: "/app/admin/audit-logs", icon: ScrollText },
+  { title: "API Keys", description: "Create and manage keys for programmatic access to the ZestComply API.", href: "/app/admin/api-keys", icon: KeyRound },
+  { title: "SIEM Export", description: "Forward audit events to Splunk or Datadog in near real time.", href: "/app/admin/siem-export", icon: Send },
 ];
 
 export default function AdministrationPage() {
@@ -32,11 +35,6 @@ export default function AdministrationPage() {
           <AdminActionCard key={card.title} {...card} tone={toneFor(index)} />
         ))}
       </div>
-
-      <AdminEmptyState
-        title="Administration data is not configured yet."
-        description="Organization settings, user access, notifications, audit logs, and API keys will appear here as administration services are connected."
-      />
     </div>
   );
 }

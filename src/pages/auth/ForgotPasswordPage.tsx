@@ -172,10 +172,12 @@ export default function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? "email-error" : undefined}
                   className={errors.email ? `${authInputClass} border-red-400` : authInputClass}
                 />
                 {errors.email && (
-                  <p className={authErrorClass}>{errors.email}</p>
+                  <p id="email-error" className={authErrorClass}>{errors.email}</p>
                 )}
               </div>
             </CardContent>
@@ -209,10 +211,12 @@ export default function ForgotPasswordPage() {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   disabled={isLoading}
+                  aria-invalid={!!errors.otp}
+                  aria-describedby={errors.otp ? "otp-error" : undefined}
                   className={errors.otp ? `${authInputClass} border-red-400` : authInputClass}
                 />
                 {errors.otp && (
-                  <p className={authErrorClass}>{errors.otp}</p>
+                  <p id="otp-error" className={authErrorClass}>{errors.otp}</p>
                 )}
               </div>
 
@@ -226,18 +230,21 @@ export default function ForgotPasswordPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
+                    aria-invalid={!!errors.password}
+                    aria-describedby={errors.password ? "password-error" : undefined}
                     className={errors.password ? `${authInputClass} border-red-400 pr-10` : `${authInputClass} pr-10`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className={authErrorClass}>{errors.password}</p>
+                  <p id="password-error" className={authErrorClass}>{errors.password}</p>
                 )}
               </div>
 
@@ -251,18 +258,21 @@ export default function ForgotPasswordPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     disabled={isLoading}
+                    aria-invalid={!!errors.confirmPassword}
+                    aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
                     className={errors.confirmPassword ? `${authInputClass} border-red-400 pr-10` : `${authInputClass} pr-10`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className={authErrorClass}>{errors.confirmPassword}</p>
+                  <p id="confirmPassword-error" className={authErrorClass}>{errors.confirmPassword}</p>
                 )}
               </div>
             </CardContent>

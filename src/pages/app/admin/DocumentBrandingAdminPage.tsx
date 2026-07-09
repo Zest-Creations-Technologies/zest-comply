@@ -52,7 +52,7 @@ export default function DocumentBrandingAdminPage() {
   const mutation = useMutation({
     mutationFn: () => {
       const payload: AdminBrandingSettings = {
-        user_id: brandingQuery.data?.user_id ?? "",
+        organization_id: brandingQuery.data?.organization_id ?? "",
         logo_url: form.logo_url || null,
         primary_color: form.primary_color || null,
         secondary_color: form.secondary_color || null,

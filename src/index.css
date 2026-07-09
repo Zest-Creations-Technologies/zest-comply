@@ -24,7 +24,10 @@ All colors MUST be HSL.
     --secondary-foreground: 266 4% 20.8%;
 
     --muted: 43 93.6842% 62.7451%;
-    --muted-foreground: 257 4.6% 55.4%;
+    /* Lightness lowered from 55.4% to 45% to meet WCAG AA 4.5:1 contrast
+       against white (--background) for normal text - the original value
+       computed to ~3.47:1, which fails AA. */
+    --muted-foreground: 257 4.6% 45%;
 
     --accent: 43 93.6842% 62.7451%;
     --accent-foreground: 266 4% 20.8%;

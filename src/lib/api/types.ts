@@ -33,6 +33,9 @@ export interface User {
   user_plan?: UserPlan | null;
   created_at: string;
   updated_at: string;
+  organization_id?: string | null;
+  org_role?: 'admin' | 'member' | 'viewer' | null;
+  avatar_url?: string | null;
 }
 
 // Email verification types
@@ -157,6 +160,87 @@ export interface SignupRequest {
   last_name?: string;
 }
 
+export interface AcceptInviteRequest {
+  token: string;
+  password: string;
+  first_name?: string;
+  last_name?: string;
+}
+
+export interface UserInviteRequest {
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  role: 'admin' | 'member' | 'viewer';
+}
+
+export interface UserInviteResponse {
+  email: string;
+  message: string;
+}
+
+export interface OrganizationMember {
+  user_id: string;
+  email: string;
+  full_name: string;
+  role: 'admin' | 'member' | 'viewer';
+  created_at: string;
+}
+
+export interface OrganizationMemberListResponse {
+  members: OrganizationMember[];
+}
+
+export interface ApiKey {
+  id: string;
+  name: string;
+  key_prefix: string;
+  created_by_user_id: string;
+  last_used_at: string | null;
+  created_at: string;
+}
+
+export interface ApiKeyCreateResponse extends ApiKey {
+  api_key: string;
+}
+
+export interface ApiKeyListResponse {
+  keys: ApiKey[];
+}
+
+export interface PolicyDocumentSummary {
+  id: string;
+  session_id: string;
+  document_name: string;
+  filename: string;
+  folder_path: string;
+  version: number;
+  updated_at: string;
+}
+
+export interface PolicyDocument extends PolicyDocumentSummary {
+  package_id: string | null;
+  content: string;
+  last_edited_by_user_id: string | null;
+  created_at: string;
+}
+
+export interface PolicyDocumentListResponse {
+  documents: PolicyDocumentSummary[];
+}
+
+export interface PolicyDocumentVersion {
+  id: string;
+  version_number: number;
+  content: string;
+  edited_by_user_id: string | null;
+  created_at: string;
+}
+
+export interface PolicyDocumentVersionListResponse {
+  versions: PolicyDocumentVersion[];
+}
+
 export interface AccessRequestPayload {
   company_name: string;
   contact_first_name: string;
@@ -213,6 +297,7 @@ export interface CompliancePackage {
   id: string;
   session_id: string;
   user_id: string;
+  organization_id: string;
   framework: string;
   root_folder_name: string;
   provider: PackageStorageProvider;
@@ -428,6 +513,7 @@ export interface CompanyValidationProfileUpdate {
 export interface CompanyValidationProfile extends CompanyValidationProfileBase {
   id: string;
   user_id: string;
+  organization_id: string;
   conversation_session_id: string;
   framework_version_id?: string | null;
   status: HumanValidationStatus;
@@ -533,7 +619,7 @@ export interface ExecutiveSignoff {
 
 export interface AdminOrganizationSettings {
   id?: string | null;
-  user_id: string;
+  organization_id: string;
   company_name?: string | null;
   address?: string | null;
   website?: string | null;
@@ -547,7 +633,7 @@ export interface AdminOrganizationSettings {
 
 export interface AdminBrandingSettings {
   id?: string | null;
-  user_id: string;
+  organization_id: string;
   logo_url?: string | null;
   primary_color?: string | null;
   secondary_color?: string | null;
@@ -561,7 +647,7 @@ export interface AdminBrandingSettings {
 
 export interface AdminNotificationSettings {
   id?: string | null;
-  user_id: string;
+  organization_id: string;
   email_alerts_enabled: boolean;
   evidence_expiration_alerts: boolean;
   alert_days_before_expiration: number;
@@ -569,6 +655,55 @@ export interface AdminNotificationSettings {
   readiness_score_threshold: number;
   created_at?: string | null;
   updated_at?: string | null;
+}
+
+export interface PlatformSettings {
+  require_mfa: boolean;
+}
+
+export interface SiemWebhookConfig {
+  id?: string | null;
+  organization_id: string;
+  webhook_url?: string | null;
+  format: 'splunk_hec' | 'datadog';
+  enabled: boolean;
+  last_forwarded_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface SiemWebhookConfigUpdate {
+  webhook_url: string;
+  format: 'splunk_hec' | 'datadog';
+  auth_header_value?: string | null;
+  enabled: boolean;
+}
+
+export interface SsoConfig {
+  id?: string | null;
+  organization_id: string;
+  domain?: string | null;
+  provider_name?: string | null;
+  issuer?: string | null;
+  client_id?: string | null;
+  client_secret?: string | null; // "configured" or null - never the real value
+  enabled: boolean;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface SsoConfigUpdate {
+  domain?: string | null;
+  provider_name?: string | null;
+  issuer?: string | null;
+  client_id?: string | null;
+  client_secret?: string | null;
+  enabled: boolean;
+}
+
+export interface SsoDiscoverResponse {
+  sso_available: boolean;
+  login_url?: string | null;
 }
 
 // ============================================
@@ -580,6 +715,7 @@ export type EvidenceStatus = "draft" | "pending_review" | "approved" | "rejected
 export interface EvidenceItem {
   id: string;
   user_id: string;
+  organization_id: string;
   title: string;
   description?: string | null;
   frameworks: string[];
@@ -634,7 +770,7 @@ export interface EvidenceDownloadResponse {
 
 export interface ReadinessScore {
   id: string;
-  user_id: string;
+  organization_id: string;
   framework: string;
   framework_display: string;
   overall_score: number;

@@ -30,7 +30,7 @@ export default function PlatformWorkspacePage() {
           </div>
           <Button asChild size="lg" className="shadow-lg shadow-primary/20">
             <Link to="/app/assistant">
-              Open AI Assistant
+              Open ZestComply AI
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>

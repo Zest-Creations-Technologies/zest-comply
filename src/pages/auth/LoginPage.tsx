@@ -130,10 +130,12 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
                 className={errors.email ? `${authInputClass} border-red-400` : authInputClass}
               />
               {errors.email && (
-                <p className={authErrorClass}>{errors.email}</p>
+                <p id="email-error" className={authErrorClass}>{errors.email}</p>
               )}
             </div>
 
@@ -147,18 +149,21 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? "password-error" : undefined}
                   className={errors.password ? `${authInputClass} border-red-400 pr-10` : `${authInputClass} pr-10`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className={authErrorClass}>{errors.password}</p>
+                <p id="password-error" className={authErrorClass}>{errors.password}</p>
               )}
             </div>
 
@@ -184,6 +189,12 @@ export default function LoginPage() {
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign In
             </Button>
+
+            <p className="text-center text-sm text-slate-400">
+              <Link to="/auth/sso" className={authLinkClass}>
+                Sign in with SSO instead
+              </Link>
+            </p>
 
             <p className="text-center text-sm text-slate-400">
               Don't have access yet?{' '}

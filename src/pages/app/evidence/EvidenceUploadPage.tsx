@@ -13,7 +13,25 @@ import { useToast } from "@/hooks/use-toast";
 import { evidenceTypes } from "./EvidenceShared";
 import { useEvidenceData } from "./useEvidenceData";
 
-const availableFrameworks = ["SOC 2", "ISO 27001", "GDPR", "HIPAA", "PCI DSS", "NIST CSF"];
+const availableFrameworks = [
+  "SOC 2",
+  "ISO 27001",
+  "ISO 27017",
+  "ISO 27018",
+  "GDPR",
+  "HIPAA",
+  "PCI DSS",
+  "NIST CSF",
+  "NIST 800-53",
+  "NIST 800-171",
+  "FedRAMP",
+  "StateRAMP",
+  "CMMC",
+  "FISMA",
+  "CCPA/CPRA",
+  "SOX",
+  "CSA STAR",
+];
 
 export default function EvidenceUploadPage() {
   const navigate = useNavigate();
@@ -92,9 +110,9 @@ export default function EvidenceUploadPage() {
           <CardContent className="grid gap-4 md:grid-cols-2">
             <div className="grid gap-2 md:col-span-2"><Label htmlFor="title">Evidence Title</Label><Input id="title" value={form.title} onChange={(event) => update("title", event.target.value)} required /></div>
             <div className="grid gap-2 md:col-span-2"><Label htmlFor="description">Description</Label><Textarea id="description" value={form.description} onChange={(event) => update("description", event.target.value)} rows={4} /></div>
-            <div className="grid gap-2">
+            <div className="grid gap-2 md:col-span-2">
               <Label>Frameworks</Label>
-              <div className="grid grid-cols-2 gap-2 rounded-md border border-border p-3">
+              <div className="grid grid-cols-2 gap-2 rounded-md border border-border p-3 sm:grid-cols-3 lg:grid-cols-4">
                 {availableFrameworks.map((name) => (
                   <label key={name} className="flex items-center gap-2 text-sm text-foreground">
                     <Checkbox checked={frameworks.includes(name)} onCheckedChange={(checked) => toggleFramework(name, checked === true)} />
@@ -103,7 +121,7 @@ export default function EvidenceUploadPage() {
                 ))}
               </div>
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-2 md:col-span-2">
               <Label htmlFor="control-ids">Control IDs</Label>
               <Input id="control-ids" value={controlIdsText} onChange={(event) => setControlIdsText(event.target.value)} placeholder="CC6.1, A.9.2.1" required />
               <p className="text-xs text-muted-foreground">Comma-separated. One control ID per framework this evidence satisfies.</p>

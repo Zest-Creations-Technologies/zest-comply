@@ -47,6 +47,8 @@ function buildQuery(filters: TelemetryEventFilters): string {
 }
 
 export const telemetryApi = {
+  // Platform-staff-only, cross-org view. Not used by the customer-facing
+  // Audit Logs admin page - see listOrgEvents for that.
   async listEvents(filters: TelemetryEventFilters = {}): Promise<TelemetryEventListResponse> {
     return apiClient.get<TelemetryEventListResponse>(`/telemetry/events${buildQuery(filters)}`);
   },
@@ -57,11 +59,17 @@ export const telemetryApi = {
     return apiClient.get<TelemetryEventListResponse>(`/telemetry/events/mine?limit=${limit}`);
   },
 
+  // Org-admin-facing: every teammate's activity within the caller's own
+  // organization. This is what the Audit Logs admin page should use.
+  async listOrgEvents(filters: TelemetryEventFilters = {}): Promise<TelemetryEventListResponse> {
+    return apiClient.get<TelemetryEventListResponse>(`/telemetry/org-events${buildQuery(filters)}`);
+  },
+
   // Auth headers can't be set on a plain <a href> download, so fetch the CSV
   // as a blob with the token attached and trigger the download client-side.
-  async downloadEventsCsv(filters: Omit<TelemetryEventFilters, 'limit' | 'offset'> = {}): Promise<void> {
+  async downloadOrgEventsCsv(filters: Omit<TelemetryEventFilters, 'limit' | 'offset'> = {}): Promise<void> {
     const token = localStorage.getItem('access_token');
-    const response = await fetch(getApiUrl(`/telemetry/events/export${buildQuery(filters)}`), {
+    const response = await fetch(getApiUrl(`/telemetry/org-events/export${buildQuery(filters)}`), {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
 

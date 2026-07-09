@@ -20,6 +20,8 @@ export default function NotificationsAdminPage() {
     email_alerts_enabled: true,
     evidence_expiration_alerts: true,
     alert_days_before_expiration: 7,
+    readiness_score_alerts_enabled: true,
+    readiness_score_threshold: 70,
   });
 
   const notificationsQuery = useQuery({
@@ -34,16 +36,20 @@ export default function NotificationsAdminPage() {
       email_alerts_enabled: data.email_alerts_enabled,
       evidence_expiration_alerts: data.evidence_expiration_alerts,
       alert_days_before_expiration: data.alert_days_before_expiration,
+      readiness_score_alerts_enabled: data.readiness_score_alerts_enabled,
+      readiness_score_threshold: data.readiness_score_threshold,
     });
   }, [notificationsQuery.data]);
 
   const mutation = useMutation({
     mutationFn: () => {
       const payload: AdminNotificationSettings = {
-        user_id: notificationsQuery.data?.user_id ?? "",
+        organization_id: notificationsQuery.data?.organization_id ?? "",
         email_alerts_enabled: form.email_alerts_enabled,
         evidence_expiration_alerts: form.evidence_expiration_alerts,
         alert_days_before_expiration: form.alert_days_before_expiration,
+        readiness_score_alerts_enabled: form.readiness_score_alerts_enabled,
+        readiness_score_threshold: form.readiness_score_threshold,
       };
       return adminSettingsApi.updateNotifications(payload);
     },
@@ -154,6 +160,44 @@ export default function NotificationsAdminPage() {
                 />
                 <p className="text-sm text-muted-foreground">
                   Send the alert this many days before evidence expires (1-90).
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="readiness-score-alerts">Readiness score alerts</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Email me when the compliance readiness score drops below the threshold.
+                  </p>
+                </div>
+                <Switch
+                  id="readiness-score-alerts"
+                  checked={form.readiness_score_alerts_enabled}
+                  disabled={!form.email_alerts_enabled}
+                  onCheckedChange={(checked) =>
+                    setForm((current) => ({ ...current, readiness_score_alerts_enabled: checked }))
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2 md:max-w-xs">
+                <Label htmlFor="readiness-score-threshold">Readiness score threshold</Label>
+                <Input
+                  id="readiness-score-threshold"
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={form.readiness_score_threshold}
+                  disabled={!form.email_alerts_enabled || !form.readiness_score_alerts_enabled}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      readiness_score_threshold: Number(event.target.value) || 0,
+                    }))
+                  }
+                />
+                <p className="text-sm text-muted-foreground">
+                  Alert when the readiness score falls below this value (0-100).
                 </p>
               </div>
             </CardContent>

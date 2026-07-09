@@ -45,7 +45,7 @@ export default function AIGovernancePage() {
             </p>
             {summary && summary.total_copilot_answers > 0 && (
               <p className="mt-4 text-sm text-muted-foreground">
-                Copilot answers so far: {summary.total_copilot_answers}, {summary.copilot_grounded_rate}% grounded in real data.
+                ZestComply AI answers so far: {summary.total_copilot_answers}, {summary.copilot_grounded_rate}% grounded in real data.
               </p>
             )}
           </CardContent>
@@ -61,7 +61,7 @@ export default function AIGovernancePage() {
             />
             <StatCallout label="Human review rate" value={`${summary.review_rate}%`} tone="gold" />
             <StatCallout
-              label="Copilot grounded rate"
+              label="ZestComply AI grounded rate"
               value={summary.copilot_grounded_rate !== null ? `${summary.copilot_grounded_rate}%` : "N/A"}
               tone="teal"
             />

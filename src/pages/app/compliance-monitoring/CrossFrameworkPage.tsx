@@ -70,6 +70,9 @@ export default function CrossFrameworkPage() {
                   {pairs.map((pair) => (
                     <TableRow
                       key={`${pair.framework_a}-${pair.framework_b}`}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`View shared evidence between ${pair.framework_a_display} and ${pair.framework_b_display}`}
                       className="cursor-pointer"
                       onClick={() =>
                         setSelectedPair({
@@ -79,6 +82,17 @@ export default function CrossFrameworkPage() {
                           bDisplay: pair.framework_b_display,
                         })
                       }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedPair({
+                            a: pair.framework_a,
+                            b: pair.framework_b,
+                            aDisplay: pair.framework_a_display,
+                            bDisplay: pair.framework_b_display,
+                          });
+                        }
+                      }}
                     >
                       <TableCell className="font-medium">{pair.framework_a_display}</TableCell>
                       <TableCell className="font-medium">{pair.framework_b_display}</TableCell>

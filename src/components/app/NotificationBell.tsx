@@ -17,7 +17,7 @@ const EVENT_LABELS: Record<TelemetryEventType, string> = {
   evidence_status_changed: 'Evidence status changed',
   evidence_expired: 'Evidence expired',
   api_error: 'Something went wrong',
-  copilot_query: 'Copilot query',
+  copilot_query: 'ZestComply AI query',
 };
 
 function timeAgo(isoDate: string): string {
@@ -62,7 +62,12 @@ export function NotificationBell() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative text-slate-500 hover:text-slate-900">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative text-slate-500 hover:text-slate-900"
+          aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : "Notifications"}
+        >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <Badge

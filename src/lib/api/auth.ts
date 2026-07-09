@@ -3,7 +3,7 @@
 import { apiClient } from './client';
 import { API_CONFIG, getApiUrl } from './config';
 import { mockUser, delay } from './mocks';
-import type { User, AuthTokens, LoginRequest, SignupRequest, SignupResponse, UpdateProfileRequest, ChangePasswordRequest, ChangePasswordResponse } from './types';
+import type { User, AuthTokens, LoginRequest, SignupRequest, SignupResponse, UpdateProfileRequest, ChangePasswordRequest, ChangePasswordResponse, AcceptInviteRequest } from './types';
 
 export const authApi = {
   async login(credentials: LoginRequest): Promise<AuthTokens> {
@@ -50,6 +50,25 @@ export const authApi = {
     return apiClient.post<SignupResponse>('/auth/signup', data, { skipAuth: true });
   },
 
+  // Accept an admin-sent org invite. Creates the account and logs in (like login()).
+  async acceptInvite(data: AcceptInviteRequest): Promise<AuthTokens> {
+    if (API_CONFIG.useMocks) {
+      await delay();
+      const tokens: AuthTokens = {
+        access_token: 'mock-access-token-' + Date.now(),
+        refresh_token: 'mock-refresh-token-' + Date.now(),
+        token_type: 'bearer',
+        expires_in: 3600,
+      };
+      apiClient.saveTokens(tokens.access_token, tokens.refresh_token);
+      return tokens;
+    }
+
+    const tokens = await apiClient.post<AuthTokens>('/auth/accept-invite', data, { skipAuth: true });
+    apiClient.saveTokens(tokens.access_token, tokens.refresh_token);
+    return tokens;
+  },
+
   async logout(): Promise<void> {
     if (!API_CONFIG.useMocks) {
       try {
@@ -84,6 +103,16 @@ export const authApi = {
       return { ...mockUser, ...data, full_name: [data.first_name, data.last_name].filter(Boolean).join(' ') || mockUser.full_name };
     }
     return apiClient.patch<User>('/auth/me', data);
+  },
+
+  async uploadAvatar(file: File): Promise<User> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.uploadFormData<User>('/auth/me/avatar', formData);
+  },
+
+  async deleteAvatar(): Promise<User> {
+    return apiClient.delete<User>('/auth/me/avatar');
   },
 
   async changePassword(data: ChangePasswordRequest): Promise<ChangePasswordResponse> {

@@ -229,6 +229,7 @@ export function ConversationLogoUpload({
                 setOpen(false);
                 reset();
               }}
+              aria-label="Close"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -258,8 +259,17 @@ export function ConversationLogoUpload({
 
           {/* Upload area */}
           <div
+            role="button"
+            tabIndex={0}
+            aria-label="Upload PNG or JPEG logo"
             className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors"
             onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }
+            }}
           >
             <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
             <p className="text-xs text-muted-foreground">

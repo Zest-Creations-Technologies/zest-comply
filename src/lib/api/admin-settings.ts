@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { AdminBrandingSettings, AdminNotificationSettings, AdminOrganizationSettings } from "./types";
+import type { AdminBrandingSettings, AdminNotificationSettings, AdminOrganizationSettings, PlatformSettings, UserInviteRequest, UserInviteResponse, OrganizationMemberListResponse, OrganizationMember } from "./types";
 
 export const adminSettingsApi = {
   getOrganization(): Promise<AdminOrganizationSettings> {
@@ -24,5 +24,25 @@ export const adminSettingsApi = {
 
   updateNotifications(payload: AdminNotificationSettings): Promise<AdminNotificationSettings> {
     return apiClient.put<AdminNotificationSettings>("/admin/notifications", payload);
+  },
+
+  getPlatformSettings(): Promise<PlatformSettings> {
+    return apiClient.get<PlatformSettings>("/admin/platform-settings");
+  },
+
+  updatePlatformSettings(payload: PlatformSettings): Promise<PlatformSettings> {
+    return apiClient.put<PlatformSettings>("/admin/platform-settings", payload);
+  },
+
+  inviteUser(payload: UserInviteRequest): Promise<UserInviteResponse> {
+    return apiClient.post<UserInviteResponse>("/admin/users/invite", payload);
+  },
+
+  listOrganizationMembers(): Promise<OrganizationMemberListResponse> {
+    return apiClient.get<OrganizationMemberListResponse>("/admin/organization/members");
+  },
+
+  updateMemberRole(userId: string, role: "admin" | "member" | "viewer"): Promise<OrganizationMember> {
+    return apiClient.patch<OrganizationMember>(`/admin/organization/members/${userId}`, { role });
   },
 };

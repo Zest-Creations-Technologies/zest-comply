@@ -21,10 +21,12 @@ const EVENT_TYPES: { value: TelemetryEventType; label: string }[] = [
   { value: "evidence_status_changed", label: "Evidence status changed" },
   { value: "evidence_expired", label: "Evidence expired" },
   { value: "api_error", label: "API error" },
-  { value: "copilot_query", label: "Copilot query" },
+  { value: "copilot_query", label: "ZestComply AI query" },
 ];
 
 function formatEventType(type: string) {
+  const known = EVENT_TYPES.find((t) => t.value === type);
+  if (known) return known.label;
   return type
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -45,7 +47,7 @@ export default function AuditLogsAdminPage() {
   const eventsQuery = useQuery({
     queryKey: ["admin", "audit-logs", eventType],
     queryFn: () =>
-      telemetryApi.listEvents({
+      telemetryApi.listOrgEvents({
         event_type: eventType === "all" ? undefined : eventType,
         limit: 100,
       }),
@@ -54,7 +56,7 @@ export default function AuditLogsAdminPage() {
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      await telemetryApi.downloadEventsCsv({
+      await telemetryApi.downloadOrgEventsCsv({
         event_type: eventType === "all" ? undefined : eventType,
       });
     } catch (error) {

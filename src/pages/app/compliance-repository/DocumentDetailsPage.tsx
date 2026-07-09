@@ -1,12 +1,15 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Download, GitBranch } from "lucide-react";
-import { humanValidationApi, packagesApi } from "@/lib/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, Download, GitBranch, History, Loader2, Pencil } from "lucide-react";
+import { humanValidationApi, packagesApi, policyDocumentsApi } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useRepositoryData } from "./useRepositoryData";
 import { decodeDocumentId, encodeDocumentId, formatDate, latestComment, repositoryStatusLabels } from "./repository-utils";
@@ -50,6 +53,57 @@ export default function DocumentDetailsPage() {
   const packageUrl = document?.packageRecord?.package_url;
   const isPdf = document?.title.toLowerCase().endsWith(".pdf");
   const isDocx = document?.title.toLowerCase().endsWith(".docx");
+
+  const { user } = useAuth();
+  const canEdit = user?.org_role === "admin" || user?.org_role === "member";
+  const queryClient = useQueryClient();
+  const [editedContent, setEditedContent] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+
+  const policyDocsQuery = useQuery({
+    queryKey: ["compliance-repository", "policy-documents", sessionId],
+    queryFn: () => policyDocumentsApi.listBySession(sessionId!),
+    enabled: Boolean(sessionId),
+  });
+  const policyDocSummary = policyDocsQuery.data?.documents.find(
+    (d) => `${d.folder_path}/${d.filename}` === document?.file?.path
+  );
+
+  const policyDocQuery = useQuery({
+    queryKey: ["compliance-repository", "policy-document", policyDocSummary?.id],
+    queryFn: () => policyDocumentsApi.get(policyDocSummary!.id),
+    enabled: Boolean(policyDocSummary?.id),
+  });
+
+  useEffect(() => {
+    if (policyDocQuery.data && !isEditing) {
+      setEditedContent(policyDocQuery.data.content);
+    }
+  }, [policyDocQuery.data, isEditing]);
+
+  const versionHistoryQuery = useQuery({
+    queryKey: ["compliance-repository", "policy-document-versions", policyDocSummary?.id],
+    queryFn: () => policyDocumentsApi.listVersions(policyDocSummary!.id),
+    enabled: Boolean(policyDocSummary?.id) && showHistory,
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: (content: string) => policyDocumentsApi.update(policyDocSummary!.id, content),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["compliance-repository", "policy-document", policyDocSummary?.id], data);
+      queryClient.invalidateQueries({ queryKey: ["compliance-repository", "policy-documents", sessionId] });
+      setIsEditing(false);
+      toast({ title: "Document saved", description: `Saved as version ${data.version}.` });
+    },
+    onError: (err) => {
+      toast({
+        title: "Could not save document",
+        description: err instanceof Error ? err.message : "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
@@ -132,6 +186,94 @@ export default function DocumentDetailsPage() {
               </CardContent>
             </Card>
           </div>
+
+          <Card className="bg-card">
+            <CardHeader className="flex flex-row items-start justify-between gap-4">
+              <div>
+                <CardTitle>Content</CardTitle>
+                <CardDescription>
+                  {policyDocQuery.data
+                    ? `Editable text derived from the generated document. Editing here does not regenerate the downloadable .docx above - it's a separate, versioned record (v${policyDocQuery.data.version}).`
+                    : "Editable content is not available for this document."}
+                </CardDescription>
+              </div>
+              {policyDocSummary && (
+                <div className="flex shrink-0 gap-2">
+                  <Button type="button" variant="outline" size="sm" onClick={() => setShowHistory((v) => !v)}>
+                    <History className="mr-2 h-4 w-4" />
+                    {showHistory ? "Hide history" : "History"}
+                  </Button>
+                  {canEdit && !isEditing && (
+                    <Button type="button" variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Edit
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardHeader>
+            {policyDocSummary && (
+              <CardContent className="space-y-4">
+                {policyDocQuery.isLoading ? (
+                  <p className="text-sm text-muted-foreground">Loading content...</p>
+                ) : isEditing ? (
+                  <>
+                    <Textarea
+                      value={editedContent}
+                      onChange={(event) => setEditedContent(event.target.value)}
+                      rows={16}
+                      className="font-mono text-sm"
+                      disabled={saveMutation.isPending}
+                    />
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={saveMutation.isPending}
+                        onClick={() => {
+                          setIsEditing(false);
+                          setEditedContent(policyDocQuery.data?.content ?? "");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        disabled={saveMutation.isPending || !editedContent.trim()}
+                        onClick={() => saveMutation.mutate(editedContent)}
+                      >
+                        {saveMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-md border border-border bg-muted/30 p-4 text-sm text-foreground">
+                    {policyDocQuery.data?.content}
+                  </pre>
+                )}
+
+                {showHistory && (
+                  <div className="space-y-2 border-t border-border pt-4">
+                    <p className="text-sm font-medium text-foreground">Version history</p>
+                    {versionHistoryQuery.isLoading && <p className="text-sm text-muted-foreground">Loading...</p>}
+                    {!versionHistoryQuery.isLoading && (versionHistoryQuery.data?.versions.length ?? 0) === 0 && (
+                      <p className="text-sm text-muted-foreground">No prior edits recorded.</p>
+                    )}
+                    {(versionHistoryQuery.data?.versions ?? []).map((v) => (
+                      <div key={v.id} className="rounded-md border border-border p-3">
+                        <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+                          <span>Version {v.version_number}</span>
+                          <span>{formatDate(v.created_at)}</span>
+                        </div>
+                        <pre className="max-h-40 overflow-auto whitespace-pre-wrap text-xs text-muted-foreground">{v.content}</pre>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            )}
+          </Card>
 
           <div className="grid gap-6 lg:grid-cols-2">
             <Card className="bg-card">

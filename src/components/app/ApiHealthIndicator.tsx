@@ -81,6 +81,7 @@ export function ApiHealthIndicator({ className, showLabel = true }: ApiHealthInd
               className="h-6 w-6"
               onClick={runHealthCheck}
               disabled={health.status === 'checking'}
+              aria-label="Recheck API connection"
             >
               <RefreshCw className={cn(
                 'h-3 w-3',

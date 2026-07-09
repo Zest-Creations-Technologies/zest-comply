@@ -59,7 +59,7 @@ export default function OrganizationProfilePage() {
   const mutation = useMutation({
     mutationFn: () => {
       const payload: AdminOrganizationSettings = {
-        user_id: organizationQuery.data?.user_id ?? "",
+        organization_id: organizationQuery.data?.organization_id ?? "",
         company_name: form.company_name || null,
         address: form.address || null,
         website: form.website || null,

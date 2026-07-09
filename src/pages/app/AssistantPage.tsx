@@ -1040,7 +1040,7 @@ export default function AssistantPage() {
       <div className="p-6 max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">AI Assistant</h1>
+            <h1 className="text-2xl font-bold text-foreground">ZestComply AI Assistant</h1>
             <p className="text-muted-foreground">
               Start a new assessment or continue an existing conversation
             </p>
@@ -1096,8 +1096,17 @@ export default function AssistantPage() {
               return (
                 <Card
                   key={conv.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Open conversation: ${title}`}
                   className="bg-card hover:border-primary/50 transition-colors cursor-pointer"
                   onClick={() => openConversation(conv.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openConversation(conv.id);
+                    }
+                  }}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
@@ -1129,6 +1138,7 @@ export default function AssistantPage() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            aria-label={`Archive conversation: ${title}`}
                             onClick={(e) => handleArchive(conv.id, e)}
                           >
                             <Archive className="h-4 w-4" />
@@ -1137,6 +1147,7 @@ export default function AssistantPage() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          aria-label={`Delete conversation: ${title}`}
                           onClick={(e) => handleDeleteClick(conv, e)}
                           className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
