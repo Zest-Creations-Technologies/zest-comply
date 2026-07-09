@@ -2,6 +2,7 @@ import { LandingHeader } from '@/components/landing/LandingHeader';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { WhySection } from '@/components/landing/WhySection';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
+import { ZestReconSection } from '@/components/landing/ZestReconSection';
 import { PartnersSection } from '@/components/landing/PartnersSection';
 import { TrustSection } from '@/components/landing/TrustSection';
 import { PartnershipSection } from '@/components/landing/PartnershipSection';
@@ -27,6 +28,7 @@ export default function LandingPage() {
         <HeroSection />
         <WhySection />
         <HowItWorksSection />
+        <ZestReconSection />
         <PartnersSection />
         <TrustSection />
         <PartnershipSection />
