@@ -2,10 +2,14 @@ Deployment
 
 This app deploys as a Cloudflare Worker serving static assets, configured by
 `wrangler.toml` (`name = "zest-comply"`, `[assets] directory = "./dist"`).
-It is **not** a Cloudflare Pages project, and there is no CI/CD - pushing to
-`main` on GitHub does not trigger a deploy.
+It is **not** a Cloudflare Pages project.
 
-To ship a change to production:
+Pushing to `main` on GitHub triggers `.github/workflows/deploy.yml`, which
+runs `npm ci`, `npm run build`, then `wrangler deploy` using the
+`CLOUDFLARE_API_TOKEN` repository secret. This is the normal way changes
+reach production now - no manual step required.
+
+To deploy manually instead (e.g. to test a change before pushing):
 
 ```
 npm run build

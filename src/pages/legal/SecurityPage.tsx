@@ -46,19 +46,19 @@ export default function SecurityPage() {
             <ul className="text-muted-foreground space-y-3 mt-4">
               <li className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <span><strong className="text-foreground">Cloud Infrastructure:</strong> Hosted on enterprise-grade cloud providers with SOC 2 Type II certification</span>
+                <span><strong className="text-foreground">Cloud Infrastructure:</strong> Hosted on Cloudflare's global edge network and enterprise cloud infrastructure</span>
               </li>
               <li className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <span><strong className="text-foreground">Network Security:</strong> Protected by firewalls, intrusion detection, and DDoS mitigation</span>
+                <span><strong className="text-foreground">Network Security:</strong> Protected by Cloudflare's edge firewall, bot protection, and DDoS mitigation</span>
               </li>
               <li className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <span><strong className="text-foreground">Regular Backups:</strong> Automated daily backups with point-in-time recovery capabilities</span>
+                <span><strong className="text-foreground">Regular Backups:</strong> Automated, scheduled database backups with retention, run and verified end-to-end</span>
               </li>
               <li className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <span><strong className="text-foreground">Disaster Recovery:</strong> Multi-region redundancy ensures high availability and data durability</span>
+                <span><strong className="text-foreground">Compliance Roadmap:</strong> SOC 2 readiness assessment complete; formal SOC 2 Type I audit and independent third-party penetration test not yet performed</span>
               </li>
             </ul>
           </section>
@@ -72,6 +72,14 @@ export default function SecurityPage() {
               <li className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                 <span><strong className="text-foreground">Authentication:</strong> Secure token-based authentication with automatic session expiration</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <span><strong className="text-foreground">Single Sign-On:</strong> Org-level SSO over OIDC or SAML 2.0, connecting to your organization's own identity provider</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <span><strong className="text-foreground">Multi-Factor Authentication:</strong> Authenticator-app (TOTP) or emailed one-time codes, enforceable org-wide by an admin</span>
               </li>
               <li className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
@@ -100,7 +108,15 @@ export default function SecurityPage() {
               </li>
               <li className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <span><strong className="text-foreground">Vulnerability Scanning:</strong> Regular automated scans and penetration testing</span>
+                <span><strong className="text-foreground">Vulnerability Scanning:</strong> Continuous automated scanning via our ZestRecon security platform, feeding findings directly into our own remediation workflow</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <span><strong className="text-foreground">Brute-Force Protection:</strong> Login, MFA verification, and password-reset attempts are rate-limited per account and per IP address</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <span><strong className="text-foreground">Hardened HTTP Headers:</strong> HSTS, a strict Content-Security-Policy, X-Frame-Options, and nosniff enforced on every response</span>
               </li>
               <li className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />

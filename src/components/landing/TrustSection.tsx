@@ -1,11 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Fingerprint, KeyRound, ScrollText, Lock, DatabaseBackup, Accessibility, UsersRound, ShieldCheck } from "lucide-react";
+import { Fingerprint, KeyRound, ScrollText, Lock, DatabaseBackup, UsersRound, ShieldCheck } from "lucide-react";
 
 const trustCapabilities = [
   {
     icon: Fingerprint,
     title: "Single sign-on",
-    description: "Connect your organization's identity provider — no proprietary lock-in. Password sign-in stays available too.",
+    description: "Connect your organization's identity provider over OIDC or SAML 2.0 — no proprietary lock-in, and no IdP left behind. Password sign-in stays available too.",
+  },
+  {
+    icon: KeyRound,
+    title: "Multi-factor authentication",
+    description: "Authenticator-app (TOTP) or emailed one-time codes at login, enforceable org-wide by an admin — not left to each teammate to opt into.",
   },
   {
     icon: UsersRound,
@@ -26,11 +31,6 @@ const trustCapabilities = [
     icon: DatabaseBackup,
     title: "Automated, verified backups",
     description: "Scheduled backups with retention, run and verified end-to-end — your compliance data doesn't depend on hope.",
-  },
-  {
-    icon: Accessibility,
-    title: "Accessible by design",
-    description: "Built for accessibility — keyboard navigation, screen reader support, and color contrast — so every teammate can use the platform.",
   },
 ];
 
