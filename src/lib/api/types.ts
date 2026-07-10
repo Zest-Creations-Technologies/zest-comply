@@ -36,6 +36,8 @@ export interface User {
   organization_id?: string | null;
   org_role?: 'admin' | 'member' | 'viewer' | null;
   avatar_url?: string | null;
+  mfa_enabled: boolean;
+  mfa_method: 'email_otp' | 'totp';
 }
 
 // Email verification types
@@ -150,6 +152,43 @@ export interface LoginRequest {
   email: string;
   password: string;
   remember_me?: boolean;
+}
+
+export type MFAMethod = 'email_otp' | 'totp';
+
+export interface MFARequiredResponse {
+  mfa_required: true;
+  mfa_token: string;
+  message: string;
+}
+
+export type LoginResponse = AuthTokens | MFARequiredResponse;
+
+export function isMfaRequired(response: LoginResponse): response is MFARequiredResponse {
+  return 'mfa_required' in response && response.mfa_required === true;
+}
+
+export interface MFAVerifyRequest {
+  mfa_token: string;
+  code: string;
+}
+
+export interface MFAToggleRequest {
+  password: string;
+}
+
+export interface MFAToggleResponse {
+  mfa_enabled: boolean;
+  message: string;
+}
+
+export interface TOTPSetupResponse {
+  secret: string;
+  otpauth_uri: string;
+}
+
+export interface TOTPVerifySetupRequest {
+  code: string;
 }
 
 export interface SignupRequest {

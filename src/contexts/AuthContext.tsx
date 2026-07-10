@@ -1,13 +1,18 @@
 // Authentication context for managing user sessions
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authApi, type User, type SignupResponse } from '@/lib/api';
+import { authApi, isMfaRequired, type User, type SignupResponse } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+
+export type LoginResult =
+  | { mfaRequired: false }
+  | { mfaRequired: true; mfaToken: string; message: string };
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<LoginResult>;
+  completeMfaLogin: (mfaToken: string, code: string) => Promise<void>;
   signup: (email: string, password: string, companyName: string, firstName?: string, lastName?: string) => Promise<SignupResponse>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -47,9 +52,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('auth:logout', handleLogout);
   }, [refreshUser]);
 
-  const login = async (email: string, password: string, rememberMe?: boolean) => {
+  const login = async (email: string, password: string, rememberMe?: boolean): Promise<LoginResult> => {
     try {
-      await authApi.login({ email, password, remember_me: rememberMe });
+      const result = await authApi.login({ email, password, remember_me: rememberMe });
+      if (isMfaRequired(result)) {
+        return { mfaRequired: true, mfaToken: result.mfa_token, message: result.message };
+      }
       // Try to fetch user, but don't fail the login if it doesn't work
       try {
         await refreshUser();
@@ -58,17 +66,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.warn('Could not fetch user details after login');
       }
       toast({ title: 'Welcome back!', description: 'You have been logged in successfully.' });
+      return { mfaRequired: false };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed';
-      
+
       // Check if it's an email not verified error
-      if (message.toLowerCase().includes('email not verified') || 
+      if (message.toLowerCase().includes('email not verified') ||
           message.toLowerCase().includes('verify your email')) {
         // Don't show toast here - let the login page handle the redirect
         throw error;
       }
-      
+
       toast({ title: 'Login failed', description: message, variant: 'destructive' });
+      throw error;
+    }
+  };
+
+  // Completes a login that login() flagged as mfaRequired.
+  const completeMfaLogin = async (mfaToken: string, code: string) => {
+    try {
+      await authApi.verifyMfa({ mfa_token: mfaToken, code });
+      try {
+        await refreshUser();
+      } catch {
+        console.warn('Could not fetch user details after MFA verification');
+      }
+      toast({ title: 'Welcome back!', description: 'You have been logged in successfully.' });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Verification failed';
+      toast({ title: 'Verification failed', description: message, variant: 'destructive' });
       throw error;
     }
   };
@@ -103,6 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         isAuthenticated: !!user || authApi.isAuthenticated(),
         login,
+        completeMfaLogin,
         signup,
         logout,
         refreshUser,
@@ -122,7 +149,8 @@ export function useAuth() {
       user: null,
       isLoading: true,
       isAuthenticated: false,
-      login: async () => { throw new Error('Auth not initialized'); },
+      login: async (): Promise<LoginResult> => { throw new Error('Auth not initialized'); },
+      completeMfaLogin: async () => { throw new Error('Auth not initialized'); },
       signup: async (): Promise<SignupResponse> => { throw new Error('Auth not initialized'); },
       logout: async () => { throw new Error('Auth not initialized'); },
       refreshUser: async () => { throw new Error('Auth not initialized'); },

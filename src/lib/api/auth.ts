@@ -3,10 +3,11 @@
 import { apiClient } from './client';
 import { API_CONFIG, getApiUrl } from './config';
 import { mockUser, delay } from './mocks';
-import type { User, AuthTokens, LoginRequest, SignupRequest, SignupResponse, UpdateProfileRequest, ChangePasswordRequest, ChangePasswordResponse, AcceptInviteRequest } from './types';
+import { isMfaRequired } from './types';
+import type { User, AuthTokens, LoginRequest, LoginResponse, MFAVerifyRequest, MFAToggleRequest, MFAToggleResponse, TOTPSetupResponse, TOTPVerifySetupRequest, SignupRequest, SignupResponse, UpdateProfileRequest, ChangePasswordRequest, ChangePasswordResponse, AcceptInviteRequest } from './types';
 
 export const authApi = {
-  async login(credentials: LoginRequest): Promise<AuthTokens> {
+  async login(credentials: LoginRequest): Promise<LoginResponse> {
     if (API_CONFIG.useMocks) {
       await delay();
       // Mock successful login
@@ -20,9 +21,41 @@ export const authApi = {
       return tokens;
     }
 
-    const tokens = await apiClient.post<AuthTokens>('/auth/login', credentials, { skipAuth: true });
+    const result = await apiClient.post<LoginResponse>('/auth/login', credentials, { skipAuth: true });
+    if (isMfaRequired(result)) {
+      return result;
+    }
+    apiClient.saveTokens(result.access_token, result.refresh_token);
+    return result;
+  },
+
+  // Completes a login that returned MFARequiredResponse.
+  async verifyMfa(data: MFAVerifyRequest): Promise<AuthTokens> {
+    const tokens = await apiClient.post<AuthTokens>('/auth/mfa/verify', data, { skipAuth: true });
     apiClient.saveTokens(tokens.access_token, tokens.refresh_token);
     return tokens;
+  },
+
+  // Email-OTP MFA toggle (requires re-entering the current password).
+  async enableMfa(data: MFAToggleRequest): Promise<MFAToggleResponse> {
+    return apiClient.post<MFAToggleResponse>('/auth/mfa/enable', data);
+  },
+
+  async disableMfa(data: MFAToggleRequest): Promise<MFAToggleResponse> {
+    return apiClient.post<MFAToggleResponse>('/auth/mfa/disable', data);
+  },
+
+  // Authenticator-app (TOTP) enrollment.
+  async setupTotp(data: MFAToggleRequest): Promise<TOTPSetupResponse> {
+    return apiClient.post<TOTPSetupResponse>('/auth/mfa/totp/setup', data);
+  },
+
+  async verifyTotpSetup(data: TOTPVerifySetupRequest): Promise<MFAToggleResponse> {
+    return apiClient.post<MFAToggleResponse>('/auth/mfa/totp/verify-setup', data);
+  },
+
+  async disableTotp(data: MFAToggleRequest): Promise<MFAToggleResponse> {
+    return apiClient.post<MFAToggleResponse>('/auth/mfa/totp/disable', data);
   },
 
   // Signup now returns user profile, NOT tokens (no auto-login)

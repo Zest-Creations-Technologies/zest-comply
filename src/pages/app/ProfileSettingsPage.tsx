@@ -7,8 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Calendar, Shield, Eye, EyeOff, CheckCircle2, XCircle, Loader2, Download, Camera, Trash2 } from 'lucide-react';
+import { User, Mail, Calendar, Shield, Eye, EyeOff, CheckCircle2, XCircle, Loader2, Download, Camera, Trash2, KeyRound, Smartphone } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { z } from 'zod';
 
 const profileSchema = z.object({
@@ -63,6 +65,18 @@ export default function ProfileSettingsPage() {
   const [exportLoading, setExportLoading] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // MFA state
+  const [mfaPassword, setMfaPassword] = useState('');
+  const [mfaActionLoading, setMfaActionLoading] = useState<'enable' | 'disable' | null>(null);
+  const [totpDialogOpen, setTotpDialogOpen] = useState(false);
+  const [totpStep, setTotpStep] = useState<'password' | 'scan'>('password');
+  const [totpPassword, setTotpPassword] = useState('');
+  const [totpSetup, setTotpSetupData] = useState<{ secret: string; otpauth_uri: string } | null>(null);
+  const [totpCode, setTotpCode] = useState('');
+  const [totpLoading, setTotpLoading] = useState(false);
+  const [totpError, setTotpError] = useState<string | null>(null);
+  const [disableTotpLoading, setDisableTotpLoading] = useState(false);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -174,6 +188,106 @@ export default function ProfileSettingsPage() {
       });
     } finally {
       setExportLoading(false);
+    }
+  };
+
+  const handleEnableEmailMfa = async () => {
+    if (!mfaPassword) {
+      toast({ title: 'Password required', description: 'Enter your password to continue.', variant: 'destructive' });
+      return;
+    }
+    setMfaActionLoading('enable');
+    try {
+      const response = await authApi.enableMfa({ password: mfaPassword });
+      await refreshUser();
+      setMfaPassword('');
+      toast({ title: 'Two-factor authentication enabled', description: response.message });
+    } catch (error: any) {
+      toast({ title: 'Could not enable MFA', description: error?.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setMfaActionLoading(null);
+    }
+  };
+
+  const handleDisableMfa = async () => {
+    if (!mfaPassword) {
+      toast({ title: 'Password required', description: 'Enter your password to continue.', variant: 'destructive' });
+      return;
+    }
+    setMfaActionLoading('disable');
+    try {
+      const response = await authApi.disableMfa({ password: mfaPassword });
+      await refreshUser();
+      setMfaPassword('');
+      toast({ title: 'Two-factor authentication disabled', description: response.message });
+    } catch (error: any) {
+      toast({ title: 'Could not disable MFA', description: error?.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setMfaActionLoading(null);
+    }
+  };
+
+  const resetTotpDialog = () => {
+    setTotpDialogOpen(false);
+    setTotpStep('password');
+    setTotpPassword('');
+    setTotpSetupData(null);
+    setTotpCode('');
+    setTotpError(null);
+  };
+
+  const handleStartTotpSetup = async () => {
+    if (!totpPassword) {
+      setTotpError('Enter your password to continue.');
+      return;
+    }
+    setTotpError(null);
+    setTotpLoading(true);
+    try {
+      const setup = await authApi.setupTotp({ password: totpPassword });
+      setTotpSetupData(setup);
+      setTotpStep('scan');
+    } catch (error: any) {
+      setTotpError(error?.message || 'Incorrect password.');
+    } finally {
+      setTotpLoading(false);
+    }
+  };
+
+  const handleConfirmTotpSetup = async () => {
+    if (!/^\d{6}$/.test(totpCode)) {
+      setTotpError('Enter the 6-digit code from your authenticator app.');
+      return;
+    }
+    setTotpError(null);
+    setTotpLoading(true);
+    try {
+      await authApi.verifyTotpSetup({ code: totpCode });
+      await refreshUser();
+      toast({ title: 'Authenticator app enabled', description: 'Two-factor authentication is now required at login.' });
+      resetTotpDialog();
+    } catch (error: any) {
+      setTotpError(error?.message || 'Invalid or expired code.');
+    } finally {
+      setTotpLoading(false);
+    }
+  };
+
+  const handleDisableTotp = async () => {
+    if (!mfaPassword) {
+      toast({ title: 'Password required', description: 'Enter your password to continue.', variant: 'destructive' });
+      return;
+    }
+    setDisableTotpLoading(true);
+    try {
+      const response = await authApi.disableTotp({ password: mfaPassword });
+      await refreshUser();
+      setMfaPassword('');
+      toast({ title: 'Authenticator app disabled', description: response.message });
+    } catch (error: any) {
+      toast({ title: 'Could not disable authenticator app', description: error?.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setDisableTotpLoading(false);
     }
   };
 
@@ -548,6 +662,192 @@ export default function ProfileSettingsPage() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Two-Factor Authentication */}
+      <Card className="bg-card">
+        <CardHeader>
+          <CardTitle>Two-Factor Authentication</CardTitle>
+          <CardDescription>Require a second code, in addition to your password, when signing in.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center gap-2">
+            {user?.mfa_enabled ? (
+              <>
+                <CheckCircle2 className="h-4 w-4 text-primary" />
+                <Badge variant="secondary">
+                  Enabled &middot; {user.mfa_method === 'totp' ? 'Authenticator app' : 'Email codes'}
+                </Badge>
+              </>
+            ) : (
+              <>
+                <XCircle className="h-4 w-4 text-muted-foreground" />
+                <Badge variant="outline">Disabled</Badge>
+              </>
+            )}
+          </div>
+
+          {!user?.mfa_enabled && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-lg border border-border p-4 space-y-3">
+                <div className="flex items-center gap-2 font-medium text-foreground">
+                  <Smartphone className="h-4 w-4" />
+                  Authenticator app
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Use Google Authenticator, 1Password, or a similar app. Recommended.
+                </p>
+                <Button type="button" size="sm" onClick={() => setTotpDialogOpen(true)}>
+                  Set up authenticator app
+                </Button>
+              </div>
+              <div className="rounded-lg border border-border p-4 space-y-3">
+                <div className="flex items-center gap-2 font-medium text-foreground">
+                  <Mail className="h-4 w-4" />
+                  Email codes
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  We'll email you a one-time code each time you sign in.
+                </p>
+                <div className="space-y-2">
+                  <Label htmlFor="mfa-enable-password">Confirm your password</Label>
+                  <Input
+                    id="mfa-enable-password"
+                    type="password"
+                    value={mfaPassword}
+                    onChange={(e) => setMfaPassword(e.target.value)}
+                  />
+                </div>
+                <Button type="button" size="sm" variant="outline" onClick={handleEnableEmailMfa} disabled={mfaActionLoading === 'enable'}>
+                  {mfaActionLoading === 'enable' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Enable email codes
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {user?.mfa_enabled && (
+            <div className="space-y-4">
+              {user.mfa_method === 'email_otp' && (
+                <div className="rounded-lg border border-border p-4 space-y-3">
+                  <div className="flex items-center gap-2 font-medium text-foreground">
+                    <Smartphone className="h-4 w-4" />
+                    Switch to an authenticator app
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    More reliable than email - no waiting on a code to arrive.
+                  </p>
+                  <Button type="button" size="sm" variant="outline" onClick={() => setTotpDialogOpen(true)}>
+                    Set up authenticator app
+                  </Button>
+                </div>
+              )}
+
+              <div className="rounded-lg border border-border p-4 space-y-3">
+                <div className="flex items-center gap-2 font-medium text-foreground">
+                  <KeyRound className="h-4 w-4" />
+                  {user.mfa_method === 'totp' ? 'Disable authenticator app' : 'Turn off two-factor authentication'}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {user.mfa_method === 'totp'
+                    ? "You'll fall back to emailed codes at login."
+                    : "You'll only need your password to sign in."}
+                </p>
+                <div className="space-y-2 max-w-sm">
+                  <Label htmlFor="mfa-disable-password">Confirm your password</Label>
+                  <Input
+                    id="mfa-disable-password"
+                    type="password"
+                    value={mfaPassword}
+                    onChange={(e) => setMfaPassword(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  {user.mfa_method === 'totp' && (
+                    <Button type="button" size="sm" variant="outline" onClick={handleDisableTotp} disabled={disableTotpLoading}>
+                      {disableTotpLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Switch to email codes
+                    </Button>
+                  )}
+                  <Button type="button" size="sm" variant="destructive" onClick={handleDisableMfa} disabled={mfaActionLoading === 'disable'}>
+                    {mfaActionLoading === 'disable' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Turn off two-factor authentication
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Authenticator app enrollment dialog */}
+      <Dialog open={totpDialogOpen} onOpenChange={(open) => { if (!open) resetTotpDialog(); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set up authenticator app</DialogTitle>
+            <DialogDescription>
+              {totpStep === 'password'
+                ? 'Confirm your password to generate a setup key.'
+                : 'Scan the QR code with your authenticator app, then enter the 6-digit code it shows.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {totpStep === 'password' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="totp-setup-password">Password</Label>
+                <Input
+                  id="totp-setup-password"
+                  type="password"
+                  value={totpPassword}
+                  onChange={(e) => setTotpPassword(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              {totpError && <p className="text-sm text-destructive">{totpError}</p>}
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={resetTotpDialog}>Cancel</Button>
+                <Button type="button" onClick={handleStartTotpSetup} disabled={totpLoading}>
+                  {totpLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Continue
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+
+          {totpStep === 'scan' && totpSetup && (
+            <div className="space-y-4">
+              <div className="flex justify-center rounded-lg bg-white p-4">
+                <QRCodeSVG value={totpSetup.otpauth_uri} size={180} />
+              </div>
+              <div className="space-y-1">
+                <Label>Can't scan it? Enter this key manually</Label>
+                <p className="break-all rounded bg-muted px-2 py-1.5 font-mono text-xs text-muted-foreground">
+                  {totpSetup.secret}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="totp-verify-code">6-digit code</Label>
+                <Input
+                  id="totp-verify-code"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="123456"
+                  value={totpCode}
+                  onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                />
+              </div>
+              {totpError && <p className="text-sm text-destructive">{totpError}</p>}
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={resetTotpDialog}>Cancel</Button>
+                <Button type="button" onClick={handleConfirmTotpSetup} disabled={totpLoading}>
+                  {totpLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Verify &amp; enable
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

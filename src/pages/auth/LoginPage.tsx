@@ -34,8 +34,11 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
+  const [mfaChallenge, setMfaChallenge] = useState<{ mfaToken: string; message: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState('');
+  const [mfaError, setMfaError] = useState<string | null>(null);
 
-  const { login } = useAuth();
+  const { login, completeMfaLogin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -76,7 +79,11 @@ export default function LoginPage() {
 
     setIsLoading(true);
     try {
-      await login(email, password, rememberMe);
+      const result = await login(email, password, rememberMe);
+      if (result.mfaRequired) {
+        setMfaChallenge({ mfaToken: result.mfaToken, message: result.message });
+        return;
+      }
       navigate(from, { replace: true });
     } catch (error) {
       // Check if it's an email not verified error
@@ -98,6 +105,83 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  const handleMfaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mfaChallenge) return;
+    setMfaError(null);
+
+    if (!/^\d{4,10}$/.test(mfaCode)) {
+      setMfaError('Enter the code you were given.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await completeMfaLogin(mfaChallenge.mfaToken, mfaCode);
+      navigate(from, { replace: true });
+    } catch (error) {
+      setMfaError(error instanceof Error ? error.message : 'Invalid or expired code');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (mfaChallenge) {
+    return (
+      <AuthShell>
+        <Card className={`w-full ${authCardClass}`}>
+          <CardHeader className="px-7 pb-5 pt-8 text-center sm:px-9 sm:pt-9">
+            <div className="mb-6 flex justify-center">
+              <AuthWordmark />
+            </div>
+            <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Verify it's you</CardTitle>
+            <CardDescription className="text-slate-400">{mfaChallenge.message}</CardDescription>
+          </CardHeader>
+
+          <form onSubmit={handleMfaSubmit}>
+            <CardContent className="space-y-5 px-7 sm:px-9">
+              <div className="space-y-2">
+                <Label htmlFor="mfa-code" className={authLabelClass}>Verification code</Label>
+                <Input
+                  id="mfa-code"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="123456"
+                  value={mfaCode}
+                  onChange={(e) => setMfaCode(e.target.value.replace(/\s/g, ''))}
+                  disabled={isLoading}
+                  autoFocus
+                  aria-invalid={!!mfaError}
+                  aria-describedby={mfaError ? "mfa-code-error" : undefined}
+                  className={mfaError ? `${authInputClass} border-red-400` : authInputClass}
+                />
+                {mfaError && (
+                  <p id="mfa-code-error" className={authErrorClass}>{mfaError}</p>
+                )}
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex flex-col gap-4 px-7 pb-8 sm:px-9">
+              <Button type="submit" className={`w-full ${authPrimaryButtonClass}`} disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Verify
+              </Button>
+              <button
+                type="button"
+                onClick={() => { setMfaChallenge(null); setMfaCode(''); setMfaError(null); }}
+                className={`text-center text-sm ${authLinkClass}`}
+                disabled={isLoading}
+              >
+                Back to sign in
+              </button>
+            </CardFooter>
+          </form>
+        </Card>
+      </AuthShell>
+    );
+  }
 
   return (
     <AuthShell>
