@@ -18,12 +18,11 @@ export const ssoApi = {
   },
 
   async exchange(handoffToken: string): Promise<AuthTokens> {
-    const tokens = await apiClient.post<AuthTokens>(
+    // Cookies are set by the response - nothing for the client to store.
+    return apiClient.post<AuthTokens>(
       "/auth/sso/exchange",
       { handoff_token: handoffToken },
       { skipAuth: true }
     );
-    apiClient.saveTokens(tokens.access_token, tokens.refresh_token);
-    return tokens;
   },
 };

@@ -11,16 +11,6 @@ import { z } from 'zod';
 import { AuthShell, AuthWordmark, authCardClass, authInputClass, authPrimaryButtonClass, authLinkClass, authMutedLinkClass, authLabelClass, authErrorClass } from './AuthShell';
 import { useToast } from '@/hooks/use-toast';
 
-// Clear any stale mock tokens on login page load
-const clearStaleTokens = () => {
-  const accessToken = localStorage.getItem('access_token');
-  if (accessToken?.startsWith('mock-')) {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    console.log('Cleared stale mock tokens');
-  }
-};
-
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(1, 'Password is required'),
@@ -56,11 +46,6 @@ export default function LoginPage() {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
-
-  // Clear any stale mock tokens on mount
-  useEffect(() => {
-    clearStaleTokens();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

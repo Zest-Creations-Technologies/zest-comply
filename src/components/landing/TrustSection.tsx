@@ -25,7 +25,7 @@ const trustCapabilities = [
   {
     icon: Lock,
     title: "Encryption in transit and at rest",
-    description: "All traffic runs over TLS. Passwords are hashed with bcrypt — never stored in plaintext. Sensitive credentials, like API keys and identity-provider secrets, are encrypted at rest, and uploaded files are encrypted at rest by our storage provider.",
+    description: "All traffic runs over TLS. Passwords are hashed with bcrypt — never stored in plaintext. Sensitive credentials, like API keys and identity-provider secrets, are encrypted at rest, and uploaded files are encrypted at rest by our storage provider. Session tokens live in httpOnly cookies, invisible to browser scripts, with CSRF protection on every state-changing request.",
   },
   {
     icon: DatabaseBackup,

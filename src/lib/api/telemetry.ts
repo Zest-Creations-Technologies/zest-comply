@@ -65,12 +65,12 @@ export const telemetryApi = {
     return apiClient.get<TelemetryEventListResponse>(`/telemetry/org-events${buildQuery(filters)}`);
   },
 
-  // Auth headers can't be set on a plain <a href> download, so fetch the CSV
-  // as a blob with the token attached and trigger the download client-side.
+  // Auth can't be set on a plain <a href> download, so fetch the CSV as a
+  // blob (auth cookie included automatically) and trigger the download
+  // client-side.
   async downloadOrgEventsCsv(filters: Omit<TelemetryEventFilters, 'limit' | 'offset'> = {}): Promise<void> {
-    const token = localStorage.getItem('access_token');
     const response = await fetch(getApiUrl(`/telemetry/org-events/export${buildQuery(filters)}`), {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
     });
 
     if (!response.ok) {

@@ -291,23 +291,17 @@ export default function AssistantPage() {
   }, [searchParams]);
 
   const connectWebSocket = useCallback((existingSessionId?: string) => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      toast({
-        title: 'Authentication required',
-        description: 'Please log in to use the assistant',
-        variant: 'destructive',
-      });
-      return;
+    // No token to attach here anymore - the browser automatically sends the
+    // httpOnly access-token cookie on the WebSocket handshake request for
+    // same-site connections (see zct-backend app/api/v1/agent_websocket.py).
+    // If there's no valid session, the server closes with code 1008 and the
+    // onclose handler below surfaces that as an auth-failure toast.
+    let wsUrl = getWebSocketUrl();
+    if (existingSessionId) {
+      wsUrl += `?session_id=${existingSessionId}`;
     }
 
-    // Build WebSocket URL with token and optional session_id
-    let wsUrl = `${getWebSocketUrl()}?token=${token}`;
-    if (existingSessionId) {
-      wsUrl += `&session_id=${existingSessionId}`;
-    }
-    
-    console.log('Connecting to WebSocket:', wsUrl.replace(token, '[TOKEN]'));
+    console.log('Connecting to WebSocket:', wsUrl);
     const ws = new WebSocket(wsUrl);
     
     ws.onopen = () => {

@@ -10,30 +10,25 @@ export const authApi = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     if (API_CONFIG.useMocks) {
       await delay();
-      // Mock successful login
-      const tokens: AuthTokens = {
+      // Mock successful login - real login sets httpOnly cookies server-side,
+      // nothing for the client to store either way.
+      return {
         access_token: 'mock-access-token-' + Date.now(),
         refresh_token: 'mock-refresh-token-' + Date.now(),
         token_type: 'bearer',
         expires_in: 3600,
       };
-      apiClient.saveTokens(tokens.access_token, tokens.refresh_token);
-      return tokens;
     }
 
-    const result = await apiClient.post<LoginResponse>('/auth/login', credentials, { skipAuth: true });
-    if (isMfaRequired(result)) {
-      return result;
-    }
-    apiClient.saveTokens(result.access_token, result.refresh_token);
-    return result;
+    // Tokens are set as httpOnly cookies by the server response - nothing
+    // for the client to store. The parsed body is only used to detect the
+    // MFA-required case.
+    return apiClient.post<LoginResponse>('/auth/login', credentials, { skipAuth: true });
   },
 
   // Completes a login that returned MFARequiredResponse.
   async verifyMfa(data: MFAVerifyRequest): Promise<AuthTokens> {
-    const tokens = await apiClient.post<AuthTokens>('/auth/mfa/verify', data, { skipAuth: true });
-    apiClient.saveTokens(tokens.access_token, tokens.refresh_token);
-    return tokens;
+    return apiClient.post<AuthTokens>('/auth/mfa/verify', data, { skipAuth: true });
   },
 
   // Email-OTP MFA toggle (requires re-entering the current password).
@@ -87,37 +82,33 @@ export const authApi = {
   async acceptInvite(data: AcceptInviteRequest): Promise<AuthTokens> {
     if (API_CONFIG.useMocks) {
       await delay();
-      const tokens: AuthTokens = {
+      return {
         access_token: 'mock-access-token-' + Date.now(),
         refresh_token: 'mock-refresh-token-' + Date.now(),
         token_type: 'bearer',
         expires_in: 3600,
       };
-      apiClient.saveTokens(tokens.access_token, tokens.refresh_token);
-      return tokens;
     }
 
-    const tokens = await apiClient.post<AuthTokens>('/auth/accept-invite', data, { skipAuth: true });
-    apiClient.saveTokens(tokens.access_token, tokens.refresh_token);
-    return tokens;
+    return apiClient.post<AuthTokens>('/auth/accept-invite', data, { skipAuth: true });
   },
 
   async logout(): Promise<void> {
     if (!API_CONFIG.useMocks) {
       try {
-        const refreshToken = apiClient.getStoredRefreshToken();
-        await apiClient.post('/auth/logout', refreshToken ? { refresh_token: refreshToken } : {});
+        // No body needed - the server reads the refresh token from the
+        // httpOnly cookie and clears all auth cookies on the response.
+        await apiClient.post('/auth/logout', {});
       } catch {
         // Ignore errors on logout
       }
     }
-    apiClient.removeTokens();
   },
 
   async getCurrentUser(): Promise<User> {
     if (API_CONFIG.useMocks) {
       await delay(300);
-      if (!apiClient.hasTokens()) {
+      if (!apiClient.hasSession()) {
         throw new Error('Not authenticated');
       }
       return mockUser;
@@ -127,7 +118,7 @@ export const authApi = {
   },
 
   isAuthenticated(): boolean {
-    return apiClient.hasTokens();
+    return apiClient.hasSession();
   },
 
   async updateProfile(data: UpdateProfileRequest): Promise<User> {
@@ -160,17 +151,15 @@ export const authApi = {
         expires_in: 900,
       };
     }
-    const response = await apiClient.post<ChangePasswordResponse>('/auth/change-password', data);
-    apiClient.saveTokens(response.access_token, response.refresh_token);
-    return response;
+    // New cookies are set on the response - nothing for the client to store.
+    return apiClient.post<ChangePasswordResponse>('/auth/change-password', data);
   },
 
-  // Auth headers can't be set on a plain <a href> download, so fetch as a
-  // blob with the token attached and trigger the download client-side.
+  // Auth is carried by the httpOnly cookie automatically - just need
+  // credentials included, no manual Authorization header to construct.
   async exportMyData(): Promise<void> {
-    const token = localStorage.getItem('access_token');
     const response = await fetch(getApiUrl('/users/me/export'), {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
     });
 
     if (!response.ok) {

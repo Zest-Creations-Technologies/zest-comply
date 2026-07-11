@@ -1,4 +1,7 @@
-// API Client with token handling
+// API Client - cookie-based auth (httpOnly access/refresh cookies set by
+// the backend on login/refresh/etc., see zct-backend app/core/cookies.py).
+// No tokens are ever stored in JS-accessible storage; the browser attaches
+// the auth cookies automatically on every request via `credentials: 'include'`.
 
 import { API_CONFIG, getApiUrl } from './config';
 import type { ApiError } from './types';
@@ -7,46 +10,28 @@ interface RequestOptions extends RequestInit {
   skipAuth?: boolean;
 }
 
+const CSRF_COOKIE_NAME = 'zc_csrf_token';
+const CSRF_HEADER_NAME = 'X-CSRF-Token';
+const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+function getCsrfToken(): string | null {
+  const match = document.cookie.match(
+    new RegExp(`(?:^|; )${CSRF_COOKIE_NAME}=([^;]*)`)
+  );
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 class ApiClient {
-  private getAccessToken(): string | null {
-    return localStorage.getItem('access_token');
-  }
-
-  private getRefreshToken(): string | null {
-    return localStorage.getItem('refresh_token');
-  }
-
-  private setTokens(accessToken: string, refreshToken: string): void {
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
-  }
-
-  private clearTokens(): void {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-  }
-
   private async refreshAccessToken(): Promise<boolean> {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) return false;
-
     try {
       const response = await fetch(getApiUrl('/auth/refresh'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: refreshToken }),
+        credentials: 'include',
+        body: JSON.stringify({}),
       });
-
-      if (!response.ok) {
-        this.clearTokens();
-        return false;
-      }
-
-      const data = await response.json();
-      this.setTokens(data.access_token, data.refresh_token);
-      return true;
+      return response.ok;
     } catch {
-      this.clearTokens();
       return false;
     }
   }
@@ -59,10 +44,11 @@ class ApiClient {
       ...(fetchOptions.headers as Record<string, string>),
     };
 
-    if (!skipAuth) {
-      const token = this.getAccessToken();
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+    const method = (fetchOptions.method ?? 'GET').toUpperCase();
+    if (!skipAuth && MUTATING_METHODS.has(method)) {
+      const csrfToken = getCsrfToken();
+      if (csrfToken) {
+        headers[CSRF_HEADER_NAME] = csrfToken;
       }
     }
 
@@ -74,14 +60,27 @@ class ApiClient {
     const timeoutId = controller ? window.setTimeout(() => controller.abort(), timeoutMs) : null;
 
     try {
-      let response = await fetch(url, { ...fetchOptions, headers, signal });
+      let response = await fetch(url, {
+        ...fetchOptions,
+        headers,
+        credentials: 'include',
+        signal,
+      });
 
-      // Handle 401 - try to refresh token
+      // Handle 401 - try to refresh the session cookie
       if (response.status === 401 && !skipAuth) {
         const refreshed = await this.refreshAccessToken();
         if (refreshed) {
-          headers['Authorization'] = `Bearer ${this.getAccessToken()}`;
-          response = await fetch(url, { ...fetchOptions, headers, signal });
+          if (MUTATING_METHODS.has(method)) {
+            const csrfToken = getCsrfToken();
+            if (csrfToken) headers[CSRF_HEADER_NAME] = csrfToken;
+          }
+          response = await fetch(url, {
+            ...fetchOptions,
+            headers,
+            credentials: 'include',
+            signal,
+          });
         } else {
           window.dispatchEvent(new CustomEvent('auth:logout'));
           throw new Error('Session expired. Please log in again.');
@@ -94,8 +93,8 @@ class ApiClient {
           status_code: response.status,
         }));
         // Create error with additional properties for plan restrictions
-        const err = new Error(error.detail || error.message || 'An unexpected error occurred') as Error & { 
-          status?: number; 
+        const err = new Error(error.detail || error.message || 'An unexpected error occurred') as Error & {
+          status?: number;
           details?: Record<string, unknown>;
         };
         err.status = response.status;
@@ -160,12 +159,9 @@ class ApiClient {
     const { skipAuth = false, ...fetchOptions } = options || {};
 
     const headers: Record<string, string> = {};
-
     if (!skipAuth) {
-      const token = this.getAccessToken();
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+      const csrfToken = getCsrfToken();
+      if (csrfToken) headers[CSRF_HEADER_NAME] = csrfToken;
     }
 
     const url = getApiUrl(path);
@@ -180,19 +176,22 @@ class ApiClient {
         method: 'POST',
         headers,
         body: formData,
+        credentials: 'include',
         signal: controller.signal,
       });
 
-      // Handle 401 - try to refresh token
+      // Handle 401 - try to refresh the session cookie
       if (response.status === 401 && !skipAuth) {
         const refreshed = await this.refreshAccessToken();
         if (refreshed) {
-          headers['Authorization'] = `Bearer ${this.getAccessToken()}`;
+          const csrfToken = getCsrfToken();
+          if (csrfToken) headers[CSRF_HEADER_NAME] = csrfToken;
           response = await fetch(url, {
             ...fetchOptions,
             method: 'POST',
             headers,
             body: formData,
+            credentials: 'include',
             signal: controller.signal,
           });
         } else {
@@ -207,8 +206,8 @@ class ApiClient {
           status_code: response.status,
         }));
         // Create error with additional properties for plan restrictions
-        const err = new Error(error.detail || error.message || 'An unexpected error occurred') as Error & { 
-          status?: number; 
+        const err = new Error(error.detail || error.message || 'An unexpected error occurred') as Error & {
+          status?: number;
           details?: Record<string, unknown>;
         };
         err.status = response.status;
@@ -231,21 +230,17 @@ class ApiClient {
     }
   }
 
-  // Token management exposed for auth
-  saveTokens(accessToken: string, refreshToken: string): void {
-    this.setTokens(accessToken, refreshToken);
-  }
-
-  removeTokens(): void {
-    this.clearTokens();
-  }
-
-  hasTokens(): boolean {
-    return !!this.getAccessToken();
-  }
-
-  getStoredRefreshToken(): string | null {
-    return this.getRefreshToken();
+  /**
+   * Whether a session cookie appears to be present. This is a client-side
+   * signal only (the CSRF cookie is the one non-httpOnly cookie set
+   * alongside the real auth cookies, so its presence is a reasonable
+   * proxy) - it is NOT authoritative. The real check is always whatever
+   * the API says on the next request; AuthContext calls GET /auth/me on
+   * mount and treats a 401 there as "not authenticated" regardless of
+   * what this returns.
+   */
+  hasSession(): boolean {
+    return getCsrfToken() !== null;
   }
 }
 
