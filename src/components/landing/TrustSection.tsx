@@ -1,5 +1,21 @@
+import type { ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Fingerprint, KeyRound, ScrollText, Lock, DatabaseBackup, UsersRound, ShieldCheck } from "lucide-react";
+
+const BOLD_TERMS = ["OIDC or SAML 2.0", "(TOTP)", "TLS", "API keys", "httpOnly cookies", "CSRF"];
+
+function highlightTerms(text: string): ReactNode[] {
+  const pattern = new RegExp(`(${BOLD_TERMS.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "g");
+  return text.split(pattern).map((part, index) =>
+    BOLD_TERMS.includes(part) ? (
+      <strong key={index} className="font-semibold text-slate-900">
+        {part}
+      </strong>
+    ) : (
+      part
+    )
+  );
+}
 
 const trustCapabilities = [
   {
@@ -62,7 +78,7 @@ export function TrustSection() {
                   <item.icon className="h-5 w-5" />
                 </div>
                 <h3 className="text-xl font-semibold tracking-[-0.02em] text-slate-950">{item.title}</h3>
-                <p className="mt-4 text-sm leading-6 text-slate-600">{item.description}</p>
+                <p className="mt-4 text-sm leading-6 text-slate-600">{highlightTerms(item.description)}</p>
               </CardContent>
             </Card>
           ))}
