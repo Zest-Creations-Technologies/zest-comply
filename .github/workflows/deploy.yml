@@ -20,6 +20,7 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+      # Re-triggering with the freshly-updated CLOUDFLARE_API_TOKEN secret
       - name: Diagnose direct CLI deploy
         run: npx wrangler@4.110.0 deploy
         env:
