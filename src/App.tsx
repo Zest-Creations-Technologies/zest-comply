@@ -10,7 +10,6 @@ import { OrgAdminRoute } from "@/components/OrgAdminRoute";
 import { BrandBadge } from "@/components/BrandBadge";
 
 // Public pages
-import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RequestAccessPage from "./pages/auth/RequestAccessPage";
 import AcceptInvitePage from "./pages/auth/AcceptInvitePage";
@@ -103,7 +102,7 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               {/* Public routes */}
-              <Route path="/" element={<LandingPage />} />
+              <Route path="/" element={<Navigate to="/auth/login" replace />} />
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/auth/request-access" element={<RequestAccessPage />} />
               <Route path="/auth/accept-invite" element={<AcceptInvitePage />} />
