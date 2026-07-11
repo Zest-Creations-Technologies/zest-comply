@@ -480,6 +480,15 @@ export interface ChangePasswordResponse {
   expires_in: number;
 }
 
+export interface PasswordConfirmationRequest {
+  password: string;
+}
+
+export interface DeletionConfirmationResponse {
+  message: string;
+  deleted_at: string;
+}
+
 // ============================================
 // Human Validation & Governance Types
 // ============================================

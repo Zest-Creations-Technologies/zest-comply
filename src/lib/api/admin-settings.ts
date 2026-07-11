@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { AdminBrandingSettings, AdminNotificationSettings, AdminOrganizationSettings, PlatformSettings, UserInviteRequest, UserInviteResponse, OrganizationMemberListResponse, OrganizationMember } from "./types";
+import type { AdminBrandingSettings, AdminNotificationSettings, AdminOrganizationSettings, PlatformSettings, UserInviteRequest, UserInviteResponse, OrganizationMemberListResponse, OrganizationMember, PasswordConfirmationRequest, DeletionConfirmationResponse } from "./types";
 
 export const adminSettingsApi = {
   getOrganization(): Promise<AdminOrganizationSettings> {
@@ -44,5 +44,14 @@ export const adminSettingsApi = {
 
   updateMemberRole(userId: string, role: "admin" | "member" | "viewer"): Promise<OrganizationMember> {
     return apiClient.patch<OrganizationMember>(`/admin/organization/members/${userId}`, { role });
+  },
+
+  // Permanently deletes the organization and every member's account
+  // (anonymized, not hard-deleted - see zct-backend app/api/v1/admin.py).
+  // Org-admin only; server clears the acting admin's auth cookies too.
+  deleteOrganization(payload: PasswordConfirmationRequest): Promise<DeletionConfirmationResponse> {
+    return apiClient.delete<DeletionConfirmationResponse>("/admin/organization", {
+      body: JSON.stringify(payload),
+    });
   },
 };

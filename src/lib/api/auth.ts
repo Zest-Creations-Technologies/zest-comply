@@ -4,7 +4,7 @@ import { apiClient } from './client';
 import { API_CONFIG, getApiUrl } from './config';
 import { mockUser, delay } from './mocks';
 import { isMfaRequired } from './types';
-import type { User, AuthTokens, LoginRequest, LoginResponse, MFAVerifyRequest, MFAToggleRequest, MFAToggleResponse, TOTPSetupResponse, TOTPVerifySetupRequest, SignupRequest, SignupResponse, UpdateProfileRequest, ChangePasswordRequest, ChangePasswordResponse, AcceptInviteRequest } from './types';
+import type { User, AuthTokens, LoginRequest, LoginResponse, MFAVerifyRequest, MFAToggleRequest, MFAToggleResponse, TOTPSetupResponse, TOTPVerifySetupRequest, SignupRequest, SignupResponse, UpdateProfileRequest, ChangePasswordRequest, ChangePasswordResponse, AcceptInviteRequest, PasswordConfirmationRequest, DeletionConfirmationResponse } from './types';
 
 export const authApi = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
@@ -179,5 +179,15 @@ export const authApi = {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+  },
+
+  // Right-to-erasure account deletion. Server clears auth cookies on the
+  // response - nothing for the client to store either way.
+  async deleteMyAccount(data: PasswordConfirmationRequest): Promise<DeletionConfirmationResponse> {
+    if (API_CONFIG.useMocks) {
+      await delay();
+      return { message: 'Your account has been deleted.', deleted_at: new Date().toISOString() };
+    }
+    return apiClient.delete<DeletionConfirmationResponse>('/users/me', { body: JSON.stringify(data) });
   },
 };

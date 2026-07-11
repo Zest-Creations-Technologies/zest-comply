@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import { adminSettingsApi } from "@/lib/api";
 import type { AdminOrganizationSettings } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,6 +26,51 @@ function splitLines(value: string) {
 export default function OrganizationProfilePage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const resetDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setDeletePassword("");
+    setDeleteConfirmText("");
+    setDeleteError(null);
+  };
+
+  const deleteOrgMutation = useMutation({
+    mutationFn: () => adminSettingsApi.deleteOrganization({ password: deletePassword }),
+    onSuccess: () => {
+      window.dispatchEvent(new CustomEvent("auth:logout"));
+      toast({ title: "Organization deleted", description: "Your organization and all associated data have been deleted." });
+      navigate("/", { replace: true });
+    },
+    onError: (error: any) => {
+      const status = error?.status;
+      if (status === 429) {
+        setDeleteError("Too many attempts. Please wait 15 minutes before trying again.");
+      } else {
+        setDeleteError(error instanceof Error ? error.message : "Incorrect password.");
+      }
+    },
+  });
+
+  const handleDeleteOrganization = () => {
+    if (deleteConfirmText !== "DELETE") {
+      setDeleteError("Type DELETE to confirm.");
+      return;
+    }
+    if (!deletePassword) {
+      setDeleteError("Enter your password to confirm.");
+      return;
+    }
+    setDeleteError(null);
+    deleteOrgMutation.mutate();
+  };
+
   const [form, setForm] = useState({
     company_name: "",
     address: "",
@@ -162,6 +210,72 @@ export default function OrganizationProfilePage() {
           </div>
         </form>
       )}
+
+      {user?.org_role === "admin" && (
+        <Card className="border-destructive/40 bg-card">
+          <CardHeader>
+            <CardTitle className="text-destructive">Danger Zone</CardTitle>
+            <CardDescription>Permanently delete this organization and everything in it.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Every member's account, all evidence, compliance packages, governance records, and
+              integration configuration (SSO, SIEM export) are permanently deleted. This cannot be undone.
+            </p>
+            <Button type="button" variant="destructive" onClick={() => setDeleteDialogOpen(true)}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete organization
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <Dialog open={deleteDialogOpen} onOpenChange={(open) => { if (!open) resetDeleteDialog(); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Delete organization
+            </DialogTitle>
+            <DialogDescription>
+              This permanently deletes your organization and every member's account. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="delete-org-password">Confirm your password</Label>
+              <Input
+                id="delete-org-password"
+                type="password"
+                value={deletePassword}
+                onChange={(event) => setDeletePassword(event.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="delete-org-confirm-text">Type <span className="font-mono font-semibold">DELETE</span> to confirm</Label>
+              <Input
+                id="delete-org-confirm-text"
+                value={deleteConfirmText}
+                onChange={(event) => setDeleteConfirmText(event.target.value)}
+              />
+            </div>
+            {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={resetDeleteDialog}>Cancel</Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDeleteOrganization}
+              disabled={deleteOrgMutation.isPending || deleteConfirmText !== "DELETE" || !deletePassword}
+            >
+              {deleteOrgMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Permanently delete organization
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { authApi } from '@/lib/api/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Calendar, Shield, Eye, EyeOff, CheckCircle2, XCircle, Loader2, Download, Camera, Trash2, KeyRound, Smartphone } from 'lucide-react';
+import { User, Mail, Calendar, Shield, Eye, EyeOff, CheckCircle2, XCircle, Loader2, Download, Camera, Trash2, KeyRound, Smartphone, AlertTriangle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { z } from 'zod';
 
@@ -46,6 +47,14 @@ const passwordRequirements = [
 export default function ProfileSettingsPage() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Delete account state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Profile form state
   const [firstName, setFirstName] = useState(user?.first_name || '');
@@ -172,6 +181,41 @@ export default function ProfileSettingsPage() {
       });
     } finally {
       setAvatarLoading(false);
+    }
+  };
+
+  const resetDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setDeletePassword('');
+    setDeleteConfirmText('');
+    setDeleteError(null);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') {
+      setDeleteError('Type DELETE to confirm.');
+      return;
+    }
+    if (!deletePassword) {
+      setDeleteError('Enter your password to confirm.');
+      return;
+    }
+    setDeleteError(null);
+    setDeleteLoading(true);
+    try {
+      await authApi.deleteMyAccount({ password: deletePassword });
+      window.dispatchEvent(new CustomEvent('auth:logout'));
+      toast({ title: 'Account deleted', description: 'Your account has been permanently deleted.' });
+      navigate('/', { replace: true });
+    } catch (error: any) {
+      const status = error?.status;
+      if (status === 429) {
+        setDeleteError('Too many attempts. Please wait 15 minutes before trying again.');
+      } else {
+        setDeleteError(error?.message || 'Incorrect password.');
+      }
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -778,6 +822,72 @@ export default function ProfileSettingsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Danger Zone */}
+      <Card className="border-destructive/40 bg-card">
+        <CardHeader>
+          <CardTitle className="text-destructive">Danger Zone</CardTitle>
+          <CardDescription>Permanently delete your account and personal data.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Your profile, credentials, and two-factor setup are scrubbed and your account is deactivated.
+            Evidence, compliance packages, and other data you created for your organization are not affected.
+            This cannot be undone.
+          </p>
+          <Button type="button" variant="destructive" onClick={() => setDeleteDialogOpen(true)}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete my account
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={(open) => { if (!open) resetDeleteDialog(); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Delete your account
+            </DialogTitle>
+            <DialogDescription>
+              This permanently deletes your account. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="delete-password">Confirm your password</Label>
+              <Input
+                id="delete-password"
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="delete-confirm-text">Type <span className="font-mono font-semibold">DELETE</span> to confirm</Label>
+              <Input
+                id="delete-confirm-text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+              />
+            </div>
+            {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={resetDeleteDialog}>Cancel</Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDeleteAccount}
+              disabled={deleteLoading || deleteConfirmText !== 'DELETE' || !deletePassword}
+            >
+              {deleteLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Permanently delete my account
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Authenticator app enrollment dialog */}
       <Dialog open={totpDialogOpen} onOpenChange={(open) => { if (!open) resetTotpDialog(); }}>
