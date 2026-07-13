@@ -23,12 +23,12 @@ function ZestComplyAIIcon({ className }: { className?: string }) {
 }
 
 const workspaceNavItems = [
-  { title: 'Operations Center', url: '/app', icon: Gauge },
+  { title: 'Dashboard', url: '/app', icon: Gauge },
   { title: 'Compliance', url: '/app/compliance', icon: Building2 },
   { title: 'Governance', url: '/app/governance', icon: Landmark },
-  { title: 'Security Operations', url: '/app/security', icon: Shield },
-  { title: 'ZestComply AI', url: '/app/copilot', icon: ZestComplyAIIcon },
-  { title: 'Platform', url: '/app/platform', icon: Settings },
+  { title: 'Security', url: '/app/security', icon: Shield },
+  { title: 'Copilot', url: '/app/copilot', icon: ZestComplyAIIcon },
+  { title: 'Settings', url: '/app/platform', icon: Settings },
 ];
 
 export function AppSidebar() {

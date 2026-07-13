@@ -24,7 +24,7 @@ export function OrgAdminRoute({ children }: OrgAdminRouteProps) {
           This section is only available to organization admins. Ask an admin on your team if you
           need something changed here.
         </p>
-        <Button onClick={() => navigate('/app')}>Back to Operations Center</Button>
+        <Button onClick={() => navigate('/app')}>Back to Dashboard</Button>
       </div>
     );
   }
