@@ -48,8 +48,8 @@ export default function OrganizationProfilePage() {
       toast({ title: "Organization deleted", description: "Your organization and all associated data have been deleted." });
       navigate("/", { replace: true });
     },
-    onError: (error: any) => {
-      const status = error?.status;
+    onError: (error) => {
+      const status = (error as { status?: number })?.status;
       if (status === 429) {
         setDeleteError("Too many attempts. Please wait 15 minutes before trying again.");
       } else {

@@ -26,7 +26,7 @@ const passwordSchema = z.object({
     .regex(/[A-Z]/, 'Must contain uppercase letter')
     .regex(/[a-z]/, 'Must contain lowercase letter')
     .regex(/[0-9]/, 'Must contain a number')
-    .regex(/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/, 'Must contain special character'),
+    .regex(/[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/, 'Must contain special character'),
   confirm_password: z.string(),
 }).refine((data) => data.new_password === data.confirm_password, {
   message: "Passwords don't match",
@@ -41,7 +41,7 @@ const passwordRequirements = [
   { key: 'uppercase', label: 'Uppercase', regex: /[A-Z]/ },
   { key: 'lowercase', label: 'Lowercase', regex: /[a-z]/ },
   { key: 'number', label: 'Number', regex: /[0-9]/ },
-  { key: 'special', label: 'Special char', regex: /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/ },
+  { key: 'special', label: 'Special char', regex: /[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/ },
 ];
 
 export default function ProfileSettingsPage() {
@@ -127,7 +127,7 @@ export default function ProfileSettingsPage() {
         title: 'Profile updated',
         description: 'Your profile has been updated successfully.',
       });
-    } catch (error: any) {
+    } catch (error) {
       const message = error?.detail || error?.message || 'Failed to update profile';
       toast({
         title: 'Error',
@@ -155,7 +155,7 @@ export default function ProfileSettingsPage() {
       await authApi.uploadAvatar(file);
       await refreshUser();
       toast({ title: 'Profile picture updated' });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: 'Upload failed',
         description: error?.message || 'Please try again.',
@@ -173,7 +173,7 @@ export default function ProfileSettingsPage() {
       await authApi.deleteAvatar();
       await refreshUser();
       toast({ title: 'Profile picture removed' });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: 'Could not remove picture',
         description: error?.message || 'Please try again.',
@@ -207,7 +207,7 @@ export default function ProfileSettingsPage() {
       window.dispatchEvent(new CustomEvent('auth:logout'));
       toast({ title: 'Account deleted', description: 'Your account has been permanently deleted.' });
       navigate('/', { replace: true });
-    } catch (error: any) {
+    } catch (error) {
       const status = error?.status;
       if (status === 429) {
         setDeleteError('Too many attempts. Please wait 15 minutes before trying again.');
@@ -224,7 +224,7 @@ export default function ProfileSettingsPage() {
     try {
       await authApi.exportMyData();
       toast({ title: 'Export ready', description: 'Your data export has started downloading.' });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: 'Export failed',
         description: error?.message || 'Please try again.',
@@ -246,7 +246,7 @@ export default function ProfileSettingsPage() {
       await refreshUser();
       setMfaPassword('');
       toast({ title: 'Two-factor authentication enabled', description: response.message });
-    } catch (error: any) {
+    } catch (error) {
       toast({ title: 'Could not enable MFA', description: error?.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setMfaActionLoading(null);
@@ -264,7 +264,7 @@ export default function ProfileSettingsPage() {
       await refreshUser();
       setMfaPassword('');
       toast({ title: 'Two-factor authentication disabled', description: response.message });
-    } catch (error: any) {
+    } catch (error) {
       toast({ title: 'Could not disable MFA', description: error?.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setMfaActionLoading(null);
@@ -291,7 +291,7 @@ export default function ProfileSettingsPage() {
       const setup = await authApi.setupTotp({ password: totpPassword });
       setTotpSetupData(setup);
       setTotpStep('scan');
-    } catch (error: any) {
+    } catch (error) {
       setTotpError(error?.message || 'Incorrect password.');
     } finally {
       setTotpLoading(false);
@@ -310,7 +310,7 @@ export default function ProfileSettingsPage() {
       await refreshUser();
       toast({ title: 'Authenticator app enabled', description: 'Two-factor authentication is now required at login.' });
       resetTotpDialog();
-    } catch (error: any) {
+    } catch (error) {
       setTotpError(error?.message || 'Invalid or expired code.');
     } finally {
       setTotpLoading(false);
@@ -328,7 +328,7 @@ export default function ProfileSettingsPage() {
       await refreshUser();
       setMfaPassword('');
       toast({ title: 'Authenticator app disabled', description: response.message });
-    } catch (error: any) {
+    } catch (error) {
       toast({ title: 'Could not disable authenticator app', description: error?.message || 'Please try again.', variant: 'destructive' });
     } finally {
       setDisableTotpLoading(false);
@@ -370,7 +370,7 @@ export default function ProfileSettingsPage() {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (error: any) {
+    } catch (error) {
       const status = error?.status_code || error?.status;
       const message = error?.detail || error?.message || 'Failed to change password';
       
