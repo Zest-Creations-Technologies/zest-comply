@@ -23,7 +23,19 @@ const requestAccessSchema = z.object({
 
 type FormErrors = Partial<Record<keyof z.infer<typeof requestAccessSchema>, string>>;
 
-const companySizeOptions = ['1-10', '11-50', '51-200', '201-500', '500+'];
+const companySizeOptions = [
+  '1-10 employees (Startup)',
+  '11-50 employees (Small Business)',
+  '51-250 employees (Growing Business)',
+  '251-1,000 employees (Mid-Market)',
+  '1,001-5,000 employees (Enterprise)',
+  '5,001-10,000 employees',
+  '10,000+ employees',
+  'Government Agency',
+  'Prime Contractor',
+  'Managed Service Provider (MSP/MSSP)',
+  'Compliance Consultant / CPA Firm',
+];
 
 export default function RequestAccessPage() {
   const [companyName, setCompanyName] = useState('');
@@ -63,7 +75,14 @@ export default function RequestAccessPage() {
 
     setIsLoading(true);
     try {
-      await accessRequestsApi.submit(result.data);
+      await accessRequestsApi.submit({
+        company_name: companyName.trim(),
+        contact_first_name: firstName.trim(),
+        contact_last_name: lastName.trim(),
+        email: email.trim(),
+        company_size: companySize || undefined,
+        message: message.trim() || undefined,
+      });
       setSubmitted(true);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to submit request';
@@ -170,14 +189,14 @@ export default function RequestAccessPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="companySize" className={authLabelClass}>Company Size (Optional)</Label>
+                <Label htmlFor="companySize" className={authLabelClass}>Company Size / Type (Optional)</Label>
                 <Select value={companySize} onValueChange={setCompanySize} disabled={isLoading}>
                   <SelectTrigger id="companySize" className={authInputClass}>
                     <SelectValue placeholder="Select a range" />
                   </SelectTrigger>
                   <SelectContent>
                     {companySizeOptions.map((option) => (
-                      <SelectItem key={option} value={option}>{option} employees</SelectItem>
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

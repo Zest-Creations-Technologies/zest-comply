@@ -215,7 +215,7 @@ export default function CompanyProfilePage() {
                   <SelectContent>
                     {(conversationsQuery.data ?? []).map((conversation) => (
                       <SelectItem key={conversation.id} value={conversation.id}>
-                        {conversation.company_name || conversation.recommended_framework || conversation.id}
+                        {conversation.company_name || conversation.id}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -42,38 +42,6 @@ export default function VerifyEmailPage() {
     }
   }, [email]);
 
-  // Show a form to enter email if not provided
-  if (!email) {
-    return (
-      <AuthShell>
-        <Card className={`w-full ${authCardClass}`}>
-          <CardHeader className="px-7 pb-5 pt-8 text-center sm:px-9 sm:pt-9">
-            <div className="mb-6 flex justify-center">
-              <AuthWordmark />
-            </div>
-            <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Verify Your Email</CardTitle>
-            <CardDescription>
-              Please sign in first to receive a verification code.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-7 text-center sm:px-9">
-            <Button asChild className="w-full">
-              <Link to="/auth/login">Go to Sign In</Link>
-            </Button>
-          </CardContent>
-          <CardFooter className="justify-center">
-            <p className="text-sm text-slate-500">
-              Already have an account?{' '}
-              <Link to="/auth/login" className={authLinkClass}>
-                Sign in
-              </Link>
-            </p>
-          </CardFooter>
-        </Card>
-      </AuthShell>
-    );
-  }
-
   // Update time remaining countdown
   useEffect(() => {
     if (!expiryTime) return;
@@ -154,6 +122,38 @@ export default function VerifyEmailPage() {
       handleVerify();
     }
   }, [otp, isVerifying, isVerified, handleVerify]);
+
+  // Show a form to enter email if not provided
+  if (!email) {
+    return (
+      <AuthShell>
+        <Card className={`w-full ${authCardClass}`}>
+          <CardHeader className="px-7 pb-5 pt-8 text-center sm:px-9 sm:pt-9">
+            <div className="mb-6 flex justify-center">
+              <AuthWordmark />
+            </div>
+            <CardTitle className="text-3xl font-semibold tracking-[-0.035em] text-white">Verify Your Email</CardTitle>
+            <CardDescription>
+              Please sign in first to receive a verification code.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-7 text-center sm:px-9">
+            <Button asChild className="w-full">
+              <Link to="/auth/login">Go to Sign In</Link>
+            </Button>
+          </CardContent>
+          <CardFooter className="justify-center">
+            <p className="text-sm text-slate-500">
+              Already have an account?{' '}
+              <Link to="/auth/login" className={authLinkClass}>
+                Sign in
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
+      </AuthShell>
+    );
+  }
 
   const handleResend = async () => {
     if (resendCooldown > 0 || isResending) return;
