@@ -1,24 +1,27 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
 import { adminSettingsApi } from "@/lib/api";
-import type { PlatformSettings } from "@/lib/api";
+import type { AdminSecuritySettings } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { AdminPageHeader } from "./AdminShared";
+import { AdminEmptyState, AdminPageHeader } from "./AdminShared";
 
 export default function SecurityAdminPage() {
+  const { user } = useAuth();
+  const isOrgAdmin = user?.org_role === "admin";
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [requireMfa, setRequireMfa] = useState(false);
 
   const settingsQuery = useQuery({
-    queryKey: ["admin", "platform-settings"],
-    queryFn: adminSettingsApi.getPlatformSettings,
+    queryKey: ["admin", "security-settings"],
+    queryFn: adminSettingsApi.getSecuritySettings,
   });
 
   useEffect(() => {
@@ -28,15 +31,16 @@ export default function SecurityAdminPage() {
   }, [settingsQuery.data]);
 
   const mutation = useMutation({
-    mutationFn: (payload: PlatformSettings) => adminSettingsApi.updatePlatformSettings(payload),
+    mutationFn: (payload: Pick<AdminSecuritySettings, "require_mfa">) =>
+      adminSettingsApi.updateSecuritySettings(payload),
     onSuccess: (data) => {
-      queryClient.setQueryData(["admin", "platform-settings"], data);
+      queryClient.setQueryData(["admin", "security-settings"], data);
       setRequireMfa(data.require_mfa);
       toast({
         title: "Security settings saved",
         description: data.require_mfa
-          ? "Multi-factor authentication is now required for every user."
-          : "Multi-factor authentication is no longer organization-enforced.",
+          ? "Multi-factor authentication is now required for every user in your organization."
+          : "Multi-factor authentication is no longer enforced for your organization.",
       });
     },
     onError: (error) => {
@@ -49,12 +53,29 @@ export default function SecurityAdminPage() {
     },
   });
 
+  if (!isOrgAdmin) {
+    return (
+      <div className="mx-auto max-w-6xl space-y-6 p-6">
+        <AdminPageHeader
+          eyebrow="Organization"
+          title="Security"
+          description="Authentication requirements for every user in your organization."
+        />
+        <AdminEmptyState
+          icon={ShieldCheck}
+          title="Admin access required"
+          description="Ask an org admin to change authentication requirements for your organization."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <AdminPageHeader
-        eyebrow="Platform"
+        eyebrow="Organization"
         title="Security"
-        description="Organization-wide authentication requirements for every user on this workspace."
+        description="Authentication requirements for every user in your organization."
       />
 
       {settingsQuery.isLoading && (
@@ -70,7 +91,7 @@ export default function SecurityAdminPage() {
           <AlertDescription>
             {settingsQuery.error instanceof Error
               ? settingsQuery.error.message
-              : "Failed to load security settings. Administrator privileges are required to view this page."}
+              : "Failed to load security settings. Please try again."}
           </AlertDescription>
         </Alert>
       )}

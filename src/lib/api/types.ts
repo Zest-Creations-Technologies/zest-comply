@@ -705,8 +705,12 @@ export interface AdminNotificationSettings {
   updated_at?: string | null;
 }
 
-export interface PlatformSettings {
+export interface AdminSecuritySettings {
+  id?: string | null;
+  organization_id: string;
   require_mfa: boolean;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 export interface SiemWebhookConfig {
@@ -724,6 +728,29 @@ export interface SiemWebhookConfigUpdate {
   webhook_url: string;
   format: 'splunk_hec' | 'datadog';
   auth_header_value?: string | null;
+  enabled: boolean;
+}
+
+export type OrgConnectionCheckStatus = 'pass' | 'fail' | 'indeterminate' | null;
+
+export interface OrgConnection {
+  id?: string | null;
+  organization_id: string;
+  provider: string; // "okta" (v1 only)
+  domain?: string | null;
+  enabled: boolean;
+  has_credentials: boolean;
+  last_check_status: OrgConnectionCheckStatus;
+  last_check_at?: string | null;
+  last_check_error?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface OrgConnectionUpdate {
+  provider?: 'okta';
+  domain?: string;
+  api_token?: string;
   enabled: boolean;
 }
 

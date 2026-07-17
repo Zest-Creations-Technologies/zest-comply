@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { AdminBrandingSettings, AdminNotificationSettings, AdminOrganizationSettings, PlatformSettings, UserInviteRequest, UserInviteResponse, OrganizationMemberListResponse, OrganizationMember, PasswordConfirmationRequest, DeletionConfirmationResponse } from "./types";
+import type { AdminBrandingSettings, AdminNotificationSettings, AdminOrganizationSettings, AdminSecuritySettings, UserInviteRequest, UserInviteResponse, OrganizationMemberListResponse, OrganizationMember, PasswordConfirmationRequest, DeletionConfirmationResponse } from "./types";
 
 export const adminSettingsApi = {
   getOrganization(): Promise<AdminOrganizationSettings> {
@@ -26,12 +26,12 @@ export const adminSettingsApi = {
     return apiClient.put<AdminNotificationSettings>("/admin/notifications", payload);
   },
 
-  getPlatformSettings(): Promise<PlatformSettings> {
-    return apiClient.get<PlatformSettings>("/admin/platform-settings");
+  getSecuritySettings(): Promise<AdminSecuritySettings> {
+    return apiClient.get<AdminSecuritySettings>("/admin/security-settings");
   },
 
-  updatePlatformSettings(payload: PlatformSettings): Promise<PlatformSettings> {
-    return apiClient.put<PlatformSettings>("/admin/platform-settings", payload);
+  updateSecuritySettings(payload: Pick<AdminSecuritySettings, "require_mfa">): Promise<AdminSecuritySettings> {
+    return apiClient.put<AdminSecuritySettings>("/admin/security-settings", payload);
   },
 
   inviteUser(payload: UserInviteRequest): Promise<UserInviteResponse> {

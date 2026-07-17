@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { evidenceApi, humanValidationApi } from "@/lib/api";
+import { connectionsApi, evidenceApi, humanValidationApi } from "@/lib/api";
 import type {
   ComplianceCalendarEvent,
   ComplianceTask,
@@ -23,10 +23,12 @@ function statusFor(evidenceCoverage: number, totalEvidence: number): MonitoringS
 export function useMonitoringData() {
   const evidenceQuery = useQuery({ queryKey: ["evidence"], queryFn: () => evidenceApi.list() });
   const queueQuery = useQuery({ queryKey: ["human-validation", "queue"], queryFn: () => humanValidationApi.getQueue() });
+  const connectionQuery = useQuery({ queryKey: ["admin", "connections"], queryFn: connectionsApi.get });
 
   const data = useMemo(() => {
     const records = evidenceQuery.data?.records ?? [];
     const profiles = queueQuery.data?.profiles ?? [];
+    const connection = connectionQuery.data;
     const now = new Date();
 
     const byFramework = new Map<string, typeof records>();
@@ -114,6 +116,24 @@ export function useMonitoringData() {
       }
     }
 
+    // Live-system-state alert, kept separate from the evidence-lifecycle-derived
+    // alerts above - sweep-created evidence lands as DRAFT (not "rejected"), so
+    // it wouldn't be picked up by the "Control failed" branch, and forcing a
+    // REJECTED status onto automated evidence would misrepresent it as
+    // human-reviewed.
+    if (connection?.last_check_status === "fail") {
+      monitoringAlerts.push({
+        id: "connection-okta-mfa",
+        type: "Connected system check failed",
+        title: `Okta MFA enforcement check failed${connection.domain ? ` (${connection.domain})` : ""}`,
+        framework: "Unassigned",
+        owner: "Unassigned",
+        dueDate: connection.last_check_at ?? "",
+        severity: "High",
+        status: "Open",
+      });
+    }
+
     const complianceTasks: ComplianceTask[] = [
       ...records
         .filter((record) => record.status === "draft" || record.status === "pending_review")
@@ -171,7 +191,7 @@ export function useMonitoringData() {
     });
 
     return { frameworkHealth, monitoringAlerts, complianceTasks, calendarEvents };
-  }, [evidenceQuery.data, queueQuery.data]);
+  }, [evidenceQuery.data, queueQuery.data, connectionQuery.data]);
 
   return {
     ...data,

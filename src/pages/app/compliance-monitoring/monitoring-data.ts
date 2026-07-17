@@ -6,7 +6,8 @@ export type AlertType =
   | "Approval overdue"
   | "Control failed"
   | "Annual review due"
-  | "Framework update available";
+  | "Framework update available"
+  | "Connected system check failed";
 export type TaskPriority = "High" | "Medium" | "Low";
 export type TaskStatus = "Not Started" | "In Progress" | "Blocked" | "Complete";
 export type CalendarEventType = "Review" | "Audit" | "Evidence Expiration" | "Assessment" | "Governance Approval";

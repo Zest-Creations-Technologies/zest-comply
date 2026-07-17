@@ -1,4 +1,4 @@
-import { Bell, Building2, FileEdit, KeyRound, Lock, ScrollText, Send, ShieldCheck, Users, Fingerprint } from "lucide-react";
+import { Bell, Building2, FileEdit, KeyRound, Lock, Radar, ScrollText, Send, ShieldCheck, Users, Fingerprint } from "lucide-react";
 import { AdminActionCard, AdminPageHeader } from "./AdminShared";
 import { toneFor } from "@/lib/tone-palette";
 
@@ -13,6 +13,7 @@ const adminCards = [
   { title: "Audit Logs", description: "Review administrative and platform activity across your organization.", href: "/app/admin/audit-logs", icon: ScrollText },
   { title: "API Keys", description: "Create and manage keys for programmatic access to the ZestComply API.", href: "/app/admin/api-keys", icon: KeyRound },
   { title: "SIEM Export", description: "Forward audit events to Splunk or Datadog in near real time.", href: "/app/admin/siem-export", icon: Send },
+  { title: "Connected Systems", description: "Continuously monitor Okta MFA enforcement and get alerted when it drifts.", href: "/app/admin/connections", icon: Radar },
 ];
 
 export default function AdministrationPage() {

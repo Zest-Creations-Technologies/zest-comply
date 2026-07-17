@@ -89,6 +89,7 @@ import AuditLogsAdminPage from "./pages/app/admin/AuditLogsAdminPage";
 import SiemExportAdminPage from "./pages/app/admin/SiemExportAdminPage";
 import SsoAdminPage from "./pages/app/admin/SsoAdminPage";
 import ApiKeysPage from "./pages/app/admin/ApiKeysPage";
+import ConnectionsAdminPage from "./pages/app/admin/ConnectionsAdminPage";
 
 const queryClient = new QueryClient();
 
@@ -161,6 +162,7 @@ const App = () => {
                 <Route path="admin/siem-export" element={<OrgAdminRoute><SiemExportAdminPage /></OrgAdminRoute>} />
                 <Route path="admin/sso" element={<OrgAdminRoute><SsoAdminPage /></OrgAdminRoute>} />
                 <Route path="admin/api-keys" element={<OrgAdminRoute><ApiKeysPage /></OrgAdminRoute>} />
+                <Route path="admin/connections" element={<OrgAdminRoute><ConnectionsAdminPage /></OrgAdminRoute>} />
                 <Route path="assistant" element={<AssistantPage />} />
                 <Route path="packages" element={<PackagesPage />} />
                 <Route path="human-validation" element={<HumanValidationDashboardPage />} />
