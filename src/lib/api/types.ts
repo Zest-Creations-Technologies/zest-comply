@@ -683,6 +683,7 @@ export interface AdminBrandingSettings {
   id?: string | null;
   organization_id: string;
   logo_url?: string | null;
+  logo_download_url?: string | null;
   primary_color?: string | null;
   secondary_color?: string | null;
   report_footer?: string | null;

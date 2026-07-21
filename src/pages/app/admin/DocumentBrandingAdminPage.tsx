@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2, Upload } from "lucide-react";
 import { adminSettingsApi } from "@/lib/api";
 import type { AdminBrandingSettings } from "@/lib/api";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useLogoUpload } from "@/hooks/useLogoUpload";
 import { AdminPageHeader } from "./AdminShared";
 
 export default function DocumentBrandingAdminPage() {
@@ -76,6 +77,45 @@ export default function DocumentBrandingAdminPage() {
     },
   });
 
+  const uploadLogoMutation = useMutation({
+    mutationFn: (file: File) => adminSettingsApi.uploadBrandingLogo(file),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["admin", "branding"], data);
+      toast({ title: "Logo uploaded" });
+    },
+    onError: (error) => {
+      toast({
+        title: "Could not upload logo",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteLogoMutation = useMutation({
+    mutationFn: () => adminSettingsApi.deleteBrandingLogo(),
+    onSuccess: () => {
+      queryClient.setQueryData(["admin", "branding"], (current: AdminBrandingSettings | undefined) =>
+        current ? { ...current, logo_download_url: null } : current
+      );
+      toast({ title: "Logo deleted" });
+    },
+    onError: (error) => {
+      toast({
+        title: "Could not delete logo",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { selectedFile, previewUrl, error: logoError, selectFile, upload, reset } = useLogoUpload({
+    onUpload: async (file) => {
+      await uploadLogoMutation.mutateAsync(file);
+    },
+  });
+
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <AdminPageHeader
@@ -111,12 +151,92 @@ export default function DocumentBrandingAdminPage() {
         >
           <Card className="bg-card">
             <CardHeader>
+              <CardTitle>Company Logo</CardTitle>
+              <CardDescription>Upload a logo to appear on generated reports, policies, and executive documents.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {brandingQuery.data?.logo_download_url && !selectedFile ? (
+                <div className="flex items-center gap-4 rounded-md border border-border p-4">
+                  <img
+                    src={brandingQuery.data.logo_download_url}
+                    alt="Current logo"
+                    className="h-16 max-w-[200px] object-contain"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => deleteLogoMutation.mutate()}
+                    disabled={deleteLogoMutation.isPending}
+                  >
+                    {deleteLogoMutation.isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="mr-2 h-4 w-4" />
+                    )}
+                    Delete Logo
+                  </Button>
+                </div>
+              ) : (
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className="cursor-pointer rounded-md border-2 border-dashed border-border p-6 text-center hover:border-primary/50"
+                  onClick={() => fileInputRef.current?.click()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                >
+                  {previewUrl ? (
+                    <img src={previewUrl} alt="Logo preview" className="mx-auto max-h-24 object-contain" />
+                  ) : (
+                    <>
+                      <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
+                      <p className="mt-2 text-sm text-muted-foreground">Click to select a logo (PNG or JPEG, max 5MB)</p>
+                    </>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) await selectFile(file);
+                      e.target.value = "";
+                    }}
+                  />
+                </div>
+              )}
+              {logoError && <p className="text-sm text-destructive">{logoError}</p>}
+              {selectedFile && (
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">{selectedFile.name}</p>
+                  <div className="flex gap-2">
+                    <Button type="button" variant="ghost" size="sm" onClick={reset}>
+                      Cancel
+                    </Button>
+                    <Button type="button" size="sm" onClick={() => upload()} disabled={uploadLogoMutation.isPending}>
+                      {uploadLogoMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Upload Logo
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card">
+            <CardHeader>
               <CardTitle>Branding Defaults</CardTitle>
-              <CardDescription>Logo file upload is future work. Use a logo URL for this activation checkpoint.</CardDescription>
+              <CardDescription>The logo URL below is used only if no logo has been uploaded above.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
               <div className="grid gap-2 md:col-span-2">
-                <Label htmlFor="logo-url">Company logo URL</Label>
+                <Label htmlFor="logo-url">Fallback logo URL</Label>
                 <Input id="logo-url" type="url" value={form.logo_url} onChange={(event) => updateField("logo_url", event.target.value)} />
               </div>
               <div className="grid gap-2">

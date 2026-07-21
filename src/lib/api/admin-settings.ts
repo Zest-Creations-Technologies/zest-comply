@@ -18,6 +18,16 @@ export const adminSettingsApi = {
     return apiClient.put<AdminBrandingSettings>("/admin/branding", payload);
   },
 
+  uploadBrandingLogo(file: File): Promise<AdminBrandingSettings> {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiClient.uploadFormData<AdminBrandingSettings>("/admin/branding/logo", formData);
+  },
+
+  deleteBrandingLogo(): Promise<void> {
+    return apiClient.delete<void>("/admin/branding/logo");
+  },
+
   getNotifications(): Promise<AdminNotificationSettings> {
     return apiClient.get<AdminNotificationSettings>("/admin/notifications");
   },
