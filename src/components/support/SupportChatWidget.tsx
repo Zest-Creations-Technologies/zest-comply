@@ -15,7 +15,7 @@ interface ChatMessage {
 
 const GREETING: ChatMessage = {
   role: "assistant",
-  content: "Hi! I'm ZestComply's support assistant. Ask me anything about the platform, supported compliance frameworks, or how it works.",
+  content: "Hi! I'm Ken, ZestComply's support assistant. Ask me anything about the platform, pricing, supported compliance frameworks, or how it works.",
 };
 
 export function SupportChatWidget() {
@@ -76,7 +76,7 @@ export function SupportChatWidget() {
         <div className="flex h-[28rem] w-[22rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1617] shadow-2xl shadow-slate-950/50">
           <div className="flex items-center justify-between border-b border-white/10 bg-[#071112] px-4 py-3">
             <div>
-              <p className="text-sm font-semibold text-white">ZestComply Support</p>
+              <p className="text-sm font-semibold text-white">Ken · ZestComply Support</p>
               <p className="text-xs text-slate-400">Usually answers instantly</p>
             </div>
             <button
