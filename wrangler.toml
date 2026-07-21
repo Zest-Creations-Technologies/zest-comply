@@ -7,3 +7,9 @@ directory = "./dist"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
 run_worker_first = true
+
+# Workers AI - powers the support chat widget (worker/index.js's
+# /api/support-chat route). Free within Cloudflare's daily neuron
+# allowance; no separate LLM API key/cost.
+[ai]
+binding = "AI"

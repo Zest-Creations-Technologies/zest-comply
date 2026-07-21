@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import logoIcon from "@/assets/logo-icon.png";
+import { SupportChatWidget } from "@/components/support/SupportChatWidget";
 
 const navItems = [
   { href: "#platform", label: "Platform" },
@@ -42,6 +43,7 @@ export function LandingHeader() {
   const dashboardTarget = isAuthenticated ? "/app" : "/auth/request-access";
 
   return (
+    <>
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled
@@ -102,5 +104,7 @@ export function LandingHeader() {
         </div>
       )}
     </header>
+    <SupportChatWidget />
+    </>
   );
 }
