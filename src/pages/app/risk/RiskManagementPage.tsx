@@ -15,7 +15,7 @@ const actionCards = [
 ];
 
 const workflowSteps = [
-  { title: "Identify", description: "Risks can come from assessments, governance reviews, compliance monitoring, audits, manual entries, integrations, and optional ZestRecon findings." },
+  { title: "Identify", description: "Risks can come from assessments, governance reviews, compliance monitoring, audits, manual entries, integrations, and optional connected-scanner findings." },
   { title: "Assess", description: "Evaluate likelihood, business impact, priority, and ownership." },
   { title: "Treat", description: "Create remediation plans, assign owners, and define due dates." },
   { title: "Approve / Accept", description: "Route exceptions and accepted risks through governance." },
@@ -33,7 +33,7 @@ export default function RiskManagementPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7a622b]">Governance</p>
             <h1 className="text-3xl font-bold tracking-tight text-slate-950">Risk Management</h1>
             <p className="text-slate-600">
-              Manage enterprise risks identified through assessments, governance reviews, compliance monitoring, audits, manual entries, integrations, and optional ZestRecon findings.
+              Manage enterprise risks identified through assessments, governance reviews, compliance monitoring, audits, manual entries, integrations, and optional connected-scanner findings.
             </p>
           </div>
           <Button asChild size="lg" className="shadow-lg shadow-primary/20">

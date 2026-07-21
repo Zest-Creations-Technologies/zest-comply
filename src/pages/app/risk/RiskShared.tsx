@@ -41,7 +41,7 @@ export function RiskRelationshipSection() {
     "Assessments -> Risks",
     "Governance Reviews -> Risks",
     "Compliance Monitoring -> Risks",
-    "ZestRecon Findings -> Risks",
+    "Connected Scanner Findings -> Risks",
     "Risks -> Executive Reports",
     "Risks -> Evidence Requests",
   ];

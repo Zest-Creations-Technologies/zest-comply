@@ -58,8 +58,7 @@ import ComplianceWorkspacePage from "./pages/app/workspaces/ComplianceWorkspaceP
 import GovernanceWorkspacePage from "./pages/app/workspaces/GovernanceWorkspacePage";
 import PlatformWorkspacePage from "./pages/app/workspaces/PlatformWorkspacePage";
 import SecurityOperationsPage from "./pages/app/security/SecurityOperationsPage";
-import ZestReconOverviewPage from "./pages/app/security/ZestReconOverviewPage";
-import ConnectZestReconPage from "./pages/app/security/ConnectZestReconPage";
+import ConnectSecurityScannerPage from "./pages/app/security/ConnectSecurityScannerPage";
 import SecurityFindingsPage from "./pages/app/security/SecurityFindingsPage";
 import SecurityAssetsPage from "./pages/app/security/SecurityAssetsPage";
 import SecurityAlertsPage from "./pages/app/security/SecurityAlertsPage";
@@ -130,8 +129,7 @@ const App = () => {
                 <Route path="compliance" element={<ComplianceWorkspacePage />} />
                 <Route path="governance" element={<GovernanceWorkspacePage />} />
                 <Route path="security" element={<SecurityOperationsPage />} />
-                <Route path="security/zestrecon" element={<ZestReconOverviewPage />} />
-                <Route path="security/connect" element={<ConnectZestReconPage />} />
+                <Route path="security/connect" element={<ConnectSecurityScannerPage />} />
                 <Route path="security/findings" element={<SecurityFindingsPage />} />
                 <Route path="security/assets" element={<SecurityAssetsPage />} />
                 <Route path="security/alerts" element={<SecurityAlertsPage />} />

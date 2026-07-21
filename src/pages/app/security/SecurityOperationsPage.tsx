@@ -2,13 +2,13 @@ import { Link } from "react-router-dom";
 import { ExternalLink, Radar, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ComplianceImpactSection, SecurityEmptyState, ZestReconBadge } from "./SecurityShared";
+import { ComplianceImpactSection, SecurityEmptyState, ScannerIntegrationBadge } from "./SecurityShared";
 import { toneFor } from "@/lib/tone-palette";
 import { GaugeMeter } from "@/components/app/dashboard-charts";
 
 export default function SecurityOperationsPage() {
   const dataCards = [
-    { title: "Security Data Ingestion", description: "Optional ZestRecon data can enrich compliance workflows with findings, assets, alerts, vulnerabilities, and attack surface context." },
+    { title: "Security Data Ingestion", description: "Optional connected-scanner data (ZestRecon or others) can enrich compliance workflows with findings, assets, alerts, vulnerabilities, and attack surface context." },
     { title: "Compliance Signal Routing", description: "Imported security signals can later support evidence requests, risks, governance reviews, monitoring alerts, and executive reporting." },
   ];
 
@@ -19,24 +19,24 @@ export default function SecurityOperationsPage() {
         <div className="relative space-y-3">
           <div className="flex items-center gap-2">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7a622b]">Workspace</p>
-            <ZestReconBadge />
+            <ScannerIntegrationBadge />
           </div>
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight text-slate-950">Security Operations</h1>
             <p className="max-w-3xl text-slate-600">
-              ZestComply works independently. Connect ZestRecon to enrich Security Operations with security findings, vulnerabilities, assets, alerts, attack surface data, and compliance signals.
+              ZestComply works independently. Connect a security scanner - ZestRecon or your existing tools - to enrich Security Operations with security findings, vulnerabilities, assets, alerts, attack surface data, and compliance signals.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild size="lg" className="shadow-lg shadow-primary/20">
               <Link to="/app/security/connect">
                 <Radar className="mr-2 h-4 w-4" />
-                Connect ZestRecon
+                Connect a Scanner
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="border-slate-200 bg-white hover:bg-slate-50">
               <a href="https://zestrecon.com" target="_blank" rel="noopener noreferrer">
-                Visit zestrecon.com
+                Learn about ZestRecon
                 <ExternalLink className="ml-2 h-4 w-4" />
               </a>
             </Button>

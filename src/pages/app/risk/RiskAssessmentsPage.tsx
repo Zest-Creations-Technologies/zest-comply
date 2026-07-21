@@ -8,7 +8,7 @@ export default function RiskAssessmentsPage() {
         title="Risk Assessments"
         description="Identify risks from assessment results, control gaps, manual entries, integrations, and optional imported security findings."
       />
-      <RiskEmptyState icon={ClipboardList} title="Complete assessments or add risk inputs to begin identifying risks." description="Risk assessments will appear after assessment workflows, manual entries, integrations, or optional ZestRecon findings provide risk candidates." />
+      <RiskEmptyState icon={ClipboardList} title="Complete assessments or add risk inputs to begin identifying risks." description="Risk assessments will appear after assessment workflows, manual entries, integrations, or optional connected-scanner findings provide risk candidates." />
       <RiskRelationshipSection />
     </div>
   );

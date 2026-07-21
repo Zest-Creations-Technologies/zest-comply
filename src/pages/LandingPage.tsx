@@ -1,6 +1,7 @@
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { WhySection } from '@/components/landing/WhySection';
+import { CmmcCallout } from '@/components/landing/CmmcCallout';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { ZestReconSection } from '@/components/landing/ZestReconSection';
 import { PartnersSection } from '@/components/landing/PartnersSection';
@@ -26,6 +27,7 @@ export default function LandingPage() {
       <LandingHeader />
       <main>
         <HeroSection />
+        <CmmcCallout />
         <WhySection />
         <HowItWorksSection />
         <ZestReconSection />

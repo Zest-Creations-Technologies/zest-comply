@@ -9,7 +9,7 @@ const summarySources = [
   "Evidence coverage",
   "Outstanding approvals",
   "Audit readiness",
-  "Security insights (optional via ZestRecon)",
+  "Security insights (optional via connected scanners)",
 ];
 
 export default function ExecutiveSummaryPage() {
