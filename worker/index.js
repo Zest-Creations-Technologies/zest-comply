@@ -125,6 +125,7 @@ async function handleSupportChat(request, env) {
       : "Sorry, I didn't catch that - could you rephrase?";
     return jsonResponse({ reply }, 200);
   } catch (err) {
+    console.error("support-chat: env.AI.run failed:", err && err.stack ? err.stack : err);
     return jsonResponse(
       { error: "The support assistant is temporarily unavailable. Please try again shortly." },
       502
