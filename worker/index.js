@@ -26,7 +26,11 @@ const SECURITY_HEADERS = {
 // Backs the support chat widget (src/components/support/SupportChatWidget.tsx).
 // Uses Workers AI (env.AI, bound in wrangler.toml) rather than a paid LLM API -
 // free within Cloudflare's daily neuron allowance, no separate API key/cost.
-const SUPPORT_CHAT_MODEL = "@cf/meta/llama-3.1-8b-instruct";
+// @cf/meta/llama-3.1-8b-instruct (no -fp8 suffix) was deprecated 2026-05-30 -
+// confirmed live via `wrangler ai models list` against the current catalog
+// after the widget started failing with AiError 5028 in production. This is
+// the still-supported fp8 variant with an identical messages-based schema.
+const SUPPORT_CHAT_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
 const MAX_MESSAGES = 20;
 const MAX_MESSAGE_LENGTH = 2000;
 
