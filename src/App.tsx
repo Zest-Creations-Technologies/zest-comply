@@ -89,6 +89,7 @@ import SiemExportAdminPage from "./pages/app/admin/SiemExportAdminPage";
 import SsoAdminPage from "./pages/app/admin/SsoAdminPage";
 import ApiKeysPage from "./pages/app/admin/ApiKeysPage";
 import ConnectionsAdminPage from "./pages/app/admin/ConnectionsAdminPage";
+import MarketplaceActivatePage from "./pages/app/marketplace/MarketplaceActivatePage";
 
 const queryClient = new QueryClient();
 
@@ -115,6 +116,14 @@ const App = () => {
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
               <Route path="/terms" element={<TermsOfServicePage />} />
               <Route path="/security" element={<SecurityPage />} />
+              <Route
+                path="/marketplace/activate"
+                element={
+                  <ProtectedRoute>
+                    <MarketplaceActivatePage />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Protected app routes */}
               <Route

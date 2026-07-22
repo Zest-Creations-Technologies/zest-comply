@@ -19,7 +19,16 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    // Pass pathname + search (not just location) so a deep link with query
+    // params (e.g. the Azure Marketplace activation token) survives the
+    // login round-trip instead of being silently dropped.
+    return (
+      <Navigate
+        to="/auth/login"
+        state={{ from: { pathname: location.pathname + location.search } }}
+        replace
+      />
+    );
   }
 
   return <>{children}</>;

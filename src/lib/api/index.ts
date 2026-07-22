@@ -25,6 +25,8 @@ export { copilotApi } from './copilot';
 export { aiGovernanceApi } from './ai-governance';
 export { telemetryApi } from './telemetry';
 export type { TelemetryEvent, TelemetryEventType, TelemetryEventFilters } from './telemetry';
+export { marketplaceApi, marketplacePlanDisplayName } from './marketplace';
+export type { MarketplaceResolvedSubscription, MarketplaceSubscriptionResponse } from './marketplace';
 export { getComplianceIntelligenceProvider } from './integrations';
 export type {
   ComplianceIntelligenceProvider,
