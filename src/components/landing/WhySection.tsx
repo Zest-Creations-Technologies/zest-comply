@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { BadgeCheck, FileText, GitBranch, MonitorCheck, Scale, ShieldCheck } from "lucide-react";
+import { BadgeCheck, Bell, FileText, GitBranch, MonitorCheck, Scale, ShieldCheck } from "lucide-react";
 
 
 const frameworkExamples = [
@@ -49,6 +49,11 @@ const capabilities = [
     icon: Scale,
     title: "Executive reporting",
     description: "Prepare decision-ready reporting from compliance posture, evidence coverage, risk work, approvals, and audit readiness.",
+  },
+  {
+    icon: Bell,
+    title: "Microsoft Teams alerts",
+    description: "Send evidence, coverage, and approval alerts straight to your organization's own Microsoft Teams channel in real time.",
   },
 ];
 
