@@ -1,4 +1,4 @@
-import { Bell, Building2, FileEdit, KeyRound, Lock, Radar, ScrollText, Send, ShieldCheck, Users, Fingerprint } from "lucide-react";
+import { Bell, Building2, FileEdit, KeyRound, Lock, MessageSquare, Radar, ScrollText, Send, ShieldCheck, Users, Fingerprint } from "lucide-react";
 import { AdminActionCard, AdminPageHeader } from "./AdminShared";
 import { toneFor } from "@/lib/tone-palette";
 
@@ -14,6 +14,7 @@ const adminCards = [
   { title: "API Keys", description: "Create and manage keys for programmatic access to the ZestComply API.", href: "/app/admin/api-keys", icon: KeyRound },
   { title: "SIEM Export", description: "Forward audit events to Splunk or Datadog in near real time.", href: "/app/admin/siem-export", icon: Send },
   { title: "Connected Systems", description: "Continuously monitor Okta MFA enforcement and get alerted when it drifts.", href: "/app/admin/connections", icon: Radar },
+  { title: "Teams Notifications", description: "Post evidence, coverage, and approval alerts to a Microsoft Teams channel.", href: "/app/admin/teams-webhook", icon: MessageSquare },
 ];
 
 export default function AdministrationPage() {

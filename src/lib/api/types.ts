@@ -755,6 +755,20 @@ export interface OrgConnectionUpdate {
   enabled: boolean;
 }
 
+export interface OrgTeamsWebhook {
+  id?: string | null;
+  organization_id: string;
+  enabled: boolean;
+  has_webhook: boolean;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface OrgTeamsWebhookUpdate {
+  webhook_url?: string;
+  enabled: boolean;
+}
+
 export interface SsoConfig {
   id?: string | null;
   organization_id: string;

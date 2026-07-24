@@ -17,6 +17,7 @@ export { apiKeysApi } from './api-keys';
 export { policyDocumentsApi } from './policy-documents';
 export { siemWebhookApi } from './siem-webhook';
 export { connectionsApi } from './connections';
+export { teamsWebhookApi } from './teams-webhook';
 export { ssoApi } from './sso';
 export { evidenceApi } from './evidence';
 export { readinessScoreApi } from './readiness-score';
