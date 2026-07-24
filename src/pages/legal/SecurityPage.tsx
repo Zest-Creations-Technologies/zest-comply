@@ -46,11 +46,11 @@ export default function SecurityPage() {
             <ul className="text-muted-foreground space-y-3 mt-4">
               <li className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <span><strong className="text-foreground">Cloud Infrastructure:</strong> Hosted on Cloudflare's global edge network and enterprise cloud infrastructure</span>
+                <span><strong className="text-foreground">Cloud Infrastructure:</strong> Frontend served from Cloudflare's global edge network; backend API runs on Azure Container Apps inside a VNET-isolated environment, with the database on no public network access</span>
               </li>
               <li className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <span><strong className="text-foreground">Network Security:</strong> Protected by Cloudflare's edge firewall, bot protection, and DDoS mitigation</span>
+                <span><strong className="text-foreground">Network Security:</strong> Cloudflare edge firewall, bot protection, and DDoS mitigation for the frontend; Azure VNET isolation and Azure Key Vault-managed secrets for the backend and database</span>
               </li>
               <li className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
