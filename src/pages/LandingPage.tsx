@@ -27,8 +27,8 @@ export default function LandingPage() {
       <LandingHeader />
       <main>
         <HeroSection />
-        <CmmcCallout />
         <WhySection />
+        <CmmcCallout />
         <HowItWorksSection />
         <ZestReconSection />
         <PartnersSection />

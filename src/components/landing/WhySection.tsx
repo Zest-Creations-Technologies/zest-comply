@@ -86,7 +86,14 @@ export function WhySection() {
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
             {frameworkExamples.map((framework) => (
-              <span key={framework} className="rounded-full border border-slate-200 bg-[#f8faf8] px-3 py-1.5 text-xs font-medium text-slate-700">
+              <span
+                key={framework}
+                className={
+                  framework === "CMMC"
+                    ? "rounded-full border border-[#98d8c5]/50 bg-[#98d8c5]/15 px-3 py-1.5 text-xs font-semibold text-[#1f6f5c]"
+                    : "rounded-full border border-slate-200 bg-[#f8faf8] px-3 py-1.5 text-xs font-medium text-slate-700"
+                }
+              >
                 {framework}
               </span>
             ))}

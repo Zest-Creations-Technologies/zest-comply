@@ -17,13 +17,13 @@ export function CmmcCallout() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#d8b45d]/30 bg-[#d8b45d]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#f0d990]">
               <CalendarClock className="h-3.5 w-3.5" />
-              CMMC 2.0 enforcement — November 10
+              NIST SP 800-171 self-assessment required now
             </div>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
               Built for CMMC 2.0 Level 2, not bolted on.
             </h2>
             <p className="mt-5 max-w-xl text-lg leading-8 text-slate-300">
-              A dedicated control structure, not a generic template — every one of the 110 NIST SP 800-171 requirements mapped to a real document, ready before the deadline hits.
+              A dedicated control structure, not a generic template — every one of the 110 NIST SP 800-171 requirements mapped to a real document, so you're ready for self-assessment today and full certification whenever it's required.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg" className="shadow-lg shadow-[#d8b45d]/20">
