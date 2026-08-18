@@ -11,7 +11,12 @@ export type TelemetryEventType =
   | 'evidence_status_changed'
   | 'evidence_expired'
   | 'api_error'
-  | 'copilot_query';
+  | 'copilot_query'
+  | 'policy_revision_proposed'
+  | 'policy_revision_target_confirmed'
+  | 'policy_revision_drafted'
+  | 'policy_revision_approved'
+  | 'policy_revision_rejected';
 
 export interface TelemetryEvent {
   id: string;

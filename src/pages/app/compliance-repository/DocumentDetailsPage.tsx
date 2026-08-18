@@ -60,6 +60,7 @@ export default function DocumentDetailsPage() {
   const [editedContent, setEditedContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const policyDocsQuery = useQuery({
     queryKey: ["compliance-repository", "policy-documents", sessionId],
@@ -87,6 +88,24 @@ export default function DocumentDetailsPage() {
     queryFn: () => policyDocumentsApi.listVersions(policyDocSummary!.id),
     enabled: Boolean(policyDocSummary?.id) && showHistory,
   });
+
+  const handleExport = async () => {
+    if (!policyDocSummary) return;
+    setIsExporting(true);
+    try {
+      // Always renders the document's CURRENT content fresh - unlike the
+      // package download above, this can never go stale.
+      await policyDocumentsApi.downloadPolicyDocumentExport(policyDocSummary.id, policyDocSummary.filename);
+    } catch (err) {
+      toast({
+        title: "Export failed",
+        description: err instanceof Error ? err.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const saveMutation = useMutation({
     mutationFn: (content: string) => policyDocumentsApi.update(policyDocSummary!.id, content),
@@ -199,6 +218,14 @@ export default function DocumentDetailsPage() {
               </div>
               {policyDocSummary && (
                 <div className="flex shrink-0 gap-2">
+                  <Button type="button" variant="outline" size="sm" onClick={handleExport} disabled={isExporting}>
+                    {isExporting ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Download className="mr-2 h-4 w-4" />
+                    )}
+                    Export .docx
+                  </Button>
                   <Button type="button" variant="outline" size="sm" onClick={() => setShowHistory((v) => !v)}>
                     <History className="mr-2 h-4 w-4" />
                     {showHistory ? "Hide history" : "History"}

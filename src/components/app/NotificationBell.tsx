@@ -18,6 +18,11 @@ const EVENT_LABELS: Record<TelemetryEventType, string> = {
   evidence_expired: 'Evidence expired',
   api_error: 'Something went wrong',
   copilot_query: 'ZestComply AI query',
+  policy_revision_proposed: 'Policy revision needs your review',
+  policy_revision_target_confirmed: 'Policy revision target confirmed',
+  policy_revision_drafted: 'Policy revision drafted, ready for review',
+  policy_revision_approved: 'Policy revision approved',
+  policy_revision_rejected: 'Policy revision rejected',
 };
 
 function timeAgo(isoDate: string): string {

@@ -280,6 +280,47 @@ export interface PolicyDocumentVersionListResponse {
   versions: PolicyDocumentVersion[];
 }
 
+export type PolicyRevisionProposalStatus =
+  | 'suggested'
+  | 'target_confirmed'
+  | 'drafted'
+  | 'approved'
+  | 'rejected';
+
+export interface PolicyRevisionProposal {
+  id: string;
+  organization_id: string;
+  evidence_id: string | null;
+  evidence_title: string | null;
+  suggested_policy_document_id: string | null;
+  suggested_policy_document_name: string | null;
+  target_policy_document_id: string | null;
+  target_policy_document_name: string | null;
+  status: PolicyRevisionProposalStatus;
+  proposed_content: string | null;
+  proposed_document_name: string | null;
+  proposed_filename: string | null;
+  resolved_by_user_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PolicyRevisionProposalListResponse {
+  proposals: PolicyRevisionProposal[];
+}
+
+export interface PolicyRevisionDiscussionMessage {
+  id: string;
+  policy_revision_proposal_id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  created_at: string;
+}
+
+export interface PolicyRevisionDiscussionMessageListResponse {
+  messages: PolicyRevisionDiscussionMessage[];
+}
+
 export interface AccessRequestPayload {
   company_name: string;
   contact_first_name: string;
@@ -967,6 +1008,10 @@ export interface DocumentGovernanceRecord {
   quality_score: number | null;
   review_comment_count: number;
   validation_status: string | null;
+  external_governance_status: string | null;
+  external_governance_mode: string | null;
+  external_governance_factsheet_url: string | null;
+  external_governance_prompt_id: string | null;
   created_at: string;
 }
 
@@ -981,6 +1026,7 @@ export interface AIGovernanceSummaryResponse {
   reviewed_count: number;
   review_rate: number;
   status_breakdown: Record<string, number>;
+  external_governance_status_breakdown: Record<string, number>;
   total_copilot_answers: number;
   copilot_grounded_rate: number | null;
   methodology: string;

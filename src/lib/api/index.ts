@@ -15,6 +15,7 @@ export { humanValidationApi } from './human-validation';
 export { adminSettingsApi } from './admin-settings';
 export { apiKeysApi } from './api-keys';
 export { policyDocumentsApi } from './policy-documents';
+export { policyRevisionsApi } from './policy-revisions';
 export { siemWebhookApi } from './siem-webhook';
 export { connectionsApi } from './connections';
 export { teamsWebhookApi } from './teams-webhook';

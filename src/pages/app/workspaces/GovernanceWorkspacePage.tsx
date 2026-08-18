@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, BrainCircuit, ClipboardCheck, FileText, History, ListChecks, ShieldAlert } from "lucide-react";
+import { ArrowRight, BrainCircuit, ClipboardCheck, FileEdit, FileText, History, ListChecks, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toneFor } from "@/lib/tone-palette";
@@ -9,6 +9,7 @@ import { useValidationQueueStats } from "@/hooks/useDashboardStats";
 const quickLinks = [
   { title: "Approvals", href: "/app/human-validation", icon: ClipboardCheck },
   { title: "Review Queue", href: "/app/human-validation/review-queue", icon: ListChecks },
+  { title: "Policy Revisions", href: "/app/policy-revisions", icon: FileEdit },
   { title: "Audit Trail", href: "/app/human-validation/review-queue", icon: History },
   { title: "Risk Management", href: "/app/risk", icon: ShieldAlert },
   { title: "Executive Reports", href: "/app/reports", icon: FileText },
