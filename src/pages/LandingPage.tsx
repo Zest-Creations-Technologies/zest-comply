@@ -5,6 +5,7 @@ import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { ZestReconSection } from '@/components/landing/ZestReconSection';
 import { PartnersSection } from '@/components/landing/PartnersSection';
 import { TrustSection } from '@/components/landing/TrustSection';
+import { ChannelPartnersSection } from '@/components/landing/ChannelPartnersSection';
 import { PartnershipSection } from '@/components/landing/PartnershipSection';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { useEffect, useState } from 'react';
@@ -31,6 +32,7 @@ export default function LandingPage() {
         <ZestReconSection />
         <PartnersSection />
         <TrustSection />
+        <ChannelPartnersSection />
         <PartnershipSection />
       </main>
       <LandingFooter />
