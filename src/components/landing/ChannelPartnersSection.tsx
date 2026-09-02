@@ -5,6 +5,11 @@ const channelCredentials = [
     href: "https://marketplace.microsoft.com/en-us/product/saas/zestcreationstechnologiesllc1776027867181.zestcomply",
   },
   {
+    label: "Microsoft Azure Government",
+    detail: "Live Marketplace Listing",
+    href: "https://marketplace.microsoft.com/en-us/product/saas/zestcreationstechnologiesllc1776027867181.zestcomply",
+  },
+  {
     label: "AWS Marketplace",
     detail: "Public Listing",
     href: "https://aws.amazon.com/marketplace/pp/prodview-bzxdpmmwaqu7a",
@@ -23,7 +28,7 @@ export function ChannelPartnersSection() {
         <p className="text-center text-sm font-semibold uppercase tracking-[0.22em] text-[#36544d]">
           Trusted channel status
         </p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {channelCredentials.map((item) => (
             <a
               key={item.label}
